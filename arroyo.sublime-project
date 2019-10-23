@@ -1,0 +1,22 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+			"file_exclude_patterns": ["*.pyc", ".*"],
+			"folder_exclude_patterns": ["__pycache__", "env"]
+		}
+	],
+	"settings":    {
+	    "SublimeLinter.linters.flake8.args": [],
+        "SublimeLinter.linters.flake8.builtins": "",
+        "SublimeLinter.linters.flake8.disable": false,
+        "SublimeLinter.linters.flake8.excludes": [],
+        "SublimeLinter.linters.flake8.executable": "",
+        "SublimeLinter.linters.flake8.jobs": "1",
+        "SublimeLinter.linters.flake8.max-line-length": null,
+        "SublimeLinter.linters.flake8.select": "",
+        "SublimeLinter.linters.flake8.show-code": false
+	}
+}
