@@ -22,6 +22,45 @@ from arroyo import Provider
 
 
 import re
+from urllib import parse
+
+
+class EzTV(Provider):
+    DEFAULT_URI = 'https://eztv.io/'
+    URI_GLOBS = 'https://eztv.io/*'
+
+    def paginate(self, uri):
+        parsed = parse.urlparse(uri)
+        pathcomponents = parsed.path.split('/')
+        pathcomponents = list(filter(lambda x: x, pathcomponents))
+
+        # https://eztv.ag/ -> page_0 if not pathcomponents:
+        if not pathcomponents:
+            pathcomponents = ['page_0']
+
+        # https://eztv.ag/shows/546/black-mirror/
+        if len(pathcomponents) != 1:
+            yield uri
+            return
+
+        # Anything non standard
+        m = re.findall(r'^page_(\d+)$', pathcomponents[0])
+        if not m:
+            yield uri
+            return
+
+        # https://eztv.ag/page_0
+        page = int(m[0])
+        while True:
+            yield '{scheme}://{netloc}/page_{page}'.format(
+                scheme=parsed.scheme,
+                netloc=parsed.netloc,
+                page=page)
+            page += 1
+
+    def parse(self, buffer):
+        _ = self.parse_as_soup(buffer)
+        return []
 
 
 class RarBG(Provider):
@@ -31,6 +70,7 @@ class RarBG(Provider):
 
 
 class ThePirateBay(Provider):
+    DEFAULT_URI = 'https://lepiratebay.org/recent'
     URI_REGEXPS = [
         r'https?://(www.)?thepiratebay.com/.*'
     ]

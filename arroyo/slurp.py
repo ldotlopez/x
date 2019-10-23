@@ -21,7 +21,8 @@
 import asyncio
 
 
-from kit import ClassLoader
+from arroyo import extensions
+import kit
 
 
 class SlurpContext:
@@ -39,6 +40,14 @@ class SlurpEngine:
         if not provider and not uri:
             errmsg = "Either provider or uri must be specified"
             raise ValueError(errmsg)
+
+        if provider is None:
+            provider = self.get_provider_for_uri(uri)
+        elif isinstance(provider, str):
+            provider = self.loader.get('providers.%s' % (provider))
+
+        if not isinstance(provider, extensions.Provider):
+            raise TypeError(provider)
 
         provider = provider or self.get_provider_for_uri(uri)
         uri = uri or provider.DEFAULT_URI
@@ -72,7 +81,6 @@ class SlurpEngine:
             for uri in self.get_uris(ctx):
                 buffer = asyncio.run(ctx.provider.fetch(uri))
                 items = ctx.provider.parse(buffer)
-                print("processed %s: found %d items" % (uri, len(items)))
                 results.extend(items)
 
         return results
@@ -93,7 +101,11 @@ class SlurpEngine:
         # loop = asyncio.get_event_loop()
         # loop.run_until_complete(asyncio.gather(*tasks))
 
-        return results
+    async def _fetch_uri(self, provider, uri):
+        try:
+            return await provider.fetch(uri)
+        except asyncio.TimeoutError:
+            raise
 
 
 class ProviderMissingError(Exception):
@@ -105,6 +117,7 @@ def main():
     import sys
 
     plugins = {
+        'providers.eztv': 'arroyo.plugins.providers.dummy.EzTV',
         'providers.rarbg': 'arroyo.plugins.providers.dummy.RarBG',
         'providers.thepiratebay': 'arroyo.plugins.providers.dummy.ThePirateBay'
     }
@@ -119,15 +132,27 @@ def main():
     parser.add_argument(
         '--iterations', default=1, type=int, help='Iterations to do'
     )
+    parser.add_argument(
+        '--dump', action='store_true'
+    )
+
     args = parser.parse_args(sys.argv[1:])
     if not args.provider and not args.uri:
         parser.print_help()
         sys.exit(1)
 
-    slurp = SlurpEngine(loader=ClassLoader(plugins))
-    ctx = slurp.build_context(args.provider, args.uri, args.iterations)
-    results = slurp.process(ctx)
+    if args.dump and args.iterations > 1:
+        print("dump only works with iterations=1")
+        sys.exit(1)
 
+    slurp = SlurpEngine(loader=kit.ClassLoader(plugins))
+    ctx = slurp.build_context(args.provider, args.uri, args.iterations)
+
+    if args.dump:
+        print(asyncio.run(slurp._fetch_uri(ctx.provider, ctx.uri)))
+        sys.exit(0)
+
+    results = slurp.process(ctx)
     print(repr(results))
 
 
