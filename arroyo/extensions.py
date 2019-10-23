@@ -43,8 +43,11 @@ class Provider:
 
         return False
 
+    def paginate(self, url):
+        yield url
+
     async def fetch(self, url):
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
         return self.__class__.__name__ + '::' + url
 
         async with aiohttp.ClientSession() as session:
@@ -52,7 +55,7 @@ class Provider:
                 return await resp.text()
 
     def parse(self, buffer):
-        return [buffer]
+        return []
 
     def parse_as_soup(self, buffer):
         return bs4.BeautifulSoup(buffer, "html.parser")

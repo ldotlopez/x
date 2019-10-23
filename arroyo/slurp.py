@@ -24,33 +24,74 @@ import asyncio
 from kit import ClassLoader
 
 
+class SlurpContext:
+    def __init__(self, provider, uri, iterations=1):
+        self.provider = provider
+        self.uri = uri
+        self.iterations = iterations
+
+
 class SlurpEngine:
     def __init__(self, loader):
         self.loader = loader
 
-    def get_provider_for(self, url):
+    def build_context(self, provider=None, uri=None, iterations=1):
+        if not provider and not uri:
+            errmsg = "Either provider or uri must be specified"
+            raise ValueError(errmsg)
+
+        provider = provider or self.get_provider_for_uri(uri)
+        uri = uri or provider.DEFAULT_URI
+
+        return SlurpContext(provider, uri, iterations)
+
+    def get_provider_for_uri(self, uri):
         for name in self.loader.list('providers'):
             cls = self.loader.get_class(name)
-            if cls.can_handle(url):
+            if cls.can_handle(uri):
                 return cls()
 
-        raise ProviderMissingError(url)
+        raise ProviderMissingError(uri)
 
-    def process(self, urls):
+    def get_uris(self, origin):
+        ret = []
+
+        g = origin.provider.paginate(origin.uri)
+        for _ in range(origin.iterations):
+            try:
+                ret.append(next(g))
+            except StopIteration:
+                break
+
+        return ret
+
+    def process(self, *ctxs):
         results = []
 
-        async def _process(url):
-            try:
-                provider = self.get_provider_for(url)
-            except ProviderMissingError:
-                return
+        for ctx in ctxs:
+            for uri in self.get_uris(ctx):
+                buffer = asyncio.run(ctx.provider.fetch(uri))
+                items = ctx.provider.parse(buffer)
+                print("processed %s: found %d items" % (uri, len(items)))
+                results.extend(items)
 
-            buffer = await provider.fetch(url)
-            results.append(provider.parse(buffer))
+        return results
 
-        tasks = [_process(url) for url in urls]
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(asyncio.gather(*tasks))
+        # async def _process(url):
+        #     try:
+        #         url_provider = provider or self.get_provider_for(url)
+        #     except ProviderMissingError:
+        #         return
+
+        #     buffer = await provider.fetch(url)
+        #     results.append(provider.parse(buffer))
+
+        # uris = [self.get_uris(o) for origin in origins]
+        # print(repr(uris))
+
+        # tasks = [_process(uri) for uri in uris]
+        # loop = asyncio.get_event_loop()
+        # loop.run_until_complete(asyncio.gather(*tasks))
 
         return results
 
@@ -68,9 +109,25 @@ def main():
         'providers.thepiratebay': 'arroyo.plugins.providers.dummy.ThePirateBay'
     }
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--provider', help='Force some provider'
+    )
+    parser.add_argument(
+        '--uri', help='URI to parse'
+    )
+    parser.add_argument(
+        '--iterations', default=1, type=int, help='Iterations to do'
+    )
+    args = parser.parse_args(sys.argv[1:])
+    if not args.provider and not args.uri:
+        parser.print_help()
+        sys.exit(1)
 
     slurp = SlurpEngine(loader=ClassLoader(plugins))
-    results = slurp.process(sys.argv[1:])
+    ctx = slurp.build_context(args.provider, args.uri, args.iterations)
+    results = slurp.process(ctx)
+
     print(repr(results))
 
 

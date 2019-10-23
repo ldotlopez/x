@@ -21,6 +21,9 @@
 from arroyo import Provider
 
 
+import re
+
+
 class RarBG(Provider):
     URI_REGEXPS = [
         r'https?://(www.)?rarbg.com/.*'
@@ -32,6 +35,24 @@ class ThePirateBay(Provider):
         r'https?://(www.)?thepiratebay.com/.*'
     ]
 
-    def parse(self, buffer):
-        soup = self.parse_as_soup(buffer)
-        return [soup]
+    def paginate(self, uri):
+        # Add leading '/'
+        if not uri.endswith('/'):
+            uri += '/'
+
+        # Get page
+        try:
+            page = int(re.findall(r'/(\d+)/', uri)[0])
+        except IndexError:
+            page = 0
+            uri += '0/'
+
+        pre, post = re.split(r'/\d+/', uri, maxsplit=1)
+
+        while True:
+            yield pre + '/' + str(page) + '/' + post
+            page += 1
+
+    # def parse(self, buffer):
+    #     soup = self.parse_as_soup(buffer)
+    #     return [soup]
