@@ -23,6 +23,7 @@ import functools
 import time
 import warnings
 
+
 def deprecated(fn):
     @functools.wraps(fn)
     def _wrap(*args, **kwargs):

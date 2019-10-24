@@ -22,8 +22,7 @@ import unittest
 
 
 from arroyo.plugins.providers.dummy import (
-    RarBG,
-    ThePirateBay,
+    RarBG
 )
 
 

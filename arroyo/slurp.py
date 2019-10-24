@@ -135,12 +135,6 @@ def main():
     import argparse
     import sys
 
-    plugins = {
-        'providers.eztv': 'arroyo.plugins.providers.dummy.EzTV',
-        'providers.rarbg': 'arroyo.plugins.providers.dummy.RarBG',
-        'providers.thepiratebay': 'arroyo.plugins.providers.dummy.ThePirateBay'
-    }
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--provider', help='Force some provider'

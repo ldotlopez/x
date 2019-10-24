@@ -38,7 +38,8 @@ def main():
     args = parser.parse_args(sys.argv[1:])
 
     engine = slurp.Engine(loader=core.Loader())
-    ctx = engine.build_context(args.provider, type=args.type, language=args.language)
+    ctx = engine.build_context(args.provider,
+                               type=args.type, language=args.language)
     buffer = args.input.read()
 
     results = list(engine._parse_buffer(ctx, buffer))
