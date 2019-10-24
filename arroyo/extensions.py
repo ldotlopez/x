@@ -46,17 +46,8 @@ class Provider:
     def paginate(self, url):
         yield url
 
-    async def fetch(self, url, timeout=5):
-        headers = {
-            'User-Agent': ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
-                           'Gecko/20100101 Firefox/69.0')
-        }
-
-        timeout = aiohttp.ClientTimeout(total=timeout)
-        async with aiohttp.ClientSession(timeout=timeout,
-                                         headers=headers) as session:
-            async with session.get(url) as resp:
-                return await resp.text()
+    async def fetch(self, ua, uri):
+        return await ua.fetch(uri)
 
     def parse(self, buffer):
         return []

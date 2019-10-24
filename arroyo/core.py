@@ -17,17 +17,62 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
+import asyncio
+
+
+import aiohttp
+
 
 from kit import ClassLoader
 
 
 _plugins = {
-	'providers.eztv': 'arroyo.plugins.providers.dummy.EzTV',
-	'providers.rarbg': 'arroyo.plugins.providers.dummy.RarBG',
-	'providers.thepiratebay': 'arroyo.plugins.providers.thepiratebay.ThePirateBay'
+    'providers.eztv': 'arroyo.plugins.providers.dummy.EzTV',
+    'providers.epublibre': 'arroyo.plugins.providers.epublibre.EPubLibre',
+    'providers.torrentapi': 'arroyo.plugins.providers.torrentapi.TorrentAPI',
+    'providers.rarbg': 'arroyo.plugins.providers.dummy.RarBG',
+    'providers.thepiratebay': 'arroyo.plugins.providers.thepiratebay.ThePirateBay'
 }
 
 
 class Loader(ClassLoader):
-	def __init__(self):
-		super().__init__(_plugins)
+    def __init__(self):
+        super().__init__(_plugins)
+
+
+class AsyncFetcher:
+    def __init__(self, logger=None, cache=None, max_requests=1,
+                 **session_options):
+        self._logger = logger
+        self._cache = cache
+        self._semaphore = asyncio.Semaphore(max_requests)
+        self._session_options = session_options
+        self._session_options['cookie_jar'] = aiohttp.CookieJar()
+        self._session_options['timeout'] = aiohttp.ClientTimeout(total=10)
+        self._session_options['headers'] = {
+            'User-Agent': ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
+                           'Gecko/20100101 Firefox/69.0')
+        }
+
+    async def fetch(self, url, **request_options):
+        resp, content = await self.fetch_full(url, **request_options)
+        return content
+
+    async def fetch_full(self, uri, skip_cache=False, **request_options):
+        # FIXME: Try getting from cache
+        # try:
+        #     buff = self._cache.get(url)
+        #     return None, buff
+        # except cache.CacheKeyError:
+        #     pass
+
+        # Do actual request
+        async with self._semaphore:
+            async with aiohttp.ClientSession(**self._session_options) as sess:
+                async with sess.get(uri, **request_options) as resp:
+                    content = await resp.text()
+
+        # FIXME: Save to cache?
+        # self._cache.set(uri, content)
+
+        return resp, content
