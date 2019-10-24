@@ -21,31 +21,28 @@
 from urllib import parse
 
 
-import arroyo.extensions
+import arroyo
 
 
-class Epublibre(arroyo.extensions.BS4ParserProviderExtensionMixin,
-                arroyo.extensions.ProviderExtension):
-    __extension_name__ = 'epublibre'
-
+class EPubLibre(arroyo.Provider):
     DEFAULT_URI = (
         'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/'
     )
-    URI_PATTERNS = [
+    URI_REGEXPS = [
         r'^http(s)?://([^.]\.)?epublibre\.org/'
     ]
 
-    def get_query_uri(self, query):
-        if query.type != 'ebook':
-            raise arroyo.exc.IncompatibleQueryError()
+    # def get_query_uri(self, query):
+    #     if query.type != 'ebook':
+    #         raise arroyo.exc.IncompatibleQueryError()
 
-        try:
-            querystr = str(query)
-        except arroyo.exc.QueryConversionError as e:
-            err = "Incomprehensible query"
-            raise arroyo.exc.IncompatibleQueryError(err) from e
+    #     try:
+    #         querystr = str(query)
+    #     except arroyo.exc.QueryConversionError as e:
+    #         err = "Incomprehensible query"
+    #         raise arroyo.exc.IncompatibleQueryError(err) from e
 
-        return self.DEFAULT_URI + parse.quote(querystr)
+    #     return self.DEFAULT_URI + parse.quote(querystr)
 
     def parse_soup(self, soup):
         if soup.select('#titulo_libro'):
@@ -79,8 +76,3 @@ class Epublibre(arroyo.extensions.BS4ParserProviderExtensionMixin,
             'uri': href,
             'name': '{author} {title}'.format(author=author, title=title)
         }]
-
-
-__arroyo_extensions__ = [
-    Epublibre
-]
