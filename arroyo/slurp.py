@@ -25,54 +25,97 @@ from arroyo import (
     core,
     extensions
 )
-import kit
 
 
 class Context:
-    def __init__(self, provider, uri, iterations=1, type=None, language=None):
+    def __init__(self, provider, uri=None, type=None, language=None):
         self.provider = provider
-        self.provider_name = provider.__class__.__name__.lower() if provider else ''
-        self.uri = uri
-        self.iterations = iterations
+        self.uri = uri or provider.DEFAULT_URI
         self.type = type
         self.language = language
 
+    @property
+    def provider_name(self):
+        return self.provider.__class__.__name__.lower()
+
+    def _expand_g(self, n):
+        g = self.provider.paginate(self.uri)
+        for _ in range(n):
+            try:
+                uri = next(g)
+            except StopIteration:
+                break
+
+            yield Context(self.provider, uri, self.type, self.language)
+
+    def expand(self, n):
+        return list(self._expand_g(n))
+
+    def __repr__(self):
+        s = ("<{clsname} "
+             "(provider={provider!r}, uri={uri}, type={type}, language={language}) "
+             "at {hexid}>")
+
+        return s.format(
+            clsname=self.__class__.__name__,
+            provider=self.provider,
+            uri=self.uri,
+            type=self.type,
+            language=self.language,
+            hexid=hex(id(self)))
+
+
+
+
+def build_context(loader, provider=None, uri=None, type=None, language=None):
+    if not provider and not uri:
+        errmsg = "Either provider or uri must be specified"
+        raise ValueError(errmsg)
+
+    if provider is None:
+        for name in loader.list('providers'):
+            cls = loader.get_class(name)
+            if cls.can_handle(uri):
+                provider = cls()
+                break
+        else:
+            raise ProviderMissingError(uri)
+
+    elif isinstance(provider, str):
+        provider = loader.get('providers.%s' % (provider))
+
+    if not isinstance(provider, extensions.Provider):
+        raise TypeError(provider)
+
+    uri = uri or provider.DEFAULT_URI
+
+    return Context(provider, uri, type=type, language=language)
+
+
+def build_all_contexts(*args, n=1, **kwargs):
+    ctx0 = build_context(*args, **kwargs)
+    return ctx0.expand(n)
+
 
 class Engine:
-    def __init__(self, loader):
-        self.loader = loader
-
-    def build_context(self, provider=None, uri=None, iterations=1, type=None, language=None):
-        if not provider and not uri:
-            errmsg = "Either provider or uri must be specified"
-            raise ValueError(errmsg)
-
-        if provider is None:
-            provider = self.get_provider_for_uri(uri)
-        elif isinstance(provider, str):
-            provider = self.loader.get('providers.%s' % (provider))
-
-        if not isinstance(provider, extensions.Provider):
-            raise TypeError(provider)
-
-        provider = provider or self.get_provider_for_uri(uri)
-        uri = uri or provider.DEFAULT_URI
-
-        return Context(provider, uri, iterations=iterations, type=type, language=language)
-
-    def get_provider_for_uri(self, uri):
-        for name in self.loader.list('providers'):
-            cls = self.loader.get_class(name)
-            if cls.can_handle(uri):
-                return cls()
-
-        raise ProviderMissingError(uri)
-
-    def get_uris(self, origin):
+    def process(self, *ctxs_and_buffers):
         ret = []
 
-        g = origin.provider.paginate(origin.uri)
-        for _ in range(origin.iterations):
+        for (ctx, buffer) in ctxs_and_buffers:
+            ret.extend(self.process_one(ctx, buffer))
+
+        return ret
+
+    def process_one(self, ctx, buffer):
+        return ctx.provider.parse(buffer)
+
+
+class Retriever:
+    def get_uris(self, ctx):
+        ret = []
+
+        g = ctx.provider.paginate(ctx.uri)
+        for _ in range(ctx.iterations):
             try:
                 ret.append(next(g))
             except StopIteration:
@@ -84,10 +127,9 @@ class Engine:
         results = []
 
         for ctx in ctxs:
-            for uri in self.get_uris(ctx):
-                buffer = asyncio.run(ctx.provider.fetch(uri))
-                items = ctx.provider.parse(buffer)
-                results.extend(items)
+            buffer = asyncio.run(ctx.provider.fetch(ctx.uri))
+            items = ctx.provider.parse(buffer)
+            results.extend(items)
 
         return results
 
@@ -107,11 +149,25 @@ class Engine:
         # loop = asyncio.get_event_loop()
         # loop.run_until_complete(asyncio.gather(*tasks))
 
-    async def _fetch_uri(self, ctx, uri):
-        try:
-            return await ctx.provider.fetch(uri)
-        except asyncio.TimeoutError:
-            raise
+    def fetch_one(self, ctx):
+        ua = core.AsyncFetcher()
+        ret = asyncio.run(ctx.provider.fetch(ua, ctx.uri))
+        return ret
+
+    def fetch(self, *ctxs):
+        ua = core.AsyncFetcher()
+        ret = []
+
+        async def _fetch(ctx):
+            nonlocal ret
+            buffer = await ctx.provider.fetch(ua, ctx.uri)
+            ret.append((ctx, buffer))
+
+        tasks = [_fetch(ctx) for ctx in ctxs]
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(*tasks))
+
+        return ret
 
     def _parse_buffer(self, ctx, buffer):
         def _fix_item(item):
@@ -159,17 +215,18 @@ def main():
         print("dump only works with iterations=1")
         sys.exit(1)
 
-    slurp = Engine(loader=core.Loader())
-    ctx = slurp.build_context(args.provider, args.uri, args.iterations)
+    loader = core.Loader()
+    ctxs = build_all_contexts(loader, args.provider, args.uri,
+                              n=args.iterations)
+
+    retriever = Retriever()
 
     if args.dump:
-        ctx = slurp.build_context(args.provider)
-        print(asyncio.run(slurp._fetch_uri(ctx, uri)))
-        sys.exit(0)
+        buffer = retriever.fetch_one(ctxs[0])
+        print(buffer)
 
     else:
-        ctx = slurp.build_context(args.provider, args.uri, args.iterations)
-        results = slurp.process(ctx)
+        results = retriever.process(*ctxs)
         print(repr(results))
 
 
