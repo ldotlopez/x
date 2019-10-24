@@ -21,22 +21,28 @@
 import asyncio
 
 
-from arroyo import extensions
+from arroyo import (
+    core,
+    extensions
+)
 import kit
 
 
-class SlurpContext:
-    def __init__(self, provider, uri, iterations=1):
+class Context:
+    def __init__(self, provider, uri, iterations=1, type=None, language=None):
         self.provider = provider
+        self.provider_name = provider.__class__.__name__.lower() if provider else ''
         self.uri = uri
         self.iterations = iterations
+        self.type = type
+        self.language = language
 
 
-class SlurpEngine:
+class Engine:
     def __init__(self, loader):
         self.loader = loader
 
-    def build_context(self, provider=None, uri=None, iterations=1):
+    def build_context(self, provider=None, uri=None, iterations=1, type=None, language=None):
         if not provider and not uri:
             errmsg = "Either provider or uri must be specified"
             raise ValueError(errmsg)
@@ -52,7 +58,7 @@ class SlurpEngine:
         provider = provider or self.get_provider_for_uri(uri)
         uri = uri or provider.DEFAULT_URI
 
-        return SlurpContext(provider, uri, iterations)
+        return Context(provider, uri, iterations=iterations, type=type, language=language)
 
     def get_provider_for_uri(self, uri):
         for name in self.loader.list('providers'):
@@ -101,11 +107,24 @@ class SlurpEngine:
         # loop = asyncio.get_event_loop()
         # loop.run_until_complete(asyncio.gather(*tasks))
 
-    async def _fetch_uri(self, provider, uri):
+    async def _fetch_uri(self, ctx, uri):
         try:
-            return await provider.fetch(uri)
+            return await ctx.provider.fetch(uri)
         except asyncio.TimeoutError:
             raise
+
+    def _parse_buffer(self, ctx, buffer):
+        def _fix_item(item):
+            item['provider'] = ctx.provider_name
+
+            if ctx.type:
+                item['type'] = ctx.type
+            if ctx.language:
+                item['language'] = ctx.language
+
+            return item
+
+        return (_fix_item(i) for i in ctx.provider.parse(buffer))
 
 
 class ProviderMissingError(Exception):
@@ -137,6 +156,7 @@ def main():
     )
 
     args = parser.parse_args(sys.argv[1:])
+
     if not args.provider and not args.uri:
         parser.print_help()
         sys.exit(1)
@@ -145,15 +165,18 @@ def main():
         print("dump only works with iterations=1")
         sys.exit(1)
 
-    slurp = SlurpEngine(loader=kit.ClassLoader(plugins))
+    slurp = Engine(loader=core.Loader())
     ctx = slurp.build_context(args.provider, args.uri, args.iterations)
 
     if args.dump:
-        print(asyncio.run(slurp._fetch_uri(ctx.provider, ctx.uri)))
+        ctx = slurp.build_context(args.provider)
+        print(asyncio.run(slurp._fetch_uri(ctx, uri)))
         sys.exit(0)
 
-    results = slurp.process(ctx)
-    print(repr(results))
+    else:
+        ctx = slurp.build_context(args.provider, args.uri, args.iterations)
+        results = slurp.process(ctx)
+        print(repr(results))
 
 
 if __name__ == '__main__':
