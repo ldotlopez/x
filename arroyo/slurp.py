@@ -38,33 +38,18 @@ class Context:
     def provider_name(self):
         return self.provider.__class__.__name__.lower()
 
-    def _expand_g(self, n):
-        g = self.provider.paginate(self.uri)
-        for _ in range(n):
-            try:
-                uri = next(g)
-            except StopIteration:
-                break
-
-            yield Context(self.provider, uri, self.type, self.language)
-
-    def expand(self, n):
-        return list(self._expand_g(n))
-
     def __repr__(self):
         s = ("<{clsname} "
-             "(provider={provider!r}, uri={uri}, type={type}, language={language}) "
+             "(provider={provider}, uri={uri}, type={type}, language={language}) "
              "at {hexid}>")
 
         return s.format(
             clsname=self.__class__.__name__,
-            provider=self.provider,
+            provider=self.provider_name,
             uri=self.uri,
             type=self.type,
             language=self.language,
             hexid=hex(id(self)))
-
-
 
 
 def build_context(loader, provider=None, uri=None, type=None, language=None):
@@ -92,9 +77,20 @@ def build_context(loader, provider=None, uri=None, type=None, language=None):
     return Context(provider, uri, type=type, language=language)
 
 
-def build_all_contexts(*args, n=1, **kwargs):
+def build_n_contexts(*args, n=1, **kwargs):
+    def _expand(ctx, n):
+        g = ctx.provider.paginate(ctx.uri)
+        for _ in range(n):
+            try:
+                uri = next(g)
+            except StopIteration:
+                break
+
+            yield Context(provider=ctx.provider, uri=uri, type=ctx.type,
+                          language=ctx.language)
+
     ctx0 = build_context(*args, **kwargs)
-    return ctx0.expand(n)
+    return list(_expand(ctx0, n))
 
 
 class Engine:
@@ -216,8 +212,7 @@ def main():
         sys.exit(1)
 
     loader = core.Loader()
-    ctxs = build_all_contexts(loader, args.provider, args.uri,
-                              n=args.iterations)
+    ctxs = build_n_contexts(loader, args.provider, args.uri, n=args.iterations)
 
     retriever = Retriever()
 
