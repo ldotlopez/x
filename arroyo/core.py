@@ -27,10 +27,9 @@ from kit import ClassLoader
 
 
 _plugins = {
-    'providers.eztv': 'arroyo.plugins.providers.dummy.EzTV',
+    'providers.eztv': 'arroyo.plugins.providers.eztv.EzTV',
     'providers.epublibre': 'arroyo.plugins.providers.epublibre.EPubLibre',
     'providers.torrentapi': 'arroyo.plugins.providers.torrentapi.TorrentAPI',
-    'providers.rarbg': 'arroyo.plugins.providers.dummy.RarBG',
     'providers.thepiratebay': 'arroyo.plugins.providers.thepiratebay.ThePirateBay'
 }
 
