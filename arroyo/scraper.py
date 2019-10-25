@@ -39,17 +39,98 @@ class Context:
         return self.provider.__class__.__name__.lower()
 
     def __repr__(self):
-        s = ("<{clsname} "
-             "(provider={provider}, uri={uri}, type={type}, language={language}) "
-             "at {hexid}>")
+        data = [
+            ("provider", self.provider_name),
+            ("uri", self.uri),
+            ("type", self.type),
+            ("language", self.language),
+        ]
+        datastr = ", ".join([
+            "%s='%s'" % (x[0], x[1])
+            for x in data])
 
-        return s.format(
+        fmt = "<{clsname} {data} at {hexid}"
+        return fmt.format(
             clsname=self.__class__.__name__,
-            provider=self.provider_name,
-            uri=self.uri,
-            type=self.type,
-            language=self.language,
+            data=datastr,
             hexid=hex(id(self)))
+
+
+class Engine:
+    def process(self, *ctxs):
+        results = []
+
+        for ctx in ctxs:
+            buffer = asyncio.run(ctx.provider.fetch(ctx.uri))
+            items = ctx.provider.parse(buffer)
+            results.extend(items)
+
+        return results
+
+    # async def _process(url):
+    #     try:
+    #         url_provider = provider or self.get_provider_for(url)
+    #     except ProviderMissingError:
+    #         return
+
+    #     buffer = await provider.fetch(url)
+    #     results.append(provider.parse(buffer))
+
+    # uris = [self.get_uris(o) for origin in origins]
+    # print(repr(uris))
+
+    # tasks = [_process(uri) for uri in uris]
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete(asyncio.gather(*tasks))
+
+    def fetch(self, *ctxs):
+        ua = core.AsyncFetcher()
+        ret = []
+
+        async def _fetch(ctx):
+            nonlocal ret
+            buffer = await ctx.provider.fetch(ua, ctx.uri)
+            ret.append((ctx, buffer))
+
+        tasks = [_fetch(ctx) for ctx in ctxs]
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(*tasks))
+
+        return ret
+
+    def fetch_one(self, ctx):
+        ua = core.AsyncFetcher()
+        ret = asyncio.run(ctx.provider.fetch(ua, ctx.uri))
+        return ret
+
+    def parse(self, *ctxs_and_buffers):
+        ret = []
+
+        for (ctx, buffer) in ctxs_and_buffers:
+            try:
+                ret.extend([self._fix_item(ctx, x)
+                            for x in ctx.provider.parse(buffer)])
+            except Exception as e:
+                print(repr(e))
+
+        return ret
+
+    def parse_one(self, ctx, buffer):
+        yield from self.parse((ctx, buffer))
+
+    def _fix_item(self, ctx, item):
+        item['provider'] = ctx.provider_name
+
+        if ctx.type:
+            item['type'] = ctx.type
+        if ctx.language:
+            item['language'] = ctx.language
+
+        return item
+
+
+class ProviderMissingError(Exception):
+    pass
 
 
 def build_context(loader, provider=None, uri=None, type=None, language=None):
@@ -93,96 +174,6 @@ def build_n_contexts(*args, n=1, **kwargs):
     return list(_expand(ctx0, n))
 
 
-class Engine:
-    def process(self, *ctxs_and_buffers):
-        ret = []
-
-        for (ctx, buffer) in ctxs_and_buffers:
-            ret.extend(self.process_one(ctx, buffer))
-
-        return ret
-
-    def process_one(self, ctx, buffer):
-        return ctx.provider.parse(buffer)
-
-
-class Retriever:
-    def get_uris(self, ctx):
-        ret = []
-
-        g = ctx.provider.paginate(ctx.uri)
-        for _ in range(ctx.iterations):
-            try:
-                ret.append(next(g))
-            except StopIteration:
-                break
-
-        return ret
-
-    def process(self, *ctxs):
-        results = []
-
-        for ctx in ctxs:
-            buffer = asyncio.run(ctx.provider.fetch(ctx.uri))
-            items = ctx.provider.parse(buffer)
-            results.extend(items)
-
-        return results
-
-        # async def _process(url):
-        #     try:
-        #         url_provider = provider or self.get_provider_for(url)
-        #     except ProviderMissingError:
-        #         return
-
-        #     buffer = await provider.fetch(url)
-        #     results.append(provider.parse(buffer))
-
-        # uris = [self.get_uris(o) for origin in origins]
-        # print(repr(uris))
-
-        # tasks = [_process(uri) for uri in uris]
-        # loop = asyncio.get_event_loop()
-        # loop.run_until_complete(asyncio.gather(*tasks))
-
-    def fetch_one(self, ctx):
-        ua = core.AsyncFetcher()
-        ret = asyncio.run(ctx.provider.fetch(ua, ctx.uri))
-        return ret
-
-    def fetch(self, *ctxs):
-        ua = core.AsyncFetcher()
-        ret = []
-
-        async def _fetch(ctx):
-            nonlocal ret
-            buffer = await ctx.provider.fetch(ua, ctx.uri)
-            ret.append((ctx, buffer))
-
-        tasks = [_fetch(ctx) for ctx in ctxs]
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(asyncio.gather(*tasks))
-
-        return ret
-
-    def _parse_buffer(self, ctx, buffer):
-        def _fix_item(item):
-            item['provider'] = ctx.provider_name
-
-            if ctx.type:
-                item['type'] = ctx.type
-            if ctx.language:
-                item['language'] = ctx.language
-
-            return item
-
-        return (_fix_item(i) for i in ctx.provider.parse(buffer))
-
-
-class ProviderMissingError(Exception):
-    pass
-
-
 def main():
     import argparse
     import sys
@@ -214,14 +205,14 @@ def main():
     loader = core.Loader()
     ctxs = build_n_contexts(loader, args.provider, args.uri, n=args.iterations)
 
-    retriever = Retriever()
+    engine = Engine()
 
     if args.dump:
-        buffer = retriever.fetch_one(ctxs[0])
+        buffer = engine.fetch_one(ctxs[0])
         print(buffer)
 
     else:
-        results = retriever.process(*ctxs)
+        results = engine.process(*ctxs)
         print(repr(results))
 
 
