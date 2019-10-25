@@ -38,20 +38,23 @@ class ClassLoader:
         mod = importlib.import_module(mod)
         return getattr(mod, cls)
 
-    def register(self, name, cls):
-        if isinstance(cls, str):
-            cls = self.resolve(cls)
-
-        if not isinstance(cls, type):
-            raise TypeError(type)
-
-        self._reg[name] = cls
+    def register(self, name, target):
+        self._reg[name] = target
 
     def get(self, name, *args, **kwargs):
         return self.get_class(name)(*args, **kwargs)
 
     def get_class(self, name):
-        return self._reg[name]
+        cls = self._reg[name]
+
+        if isinstance(cls, str):
+            cls = self.resolve(cls)
+            self._reg[name] = cls
+
+        if not isinstance(cls, type):
+            raise TypeError(type)
+
+        return cls
 
     def list(self, ns):
         prefix = ns + '.'
