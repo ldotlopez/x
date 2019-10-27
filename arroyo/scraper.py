@@ -58,12 +58,8 @@ class Context:
 
 class Engine:
     def process(self, *ctxs):
-        results = []
-
-        for ctx in ctxs:
-            buffer = asyncio.run(ctx.provider.fetch(ctx.uri))
-            items = ctx.provider.parse(buffer)
-            results.extend(items)
+        ctxs_and_buffers = self.fetch(*ctxs)
+        results = self.parse(*ctxs_and_buffers)
 
         return results
 
@@ -134,6 +130,9 @@ class ProviderMissingError(Exception):
 
 
 def build_context(loader, provider=None, uri=None, type=None, language=None):
+    if not isinstance(loader, core.Loader):
+        raise TypeError(loader)
+
     if not provider and not uri:
         errmsg = "Either provider or uri must be specified"
         raise ValueError(errmsg)
@@ -158,7 +157,7 @@ def build_context(loader, provider=None, uri=None, type=None, language=None):
     return Context(provider, uri, type=type, language=language)
 
 
-def build_n_contexts(*args, n=1, **kwargs):
+def build_n_contexts(loader, n, *args, **kwargs):
     def _expand(ctx, n):
         g = ctx.provider.paginate(ctx.uri)
         for _ in range(n):
@@ -167,8 +166,8 @@ def build_n_contexts(*args, n=1, **kwargs):
             except StopIteration:
                 break
 
-            yield Context(provider=ctx.provider, uri=uri, type=ctx.type,
-                          language=ctx.language)
+            yield Context(provider=ctx.provider, uri=uri,
+                          type=ctx.type, language=ctx.language)
 
-    ctx0 = build_context(*args, **kwargs)
+    ctx0 = build_context(loader, *args, **kwargs)
     return list(_expand(ctx0, n))

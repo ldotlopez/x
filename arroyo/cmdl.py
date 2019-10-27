@@ -33,35 +33,71 @@ def main():
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest='command', required=True)
 
+    #
+    # Fetch command
+    #
     fetch_cmd = commands.add_parser('fetch')
     fetch_cmd.add_argument(
         '--provider',
-        help='Force some provider'
-    )
+        help='Force some provider')
     fetch_cmd.add_argument(
         '--uri',
-        help='URI to parse'
-    )
+        help='URI to parse')
     fetch_cmd.add_argument(
         '--output',
-        type=argparse.FileType('wb'),
-        default=sys.stdout
-    )
+        type=argparse.FileType('w'),
+        default=sys.stdout)
 
+    #
+    # Parse command
+    #
     parse_cmd = commands.add_parser('parse')
     parse_cmd.add_argument(
         '--provider',
         required=True)
     parse_cmd.add_argument(
         '--input',
-        type=argparse.FileType('rb'),
-        required=True)
+        type=argparse.FileType('r'),
+        default=sys.stdin)
+    parse_cmd.add_argument(
+        '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout)
     parse_cmd.add_argument(
         '--type',
         help='Force type')
     parse_cmd.add_argument(
         '--language',
         help='Force language')
+
+    #
+    # Scrape command (fetch+parse)
+    #
+    scrape_cmd = commands.add_parser('scrape')
+    scrape_cmd.add_argument(
+        '--provider',
+        required=True)
+    scrape_cmd.add_argument(
+        '--uri',
+        help='URI to parse'),
+    scrape_cmd.add_argument(
+        '--iterations',
+        default=1,
+        type=int)
+    scrape_cmd.add_argument(
+        '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout)
+    scrape_cmd.add_argument(
+        '--type',
+        help='Force type')
+    scrape_cmd.add_argument(
+        '--language',
+        help='Force language')
+
+    #
+    # Do parsing
+    #
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -70,6 +106,9 @@ def main():
 
     elif args.command == 'parse':
         do_parse(fetch_cmd, args)
+
+    elif args.command == 'scrape':
+        do_scrape(scrape_cmd, args)
 
     else:
         parser.print_help()
@@ -95,7 +134,23 @@ def do_parse(parser, args):
     buffer = args.input.read()
 
     results = list(engine.parse_one(ctx, buffer))
-    print(json.dumps(results, indent=2))
+    output = json.dumps(results, indent=2)
+
+    args.output.write(output)
+
+
+def do_scrape(parser, args):
+    if not args.provider and not args.uri:
+        parser.print_help()
+        parser.exit(1)
+
+    ctxs = scraper.build_n_contexts(core.Loader(), args.iterations,
+                                    args.provider, args.uri,
+                                    type=args.type, language=args.language)
+    engine = scraper.Engine()
+    results = engine.process(*ctxs)
+
+    args.output.write(json.dumps(results))
 
 
 if __name__ == '__main__':
