@@ -42,6 +42,7 @@
 import arroyo
 
 import asyncio
+import datetime
 import json
 import time
 from urllib import parse
@@ -187,7 +188,9 @@ class TorrentAPI(arroyo.Provider):
         if not created:
             return None
 
-        return arrow.get(created[0:19]).to('local').timestamp
+        dt = datetime.datetime.strptime(created[0:19], '%Y-%m-%d %H:%M:%S')
+        ts = int(dt.timestamp())
+        return ts
 
 
 def alter_query_params(uri, newparams, **urlencode_kwargs):
