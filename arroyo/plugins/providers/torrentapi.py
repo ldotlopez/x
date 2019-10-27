@@ -136,7 +136,7 @@ class TorrentAPI(arroyo.Provider):
             }
 
         try:
-            data = json.loads(buff.decode('utf-8'))
+            data = json.loads(buff)
         except json.decoder.JSONDecodeError as e:
             msg = "Error parsing json response: {e}"
             msg = msg.format(e=str(e))
