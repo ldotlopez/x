@@ -51,19 +51,25 @@ import aiohttp
 
 
 class TorrentAPI(arroyo.Provider):
-    __extension_name__ = 'torrentapi'
-
     # URL structure:
     # https://torrentapi.org/apidocs_v2.txt
     # https://torrentapi.org/pubapi_v2.php?get_token=get_token
 
-    DEFAULT_URI = r'http://torrentapi.org/pubapi_v2.php?mode=list'
+    APP_ID = 'arroyo'
+    BASE_URI = 'http://torrentapi.org/pubapi_v2.php?app_id=' + APP_ID
+    DEFAULT_URI = BASE_URI + '&mode=list'
+    SEARCH_URI = BASE_URI + '&mode=search'
+    TOKEN_URI = BASE_URI + '&get_token=get_token'
+
     URI_REGEXPS = [
         r'^http(s)?://([^.]+.)?torrentapi\.org/pubapi_v2.php\?'
     ]
 
-    TOKEN_URL = r'http://torrentapi.org/pubapi_v2.php?get_token=get_token&app_id=arroyo'
-    SEARCH_URL = r'http://torrentapi.org/pubapi_v2.php?mode=search&app_id=arroyo'
+    # APP_ID = 'arroyo'
+    # DEFAULT_URI = ('http://torrentapi.org/pubapi_v2.php?'
+    #                'app_id=arroyo&mode=list')
+    # TOKEN_URL = r'http://torrentapi.org/pubapi_v2.php?get_token=get_token&app_id=arroyo'
+    # SEARCH_URL = r'http://torrentapi.org/pubapi_v2.php?mode=search&app_id=arroyo'
 
     CATEGORY_MAP = {
         'episode': 'tv',
@@ -89,7 +95,6 @@ class TorrentAPI(arroyo.Provider):
                 sort='last',
                 token=self.token)
         )
-        print("New uri", uri)
         return await super().fetch(fetcher, uri)
 
     async def refresh_token(self):
@@ -97,7 +102,7 @@ class TorrentAPI(arroyo.Provider):
         if time.time() - self.token_ts >= 15*60:
             conn = aiohttp.TCPConnector(verify_ssl=False)
             client = aiohttp.ClientSession(connector=conn)
-            resp = await client.get(self.TOKEN_URL)
+            resp = await client.get(self.TOKEN_URI)
             buff = await resp.content.read()
             await resp.release()
             await client.close()
@@ -162,7 +167,7 @@ class TorrentAPI(arroyo.Provider):
         except KeyError:
             pass
 
-        return self.SEARCH_URL + "&" + parse.urlencode(q)
+        return self.SEARCH_URI + "&" + parse.urlencode(q)
 
     @classmethod
     def parse_category(cls, category):
