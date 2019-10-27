@@ -25,6 +25,7 @@ import sys
 
 from arroyo import (
     core,
+    normalize,
     scraper
 )
 
@@ -96,6 +97,19 @@ def main():
         help='Force language')
 
     #
+    # normalize
+    #
+    normalize_cmd = commands.add_parser('normalize')
+    normalize_cmd.add_argument(
+        '--input',
+        type=argparse.FileType('r'),
+        default=sys.stdin)
+    normalize_cmd.add_argument(
+        '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout)
+
+    #
     # Do parsing
     #
 
@@ -109,6 +123,9 @@ def main():
 
     elif args.command == 'scrape':
         do_scrape(scrape_cmd, args)
+
+    elif args.command == 'normalize':
+        do_normalize(normalize_cmd, args)
 
     else:
         parser.print_help()
@@ -151,6 +168,20 @@ def do_scrape(parser, args):
     results = engine.process(*ctxs)
 
     args.output.write(json.dumps(results))
+
+
+def do_normalize(parser, args):
+    raw = json.loads(args.input.read())
+    if isinstance(raw, dict):
+        raw = [raw]
+
+    proc = normalize.normalize(*raw, mp=False)
+    output = json.dumps(proc, indent=2, default=_json_encode_hook)
+    args.output.write(output)
+
+
+def _json_encode_hook(value):
+    return str(value)
 
 
 if __name__ == '__main__':
