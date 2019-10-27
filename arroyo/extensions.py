@@ -20,9 +20,9 @@
 
 import fnmatch
 import re
+import sys
 
 
-import aiohttp
 import bs4
 
 
@@ -46,8 +46,10 @@ class Provider:
     def paginate(self, url):
         yield url
 
-    async def fetch(self, ua, uri):
-        return await ua.fetch(uri)
+    async def fetch(self, sess, uri):
+        print("=> ", uri, file=sys.stderr)
+        async with sess.get(uri) as resp:
+            return await resp.text()
 
     def parse(self, buffer):
         return []

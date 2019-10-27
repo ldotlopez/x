@@ -18,13 +18,16 @@
 # USA.
 
 
-import asyncio
-
-
 from arroyo import (
     core,
     extensions
 )
+
+
+import asyncio
+
+
+import aiohttp
 
 
 class Context:
@@ -57,47 +60,46 @@ class Context:
 
 
 class Engine:
+    CLIENT_USER_AGENT = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
+                         'Gecko/20100101 Firefox/69.0')
+    CLIENT_TIMEOUT = 10
+    CLIENT_MAX_PARALEL_REQUESTS = 5
+
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
         results = self.parse(*ctxs_and_buffers)
 
         return results
 
-    # async def _process(url):
-    #     try:
-    #         url_provider = provider or self.get_provider_for(url)
-    #     except ProviderMissingError:
-    #         return
-
-    #     buffer = await provider.fetch(url)
-    #     results.append(provider.parse(buffer))
-
-    # uris = [self.get_uris(o) for origin in origins]
-    # print(repr(uris))
-
-    # tasks = [_process(uri) for uri in uris]
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(asyncio.gather(*tasks))
-
     def fetch(self, *ctxs):
-        ua = core.AsyncFetcher()
-        ret = []
+        async def _task(acc, ctx, sess, sem):
+            async with sem:
+                content = await ctx.provider.fetch(sess, ctx.uri)
+                acc.append((ctx, content))
 
-        async def _fetch(ctx):
-            nonlocal ret
-            buffer = await ctx.provider.fetch(ua, ctx.uri)
-            ret.append((ctx, buffer))
+        async def _wrapper(ctxs):
+            sess_opts = {
+                'cookie_jar': aiohttp.CookieJar(),
+                'headers': {
+                    'User-Agent': self.CLIENT_USER_AGENT
+                },
+                'timeout': aiohttp.ClientTimeout(total=self.CLIENT_TIMEOUT)
+            }
 
-        tasks = [_fetch(ctx) for ctx in ctxs]
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(asyncio.gather(*tasks))
+            ret = []
+            sem = asyncio.Semaphore(self.CLIENT_MAX_PARALEL_REQUESTS)
 
-        return ret
+            async with aiohttp.ClientSession(**sess_opts) as sess:
+                tasks = [_task(ret, ctx, sess, sem) for ctx in ctxs]
+                await asyncio.gather(*tasks)
+
+            return ret
+
+        return asyncio.run(_wrapper(ctxs))
 
     def fetch_one(self, ctx):
-        ua = core.AsyncFetcher()
-        ret = asyncio.run(ctx.provider.fetch(ua, ctx.uri))
-        return ret
+        ctx, content = self.fetch(ctx)[0]
+        return content
 
     def parse(self, *ctxs_and_buffers):
         ret = []
