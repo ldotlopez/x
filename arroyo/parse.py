@@ -19,7 +19,7 @@
 
 
 from arroyo import core
-from arroyo import slurp
+from arroyo import scraper
 
 
 import json
@@ -37,12 +37,12 @@ def main():
 
     args = parser.parse_args(sys.argv[1:])
 
-    engine = slurp.Engine(loader=core.Loader())
-    ctx = engine.build_context(args.provider,
-                               type=args.type, language=args.language)
+    engine = scraper.Engine()
+    ctx = scraper.build_context(core.Loader(), args.provider,
+                                type=args.type, language=args.language)
     buffer = args.input.read()
 
-    results = list(engine._parse_buffer(ctx, buffer))
+    results = list(engine.parse_one(ctx, buffer))
 
     print(json.dumps(results, indent=2))
 
