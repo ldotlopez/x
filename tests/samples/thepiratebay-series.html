@@ -1,0 +1,674 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video &gt; HD - TV shows - TPB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search The Pirate Bay" />
+    <link rel="stylesheet" type="text/css" href="/static/css/pirate6.css"/>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <link rel="canonical" href="https://www.thepiratebay.se.net/browse/208" />
+    <style type="text/css">
+        .searchBox{
+            margin: 6px;
+            width: 300px;
+            vertical-align: middle;
+            padding: 2px;
+            background-image:url('/static/img/icon-https.gif');
+            background-repeat:no-repeat;
+            background-position: right;
+        }
+        .detLink {
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .detDesc {
+            color: #4e5456;
+        }
+        .detDesc a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
+        .sortby {
+            text-align: left;
+            float: left;
+        }
+        .detName {
+            padding-top: 3px;
+            padding-bottom: 2px;
+        }
+        .viewswitch {
+            font-style: normal;
+            float: right;
+            text-align: right;
+            font-weight: normal;
+        }
+    </style>
+    <script src="/static/js/jquery.min.js" type="text/javascript"></script>
+    <script src="/static/js/tpb.js" type="text/javascript"></script>
+	<meta name="description" content="Browse and Download any torrent from the category Video &gt; HD - TV shows. Direct download via magnet link."/>
+	<meta name="keywords" content="Video HD - TV shows direct download torrent magnet tpb piratebay browse category video"/>
+
+    <script language="javascript" type="text/javascript">if (top.location != self.location) {top.location.replace(self.location);}</script>
+</head>
+
+<body>
+    <div id="header">
+
+        <form method="get" id="q" action="/search1.php">
+            <a href="/" class="img"><img src="/static/img/tpblogo_sm_ny.gif" id="TPBlogo" alt="The Pirate Bay" /></a>
+            <b><a href="/" title="Search Torrents">Search Torrents</a></b>&nbsp;&nbsp;|&nbsp;
+ <a href="/browse" title="Browse Torrents">Browse Torrents</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/recent" title="Recent Torrent">Recent Torrents</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/tv/" title="TV shows">TV shows</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/music" title="Music">Music</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/top" title="Top 100">Top 100</a>
+            <br /><input type="search" class="inputbox" title="Pirate Search" name="q" placeholder="Search here..." value="" /><input value="Pirate Search" type="submit" class="submitbutton"  /><br />            <label for="audio" title="Audio"><input id="audio" name="audio" onclick="javascript:rmAll();" type="checkbox"/>Audio</label>
+            <label for="video" title="Video"><input id="video" name="video" onclick="javascript:rmAll();" type="checkbox"/>Video</label>
+            <label for="apps" title="Applications"><input id="apps" name="apps" onclick="javascript:rmAll();" type="checkbox"/>Applications</label>
+            <label for="games" title="Games"><input id="games" name="games" onclick="javascript:rmAll();" type="checkbox"/>Games</label>
+            <label for="porn" title="Porn"><input id="porn" name="porn" onclick="javascript:rmAll();" type="checkbox"/>Porn</label>
+            <label for="other" title="Other"><input id="other" name="other" onclick="javascript:rmAll();" type="checkbox"/>Other</label>
+
+            <select id="category" name="category" onchange="javascript:setAll();">
+                <option value="0">All</option>
+                <optgroup label="Audio">
+                    <option value="101">Music</option>
+                    <option value="102">Audio books</option>
+                    <option value="103">Sound clips</option>
+                    <option value="104">FLAC</option>
+                    <option value="199">Other</option>
+                </optgroup>
+                <optgroup label="Video">
+                    <option value="201">Movies</option>
+                    <option value="202">Movies DVDR</option>
+                    <option value="203">Music videos</option>
+                    <option value="204">Movie clips</option>
+                    <option value="205">TV shows</option>
+                    <option value="206">Handheld</option>
+                    <option value="207">HD - Movies</option>
+                    <option value="208">HD - TV shows</option>
+                    <option value="209">3D</option>
+                    <option value="299">Other</option>
+                </optgroup>
+                <optgroup label="Applications">
+                    <option value="301">Windows</option>
+                    <option value="302">Mac</option>
+                    <option value="303">UNIX</option>
+                    <option value="304">Handheld</option>
+                    <option value="305">IOS (iPad/iPhone)</option>
+                    <option value="306">Android</option>
+                    <option value="399">Other OS</option>
+                </optgroup>
+                <optgroup label="Games">
+                    <option value="401">PC</option>
+                    <option value="402">Mac</option>
+                    <option value="403">PSx</option>
+                    <option value="404">XBOX360</option>
+                    <option value="405">Wii</option>
+                    <option value="406">Handheld</option>
+                    <option value="407">IOS (iPad/iPhone)</option>
+                    <option value="408">Android</option>
+                    <option value="499">Other</option>
+                </optgroup>
+                <optgroup label="Porn">
+                    <option value="501">Movies</option>
+                    <option value="502">Movies DVDR</option>
+                    <option value="503">Pictures</option>
+                    <option value="504">Games</option>
+                    <option value="505">HD - Movies</option>
+                    <option value="506">Movie clips</option>
+                    <option value="599">Other</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="601">E-books</option>
+                    <option value="602">Comics</option>
+                    <option value="603">Pictures</option>
+                    <option value="604">Covers</option>
+                    <option value="605">Physibles</option>
+                    <option value="699">Other</option>
+                </optgroup>
+            </select>
+
+            <input type="hidden" name="page" value="0" />
+            <input type="hidden" name="orderby" value="99" />
+        </form>
+    </div><!-- // div:header -->
+
+    <h2><span>Browse Video &gt; HD - TV shows</span>&nbsp;</h2>
+<table id="searchResult">
+	<thead id="tableHead">
+		<tr class="header">
+			<th><a href="/browse/208/0/13/0" title="Order by Type">Type</a></th>
+			<th><div class="sortby"><a href="/browse/208/0/1/0" title="Order by Name">Name</a> (Order by: <a href="/browse/208/0/4/0" title="Order by Uploaded">Uploaded</a>, <a href="/browse/208/0/5/0" title="Order by Size">Size</a>, <span style="white-space: nowrap;"><a href="/browse/208/0/11/0" title="Order by ULed by">ULed by</a></span>, <a href="/browse/208/0/7/0" title="Order by Seeders">SE</a>, <a href="/browse/208/0/9/0" title="Order by Leechers">LE</a>)</div><div class="viewswitch"> View: <a href="/switchview.php?view=s">Single</a> / Double&nbsp;</div></th>
+			<th><abbr title="Seeders"><a href="/browse/208/0/7/0" title="Order by Seeders">SE</a></abbr></th>
+			<th><abbr title="Leechers"><a href="/browse/208/0/9/0" title="Order by Leechers">LE</a></abbr></th>
+		</tr>
+	</thead>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911849/Jimmy.Fallon.2019.10.22.Jessica.Biel.720p.WEB.x264-XLF[TGx]" class="detLink" title="Details for Jimmy.Fallon.2019.10.22.Jessica.Biel.720p.WEB.x264-XLF[TGx]">Jimmy.Fallon.2019.10.22.Jessica.Biel.720p.WEB.x264-XLF[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:a89283d682fb0e8d902e128cc418acf5efa6ae91&dn=Jimmy.Fallon.2019.10.22.Jessica.Biel.720p.WEB.x264-XLF%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:42, Size 788.26&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911622/NCIS.New.Orleans.S06E05.Spies.and.Lies.1080p.AMZN.WEB-DL.DDP5.1." class="detLink" title="Details for NCIS.New.Orleans.S06E05.Spies.and.Lies.1080p.AMZN.WEB-DL.DDP5.1.">NCIS.New.Orleans.S06E05.Spies.and.Lies.1080p.AMZN.WEB-DL.DDP5.1.</a>
+</div>
+<a href="magnet:?xt=urn:btih:a99a6927e2500deb92274a2d547abb066fb8ee58&dn=NCIS.New.Orleans.S06E05.Spies.and.Lies.1080p.AMZN.WEB-DL.DDP5.1.&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:20, Size 3.44&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911618/The.Flash.2014.S06E03.1080p.HDTV.x264-CRAVERS[TGx]" class="detLink" title="Details for The.Flash.2014.S06E03.1080p.HDTV.x264-CRAVERS[TGx]">The.Flash.2014.S06E03.1080p.HDTV.x264-CRAVERS[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:ebd1af398270a4fcfd2192e449c49df815c5ae52&dn=The.Flash.2014.S06E03.1080p.HDTV.x264-CRAVERS%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:17, Size 1.74&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911615/NCIS.S17E05.Wide.Awake.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]" class="detLink" title="Details for NCIS.S17E05.Wide.Awake.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]">NCIS.S17E05.Wide.Awake.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:08232000788ef4d9d194f8f412fb82c8e15766c2&dn=NCIS.S17E05.Wide.Awake.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:16, Size 1.02&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911612/Dublin.Murders.S01E04.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]" class="detLink" title="Details for Dublin.Murders.S01E04.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]">Dublin.Murders.S01E04.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:7f25c06c4cb8de2a7290daa056ed26310887b779&dn=Dublin.Murders.S01E04.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:15, Size 3.31&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911609/NCIS.New.Orleans.S06E05.Spies.and.Lies.720p.AMZN.WEB-DL.DDP5.1.H" class="detLink" title="Details for NCIS.New.Orleans.S06E05.Spies.and.Lies.720p.AMZN.WEB-DL.DDP5.1.H">NCIS.New.Orleans.S06E05.Spies.and.Lies.720p.AMZN.WEB-DL.DDP5.1.H</a>
+</div>
+<a href="magnet:?xt=urn:btih:60736c2b2e420b3973acbe723eff3134e8641b37&dn=NCIS.New.Orleans.S06E05.Spies.and.Lies.720p.AMZN.WEB-DL.DDP5.1.H&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:14, Size 1.28&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911608/FBI.S02E05.Crossroads.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]" class="detLink" title="Details for FBI.S02E05.Crossroads.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]">FBI.S02E05.Crossroads.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:615a7c857422a97a146dacc4711f2e2be9e8eedd&dn=FBI.S02E05.Crossroads.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:13, Size 2.63&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911605/Dublin.Murders.S01E04.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]" class="detLink" title="Details for Dublin.Murders.S01E04.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]">Dublin.Murders.S01E04.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:310306f916152bc42041232da0328d4a7ad9ce35&dn=Dublin.Murders.S01E04.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:11, Size 1.32&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911600/BBC_This_World_2019_The_Day_California_Burned_720p_x264_AAC_HDTV" class="detLink" title="Details for BBC This World 2019 The Day California Burned 720p x264 AAC HDTV">BBC This World 2019 The Day California Burned 720p x264 AAC HDTV</a>
+</div>
+<a href="magnet:?xt=urn:btih:877b8f9868e67f9faa481e915eccdd0e5a70dd3b&dn=BBC+This+World+2019+The+Day+California+Burned+720p+x264+AAC+HDTV&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/MVGroup"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:07, Size 849.69&nbsp;MiB, ULed by <a class="detDesc" href="/user/MVGroup/" title="Browse MVGroup">MVGroup</a></font>
+		</td>
+		<td align="right">3</td>
+		<td align="right">0</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911599/FBI.S02E05.Crossroads.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]" class="detLink" title="Details for FBI.S02E05.Crossroads.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]">FBI.S02E05.Crossroads.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:49db4681b69f7b2bf239cb03f02fcd579772bf75&dn=FBI.S02E05.Crossroads.720p.AMZN.WEB-DL.DDP5.1.H.264-NTb%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;12:06, Size 1.05&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">1</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911361/BBC_Our_World_2019_Addicted_Americas_Opioid_Crisis_720p_x264_AAC" class="detLink" title="Details for BBC Our World 2019 Addicted Americas Opioid Crisis 720p x264 AAC">BBC Our World 2019 Addicted Americas Opioid Crisis 720p x264 AAC</a>
+</div>
+<a href="magnet:?xt=urn:btih:248b8e0779d28c7a45f6e765134985fd5323246f&dn=BBC+Our+World+2019+Addicted+Americas+Opioid+Crisis+720p+x264+AAC&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/MVGroup"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;11:38, Size 325.86&nbsp;MiB, ULed by <a class="detDesc" href="/user/MVGroup/" title="Browse MVGroup">MVGroup</a></font>
+		</td>
+		<td align="right">10</td>
+		<td align="right">6</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910982/Gosta_-_season_1_(Eng_multi_subs)" class="detLink" title="Details for Gosta - season 1 (Eng/multi subs)">Gosta - season 1 (Eng/multi subs)</a>
+</div>
+<a href="magnet:?xt=urn:btih:952941b47721aa0e87982ec6de330566281a9a08&dn=Gosta+-+season+1+%28Eng%2Fmulti+subs%29&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/Spud17"><img src="/static/img/supermod.png" alt="Supermod" title="Supermod" style="width:28px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;11:11, Size 4.14&nbsp;GiB, ULed by <a class="detDesc" href="/user/Spud17/" title="Browse Spud17">Spud17</a></font>
+		</td>
+		<td align="right">1</td>
+		<td align="right">11</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910680/The.Voice.S17E10.720p.WEB.x264-XLF[TGx]" class="detLink" title="Details for The.Voice.S17E10.720p.WEB.x264-XLF[TGx]">The.Voice.S17E10.720p.WEB.x264-XLF[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:2ec102bc905195634d5f7b435be5e26a481ce85f&dn=The.Voice.S17E10.720p.WEB.x264-XLF%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;11:05, Size 824.11&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">22</td>
+		<td align="right">20</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910229/James.Corden.2019.10.22.Joel.Edgerton.720p.WEB.x264-TBS[TGx]" class="detLink" title="Details for James.Corden.2019.10.22.Joel.Edgerton.720p.WEB.x264-TBS[TGx]">James.Corden.2019.10.22.Joel.Edgerton.720p.WEB.x264-TBS[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:b1fa7cce72c6aa1ad0c0e0e7906ccc3eb7a592b8&dn=James.Corden.2019.10.22.Joel.Edgerton.720p.WEB.x264-TBS%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;10:52, Size 880.31&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">1</td>
+		<td align="right">4</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910208/Arrow.S08E02.1080p.WEB.x264-Rapta" class="detLink" title="Details for Arrow.S08E02.1080p.WEB.x264-Rapta">Arrow.S08E02.1080p.WEB.x264-Rapta</a>
+</div>
+<a href="magnet:?xt=urn:btih:fab35cfc8e926bb04ca861adf5076cab1f71f372&dn=Arrow.S08E02.1080p.WEB.x264-Rapta&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/RaptaGzus"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;10:39, Size 925.1&nbsp;MiB, ULed by <a class="detDesc" href="/user/RaptaGzus/" title="Browse RaptaGzus">RaptaGzus</a></font>
+		</td>
+		<td align="right">7</td>
+		<td align="right">11</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910205/The.Flash.2014.S06E03.1080p.WEB.x264-Rapta" class="detLink" title="Details for The.Flash.2014.S06E03.1080p.WEB.x264-Rapta">The.Flash.2014.S06E03.1080p.WEB.x264-Rapta</a>
+</div>
+<a href="magnet:?xt=urn:btih:4288647827c7a713bc22f2acfd37cb0f32ecbc72&dn=The.Flash.2014.S06E03.1080p.WEB.x264-Rapta&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/RaptaGzus"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;10:39, Size 805.77&nbsp;MiB, ULed by <a class="detDesc" href="/user/RaptaGzus/" title="Browse RaptaGzus">RaptaGzus</a></font>
+		</td>
+		<td align="right">16</td>
+		<td align="right">13</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910167/iMPACT_Wrestling_2019_10_22_This_Is_iMPACT_720p_HDTV_x264-NWCHD_" class="detLink" title="Details for iMPACT Wrestling 2019 10 22 This Is iMPACT 720p HDTV x264-NWCHD ">iMPACT Wrestling 2019 10 22 This Is iMPACT 720p HDTV x264-NWCHD </a>
+</div>
+<a href="magnet:?xt=urn:btih:41cdf121091ae93d7dd56089c1c6538ff0c9b80b&dn=iMPACT+Wrestling+2019+10+22+This+Is+iMPACT+720p+HDTV+x264-NWCHD+&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/CenaCme"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;10:30, Size 2.95&nbsp;GiB, ULed by <a class="detDesc" href="/user/CenaCme/" title="Browse CenaCme">CenaCme</a></font>
+		</td>
+		<td align="right">3</td>
+		<td align="right">6</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910115/Arrow.S08E02.Welcome.to.Hong.Kong.720p.AMZN.WEB-DL.DDP5.1.H.264-" class="detLink" title="Details for Arrow.S08E02.Welcome.to.Hong.Kong.720p.AMZN.WEB-DL.DDP5.1.H.264-">Arrow.S08E02.Welcome.to.Hong.Kong.720p.AMZN.WEB-DL.DDP5.1.H.264-</a>
+</div>
+<a href="magnet:?xt=urn:btih:0b280d35b604c4d15b37684bed8057bd728c2a2e&dn=Arrow.S08E02.Welcome.to.Hong.Kong.720p.AMZN.WEB-DL.DDP5.1.H.264-&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;10:00, Size 1.58&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">39</td>
+		<td align="right">33</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910095/Stephen.Colbert.2019.10.22.John.Lithgow.720p.WEB.x264-XLF[TGx]" class="detLink" title="Details for Stephen.Colbert.2019.10.22.John.Lithgow.720p.WEB.x264-XLF[TGx]">Stephen.Colbert.2019.10.22.John.Lithgow.720p.WEB.x264-XLF[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:b8a11689bc9aaa253fa4ccc41f2ccfc26dfae9a5&dn=Stephen.Colbert.2019.10.22.John.Lithgow.720p.WEB.x264-XLF%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:54, Size 913.41&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">28</td>
+		<td align="right">11</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910067/Treadstone.S01E02.The.Kwon.Conspiracy.1080p.AMZN.WEB-DL.DDP5.1.H" class="detLink" title="Details for Treadstone.S01E02.The.Kwon.Conspiracy.1080p.AMZN.WEB-DL.DDP5.1.H">Treadstone.S01E02.The.Kwon.Conspiracy.1080p.AMZN.WEB-DL.DDP5.1.H</a>
+</div>
+<a href="magnet:?xt=urn:btih:fbaa93ebb405b2aaec8be7088ce4b9fa43a68a43&dn=Treadstone.S01E02.The.Kwon.Conspiracy.1080p.AMZN.WEB-DL.DDP5.1.H&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:47, Size 2.77&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">41</td>
+		<td align="right">96</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910016/Greenleaf.S04E08.720p.WEBRip.x264-TBS[TGx]" class="detLink" title="Details for Greenleaf.S04E08.720p.WEBRip.x264-TBS[TGx]">Greenleaf.S04E08.720p.WEBRip.x264-TBS[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:f4d9467fabde74e1a2efb07440277648c8254777&dn=Greenleaf.S04E08.720p.WEBRip.x264-TBS%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:34, Size 1.24&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">3</td>
+		<td align="right">18</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910015/Arrow.S08E02.Welcome.to.Hong.Kong.1080p.AMZN.WEB-DL.DDP5.1.H.264" class="detLink" title="Details for Arrow.S08E02.Welcome.to.Hong.Kong.1080p.AMZN.WEB-DL.DDP5.1.H.264">Arrow.S08E02.Welcome.to.Hong.Kong.1080p.AMZN.WEB-DL.DDP5.1.H.264</a>
+</div>
+<a href="magnet:?xt=urn:btih:bc966fcc4ed1050393e6785e93871cc90bf4a826&dn=Arrow.S08E02.Welcome.to.Hong.Kong.1080p.AMZN.WEB-DL.DDP5.1.H.264&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:32, Size 2.9&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">36</td>
+		<td align="right">44</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34910011/Mayans.M.C.S02E08.1080p.WEB.H264-METCON[TGx]" class="detLink" title="Details for Mayans.M.C.S02E08.1080p.WEB.H264-METCON[TGx]">Mayans.M.C.S02E08.1080p.WEB.H264-METCON[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:e4ce1ad6f09c675c9633beddd64d40591710fad8&dn=Mayans.M.C.S02E08.1080p.WEB.H264-METCON%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:29, Size 5.38&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">24</td>
+		<td align="right">43</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909994/The.Curse.of.Oak.Island.S07E00.The.Top.25.Moments.720p.WEB.h264-" class="detLink" title="Details for The.Curse.of.Oak.Island.S07E00.The.Top.25.Moments.720p.WEB.h264-">The.Curse.of.Oak.Island.S07E00.The.Top.25.Moments.720p.WEB.h264-</a>
+</div>
+<a href="magnet:?xt=urn:btih:976b884db7ff472d3bdda0e82437d6de1d4bad31&dn=The.Curse.of.Oak.Island.S07E00.The.Top.25.Moments.720p.WEB.h264-&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;09:10, Size 1.53&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">2</td>
+		<td align="right">10</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909923/Castle.Rock.S02E03.720p.WEB.x265-MiNX[TGx]" class="detLink" title="Details for Castle.Rock.S02E03.720p.WEB.x265-MiNX[TGx]">Castle.Rock.S02E03.720p.WEB.x265-MiNX[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:4d225701f39f21784c26d437fb3ef2fc924a862c&dn=Castle.Rock.S02E03.720p.WEB.x265-MiNX%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;08:31, Size 192.14&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">41</td>
+		<td align="right">19</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909858/Arrow.S08E02.1080p.WEB.H264-XLF[TGx]" class="detLink" title="Details for Arrow.S08E02.1080p.WEB.H264-XLF[TGx]">Arrow.S08E02.1080p.WEB.H264-XLF[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:c65773aae30b3ad1dabd65b6c3f45dc78292eedc&dn=Arrow.S08E02.1080p.WEB.H264-XLF%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=xldzquMLOtHavWW2w/Rdx4KS7tw=&ur=//uj3wazyk5u4hnvtk.onion/browse/208&fn=Arrow.S08E02.1080p.WEB.H264-XLF[TGx]" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;08:01, Size 2.44&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">62</td>
+		<td align="right">46</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909796/Castle.Rock.S02E01.720p.WEB.x265-MiNX[TGx]" class="detLink" title="Details for Castle.Rock.S02E01.720p.WEB.x265-MiNX[TGx]">Castle.Rock.S02E01.720p.WEB.x265-MiNX[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:3b97dcabf449749cd037e47356c667c5d343bea3&dn=Castle.Rock.S02E01.720p.WEB.x265-MiNX%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=O5fcq/RJdJzQN+RzVsZnxdNDvqM=&ur=//uj3wazyk5u4hnvtk.onion/browse/208&fn=Castle.Rock.S02E01.720p.WEB.x265-MiNX[TGx]" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;07:32, Size 238.58&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">51</td>
+		<td align="right">33</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909820/Castle.Rock.S02E03.720p.WEBRip.x264-TBS[TGx]" class="detLink" title="Details for Castle.Rock.S02E03.720p.WEBRip.x264-TBS[TGx]">Castle.Rock.S02E03.720p.WEBRip.x264-TBS[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:ffa9a1d5d7beb938b57684f3d10461af168808db&dn=Castle.Rock.S02E03.720p.WEBRip.x264-TBS%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;07:24, Size 737.03&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">12</td>
+		<td align="right">9</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909831/This.Is.Us.S04E05.1080p.WEB.H264-METCON[TGx]" class="detLink" title="Details for This.Is.Us.S04E05.1080p.WEB.H264-METCON[TGx]">This.Is.Us.S04E05.1080p.WEB.H264-METCON[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:d6723b758e52ad33ef995ad7f0b94e35111e443e&dn=This.Is.Us.S04E05.1080p.WEB.H264-METCON%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;07:23, Size 2.92&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">24</td>
+		<td align="right">26</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/208" title="More from this category">HD - TV shows</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909762/FBI.S02E05.1080p.WEB.H264-AMCON[TGx]" class="detLink" title="Details for FBI.S02E05.1080p.WEB.H264-AMCON[TGx]">FBI.S02E05.1080p.WEB.H264-AMCON[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:1086e147f2d26dae8931222bf1d77183445517aa&dn=FBI.S02E05.1080p.WEB.H264-AMCON%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;07:23, Size 2.78&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">29</td>
+		<td align="right">42</td>
+	</tr>
+<tr><td colspan="9" style="text-align:center;"><b>1</b>&nbsp;<a href="/browse/208/1/3">2</a>&nbsp;<a href="/browse/208/2/3">3</a>&nbsp;<a href="/browse/208/3/3">4</a>&nbsp;<a href="/browse/208/4/3">5</a>&nbsp;<a href="/browse/208/5/3">6</a>&nbsp;<a href="/browse/208/6/3">7</a>&nbsp;<a href="/browse/208/7/3">8</a>&nbsp;<a href="/browse/208/8/3">9</a>&nbsp;<a href="/browse/208/9/3">10</a>&nbsp;<a href="/browse/208/10/3">11</a>&nbsp;<a href="/browse/208/11/3">12</a>&nbsp;<a href="/browse/208/12/3">13</a>&nbsp;<a href="/browse/208/13/3">14</a>&nbsp;<a href="/browse/208/14/3">15</a>&nbsp;<a href="/browse/208/15/3">16</a>&nbsp;<a href="/browse/208/16/3">17</a>&nbsp;<a href="/browse/208/17/3">18</a>&nbsp;<a href="/browse/208/18/3">19</a>&nbsp;<a href="/browse/208/19/3">20</a>&nbsp;<a href="/browse/208/20/3">21</a>&nbsp;<a href="/browse/208/21/3">22</a>&nbsp;<a href="/browse/208/22/3">23</a>&nbsp;<a href="/browse/208/23/3">24</a>&nbsp;<a href="/browse/208/24/3">25</a>&nbsp;<a href="/browse/208/25/3">26</a>&nbsp;<a href="/browse/208/26/3">27</a>&nbsp;<a href="/browse/208/27/3">28</a>&nbsp;<a href="/browse/208/28/3">29</a>&nbsp;<a href="/browse/208/29/3">30</a>&nbsp;<a href="/browse/208/1/3"><img src="/static/img/next.gif" border="0" alt="Next"/></a>&nbsp;
+</td></tr>
+</table>
+</div>
+</div>	</div><!-- //div:content -->
+
+	<div id="foot" style="text-align:center;margin-top:1em;">
+		<p>
+			
+			
+			
+			<a href="/about" title="About">About</a> |
+			<a href="/blog" title="Blog">Blog</a>
+			<br />
+			<!--<a href="/contact" title="Contact us">Contact us</a> |-->
+			<a href="/policy" title="Usage policy">Usage policy</a> |
+			<a href="http://uj3wazyk5u4hnvtk.onion" title="TOR">TOR</a> |
+			<a href="/doodles" title="Doodles">Doodles</a> |
+			<a href="https://pirates-forum.org/" title="Forum" target="_blank">Forum</a> 
+			<br />
+		</p>
+
+<br /><a href="https://bitcoin.org" target="_NEW">BTC</a>: <b>3HcEB6bi4TFPdvk31Pwz77DwAzfAZz2fMn</b><br /><a href="https://bitcoin.org" target="_NEW">BTC (Bech32)</a>: <b>bc1q9x30z7rz52c97jwc2j79w76y7l3ny54nlvd4ew</b><br /><a href="https://litecoin.org" target="_NEW">LTC</a>: <b>LS78aoGtfuGCZ777x3Hmr6tcoW3WaYynx9</b><br /><a href="http://getmonero.org" target="_NEW">XMR</a>: <b>46E5ekYrZd5UCcmNuYEX24FRjWVMgZ1ob79cRViyfvLFZjfyMhPDvbuCe54FqLQvVCgRKP4UUMMW5fy3ZhVQhD1JLLufBtu</b>
+
+		<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50761688-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<div id="fbanners">
+			<a href="/rss" class="rss" title="RSS"><img src="/static/img/rss_small.gif" alt="RSS" /></a>
+		</div><!-- // div:fbanners -->
+	</div><!-- // div:foot -->
+</body>
+</html><!-- Cached 11:21 -->

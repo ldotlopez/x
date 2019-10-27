@@ -1,0 +1,674 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video &gt; HD - Movies - TPB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search The Pirate Bay" />
+    <link rel="stylesheet" type="text/css" href="/static/css/pirate6.css"/>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <link rel="canonical" href="https://www.thepiratebay.se.net/browse/207" />
+    <style type="text/css">
+        .searchBox{
+            margin: 6px;
+            width: 300px;
+            vertical-align: middle;
+            padding: 2px;
+            background-image:url('/static/img/icon-https.gif');
+            background-repeat:no-repeat;
+            background-position: right;
+        }
+        .detLink {
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+        .detDesc {
+            color: #4e5456;
+        }
+        .detDesc a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
+        .sortby {
+            text-align: left;
+            float: left;
+        }
+        .detName {
+            padding-top: 3px;
+            padding-bottom: 2px;
+        }
+        .viewswitch {
+            font-style: normal;
+            float: right;
+            text-align: right;
+            font-weight: normal;
+        }
+    </style>
+    <script src="/static/js/jquery.min.js" type="text/javascript"></script>
+    <script src="/static/js/tpb.js" type="text/javascript"></script>
+	<meta name="description" content="Browse and Download any torrent from the category Video &gt; HD - Movies. Direct download via magnet link."/>
+	<meta name="keywords" content="Video HD - Movies direct download torrent magnet tpb piratebay browse category video"/>
+
+    <script language="javascript" type="text/javascript">if (top.location != self.location) {top.location.replace(self.location);}</script>
+</head>
+
+<body>
+    <div id="header">
+
+        <form method="get" id="q" action="/search1.php">
+            <a href="/" class="img"><img src="/static/img/tpblogo_sm_ny.gif" id="TPBlogo" alt="The Pirate Bay" /></a>
+            <b><a href="/" title="Search Torrents">Search Torrents</a></b>&nbsp;&nbsp;|&nbsp;
+ <a href="/browse" title="Browse Torrents">Browse Torrents</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/recent" title="Recent Torrent">Recent Torrents</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/tv/" title="TV shows">TV shows</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/music" title="Music">Music</a>&nbsp;&nbsp;|&nbsp;
+ <a href="/top" title="Top 100">Top 100</a>
+            <br /><input type="search" class="inputbox" title="Pirate Search" name="q" placeholder="Search here..." value="" /><input value="Pirate Search" type="submit" class="submitbutton"  /><br />            <label for="audio" title="Audio"><input id="audio" name="audio" onclick="javascript:rmAll();" type="checkbox"/>Audio</label>
+            <label for="video" title="Video"><input id="video" name="video" onclick="javascript:rmAll();" type="checkbox"/>Video</label>
+            <label for="apps" title="Applications"><input id="apps" name="apps" onclick="javascript:rmAll();" type="checkbox"/>Applications</label>
+            <label for="games" title="Games"><input id="games" name="games" onclick="javascript:rmAll();" type="checkbox"/>Games</label>
+            <label for="porn" title="Porn"><input id="porn" name="porn" onclick="javascript:rmAll();" type="checkbox"/>Porn</label>
+            <label for="other" title="Other"><input id="other" name="other" onclick="javascript:rmAll();" type="checkbox"/>Other</label>
+
+            <select id="category" name="category" onchange="javascript:setAll();">
+                <option value="0">All</option>
+                <optgroup label="Audio">
+                    <option value="101">Music</option>
+                    <option value="102">Audio books</option>
+                    <option value="103">Sound clips</option>
+                    <option value="104">FLAC</option>
+                    <option value="199">Other</option>
+                </optgroup>
+                <optgroup label="Video">
+                    <option value="201">Movies</option>
+                    <option value="202">Movies DVDR</option>
+                    <option value="203">Music videos</option>
+                    <option value="204">Movie clips</option>
+                    <option value="205">TV shows</option>
+                    <option value="206">Handheld</option>
+                    <option value="207">HD - Movies</option>
+                    <option value="208">HD - TV shows</option>
+                    <option value="209">3D</option>
+                    <option value="299">Other</option>
+                </optgroup>
+                <optgroup label="Applications">
+                    <option value="301">Windows</option>
+                    <option value="302">Mac</option>
+                    <option value="303">UNIX</option>
+                    <option value="304">Handheld</option>
+                    <option value="305">IOS (iPad/iPhone)</option>
+                    <option value="306">Android</option>
+                    <option value="399">Other OS</option>
+                </optgroup>
+                <optgroup label="Games">
+                    <option value="401">PC</option>
+                    <option value="402">Mac</option>
+                    <option value="403">PSx</option>
+                    <option value="404">XBOX360</option>
+                    <option value="405">Wii</option>
+                    <option value="406">Handheld</option>
+                    <option value="407">IOS (iPad/iPhone)</option>
+                    <option value="408">Android</option>
+                    <option value="499">Other</option>
+                </optgroup>
+                <optgroup label="Porn">
+                    <option value="501">Movies</option>
+                    <option value="502">Movies DVDR</option>
+                    <option value="503">Pictures</option>
+                    <option value="504">Games</option>
+                    <option value="505">HD - Movies</option>
+                    <option value="506">Movie clips</option>
+                    <option value="599">Other</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="601">E-books</option>
+                    <option value="602">Comics</option>
+                    <option value="603">Pictures</option>
+                    <option value="604">Covers</option>
+                    <option value="605">Physibles</option>
+                    <option value="699">Other</option>
+                </optgroup>
+            </select>
+
+            <input type="hidden" name="page" value="0" />
+            <input type="hidden" name="orderby" value="99" />
+        </form>
+    </div><!-- // div:header -->
+
+    <h2><span>Browse Video &gt; HD - Movies</span>&nbsp;</h2>
+<table id="searchResult">
+	<thead id="tableHead">
+		<tr class="header">
+			<th><a href="/browse/207/0/13/0" title="Order by Type">Type</a></th>
+			<th><div class="sortby"><a href="/browse/207/0/1/0" title="Order by Name">Name</a> (Order by: <a href="/browse/207/0/4/0" title="Order by Uploaded">Uploaded</a>, <a href="/browse/207/0/5/0" title="Order by Size">Size</a>, <span style="white-space: nowrap;"><a href="/browse/207/0/11/0" title="Order by ULed by">ULed by</a></span>, <a href="/browse/207/0/7/0" title="Order by Seeders">SE</a>, <a href="/browse/207/0/9/0" title="Order by Leechers">LE</a>)</div><div class="viewswitch"> View: <a href="/switchview.php?view=s">Single</a> / Double&nbsp;</div></th>
+			<th><abbr title="Seeders"><a href="/browse/207/0/7/0" title="Order by Seeders">SE</a></abbr></th>
+			<th><abbr title="Leechers"><a href="/browse/207/0/9/0" title="Order by Leechers">LE</a></abbr></th>
+		</tr>
+	</thead>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912676/Dancing.with.the.Birds.2019.1080p.WEBRip.DDP5.1.Atmos.x264-iKA" class="detLink" title="Details for Dancing.with.the.Birds.2019.1080p.WEBRip.DDP5.1.Atmos.x264-iKA">Dancing.with.the.Birds.2019.1080p.WEBRip.DDP5.1.Atmos.x264-iKA</a>
+</div>
+<a href="magnet:?xt=urn:btih:1764cbdd7b8e3d3daa56a060baf1518e2b03b858&dn=Dancing.with.the.Birds.2019.1080p.WEBRip.DDP5.1.Atmos.x264-iKA&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;15:00, Size 2.95&nbsp;GiB, ULed by <i>Anonymous</i></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">5</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912668/The.Dead.Center.2018.1080p.BluRay.1400MB.DD5.1.x264-GalaxyRG" class="detLink" title="Details for The.Dead.Center.2018.1080p.BluRay.1400MB.DD5.1.x264-GalaxyRG">The.Dead.Center.2018.1080p.BluRay.1400MB.DD5.1.x264-GalaxyRG</a>
+</div>
+<a href="magnet:?xt=urn:btih:75541e4b7aca93021c3083661bd3c3a3d7e8b78c&dn=The.Dead.Center.2018.1080p.BluRay.1400MB.DD5.1.x264-GalaxyRG&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;14:56, Size 1.4&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">2</td>
+		<td align="right">4</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912453/The_Angry_Birds_Movie_2_(2019)_1080p_Telugu_Tamil_Hindi_English" class="detLink" title="Details for The Angry Birds Movie 2 (2019) 1080p Telugu Tamil Hindi English">The Angry Birds Movie 2 (2019) 1080p Telugu Tamil Hindi English</a>
+</div>
+<a href="magnet:?xt=urn:btih:cc550752d5e90ba8dc6eb8327df0f572335a0896&dn=The+Angry+Birds+Movie+2+%282019%29+1080p+Telugu+Tamil+Hindi+English&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;14:15, Size 1.87&nbsp;GiB, ULed by <i>Anonymous</i></font>
+		</td>
+		<td align="right">6</td>
+		<td align="right">12</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912449/The_Angry_Birds_Movie_2_(2019)_720p_Telugu_Tamil_Hindi_English" class="detLink" title="Details for The Angry Birds Movie 2 (2019) 720p Telugu Tamil Hindi English">The Angry Birds Movie 2 (2019) 720p Telugu Tamil Hindi English</a>
+</div>
+<a href="magnet:?xt=urn:btih:edadffe450aa03945f0383101f02d2086ef54e52&dn=The+Angry+Birds+Movie+2+%282019%29+720p+Telugu+Tamil+Hindi+English&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;14:13, Size 987.63&nbsp;MiB, ULed by <i>Anonymous</i></font>
+		</td>
+		<td align="right">6</td>
+		<td align="right">15</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912400/The.Angry.Birds.Movie.2.2019.1080p.WEBRip.x264-MP4" class="detLink" title="Details for The.Angry.Birds.Movie.2.2019.1080p.WEBRip.x264-MP4">The.Angry.Birds.Movie.2.2019.1080p.WEBRip.x264-MP4</a>
+</div>
+<a href="magnet:?xt=urn:btih:de903a94a647c8633aed433ed2a9571af619fc7c&dn=The.Angry.Birds.Movie.2.2019.1080p.WEBRip.x264-MP4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=3pA6lKZHyGM67UM+0qlXGvYZ/Hw=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=The.Angry.Birds.Movie.2.2019.1080p.WEBRip.x264-MP4" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/MrStark"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;13:56, Size 1.43&nbsp;GiB, ULed by <a class="detDesc" href="/user/MrStark/" title="Browse MrStark">MrStark</a></font>
+		</td>
+		<td align="right">2217</td>
+		<td align="right">3530</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34912382/The.Angry.Birds.Movie.2.2019.720p.WEBRip.x264-MP4" class="detLink" title="Details for The.Angry.Birds.Movie.2.2019.720p.WEBRip.x264-MP4">The.Angry.Birds.Movie.2.2019.720p.WEBRip.x264-MP4</a>
+</div>
+<a href="magnet:?xt=urn:btih:523c7cf6a8f2a497a505b8c329e92a2460070ad5&dn=The.Angry.Birds.Movie.2.2019.720p.WEBRip.x264-MP4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=Ujx89qjypJelBbjDKekqJGAHCtU=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=The.Angry.Birds.Movie.2.2019.720p.WEBRip.x264-MP4" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/MrStark"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;13:55, Size 806.49&nbsp;MiB, ULed by <a class="detDesc" href="/user/MrStark/" title="Browse MrStark">MrStark</a></font>
+		</td>
+		<td align="right">2813</td>
+		<td align="right">3902</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34911491/The.Dead.Center.2018.1080p.BluRay.x264-EiDER[TGx]" class="detLink" title="Details for The.Dead.Center.2018.1080p.BluRay.x264-EiDER[TGx]">The.Dead.Center.2018.1080p.BluRay.x264-EiDER[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:69f801cda8f84c8d31360268bb98193ce61e02e2&dn=The.Dead.Center.2018.1080p.BluRay.x264-EiDER%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;11:45, Size 6.63&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">9</td>
+		<td align="right">16</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909385/The.Wheel.2019.1080p.WEB-DL.H264.AC3-EVO[TGx]" class="detLink" title="Details for The.Wheel.2019.1080p.WEB-DL.H264.AC3-EVO[TGx]">The.Wheel.2019.1080p.WEB-DL.H264.AC3-EVO[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:bd5e686aeb5966770aafd1e76e94a96d331c1f3e&dn=The.Wheel.2019.1080p.WEB-DL.H264.AC3-EVO%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;06:40, Size 2.97&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">47</td>
+		<td align="right">26</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34909164/The.Angry.Birds.Movie.2.2019.720p.WEBRip.800MB.x264-GalaxyRG" class="detLink" title="Details for The.Angry.Birds.Movie.2.2019.720p.WEBRip.800MB.x264-GalaxyRG">The.Angry.Birds.Movie.2.2019.720p.WEBRip.800MB.x264-GalaxyRG</a>
+</div>
+<a href="magnet:?xt=urn:btih:b1d6530801f08eff656a72622e75d6aac76fc8e3&dn=The.Angry.Birds.Movie.2.2019.720p.WEBRip.800MB.x264-GalaxyRG&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=sdZTCAHwjv9lanJiLnXWqsdvyOM=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=The.Angry.Birds.Movie.2.2019.720p.WEBRip.800MB.x264-GalaxyRG" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;05:41, Size 796.79&nbsp;MiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">232</td>
+		<td align="right">215</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34907778/Cars.2.2011.2160p.UHD.BluRay.X265.10bit.HDR.TrueHD.7.1.Atmos-TER" class="detLink" title="Details for Cars.2.2011.2160p.UHD.BluRay.X265.10bit.HDR.TrueHD.7.1.Atmos-TER">Cars.2.2011.2160p.UHD.BluRay.X265.10bit.HDR.TrueHD.7.1.Atmos-TER</a>
+</div>
+<a href="magnet:?xt=urn:btih:9e855c28e6d391981746f41746141944ecc57483&dn=Cars.2.2011.2160p.UHD.BluRay.X265.10bit.HDR.TrueHD.7.1.Atmos-TER&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;02:08, Size 11.04&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">5</td>
+		<td align="right">3</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34907035/Of_Human_Bondage__(Drama_1934)__Bette_Davis__720p__BrRip" class="detLink" title="Details for Of Human Bondage  (Drama 1934)  Bette Davis  720p  BrRip">Of Human Bondage  (Drama 1934)  Bette Davis  720p  BrRip</a>
+</div>
+<a href="magnet:?xt=urn:btih:463ce9cd7aed8db5ed037356e214a82a46c6118a&dn=Of+Human+Bondage++%28Drama+1934%29++Bette+Davis++720p++BrRip&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/BurtonW"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Today&nbsp;00:52, Size 969.69&nbsp;MiB, ULed by <a class="detDesc" href="/user/BurtonW/" title="Browse BurtonW">BurtonW</a></font>
+		</td>
+		<td align="right">13</td>
+		<td align="right">10</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34906052/Ca_ccedil_ados_2007_[Dublado_-_720p]" class="detLink" title="Details for Ca&ccedil;ados 2007 [Dublado - 720p]">Ca&ccedil;ados 2007 [Dublado - 720p]</a>
+</div>
+<a href="magnet:?xt=urn:btih:785f5933427809db3bfd1e4638c9e6f8dc46d815&dn=Ca%26ccedil%3Bados+2007+%5BDublado+-+720p%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;23:56, Size 818.19&nbsp;MiB, ULed by <i>Anonymous</i></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">1</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34906044/Scorpion_2007_[dublado]" class="detLink" title="Details for Scorpion 2007 [dublado]">Scorpion 2007 [dublado]</a>
+</div>
+<a href="magnet:?xt=urn:btih:09a8b477b3e6ecc0d221c5b757c2178c47ae1748&dn=Scorpion+2007+%5Bdublado%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;23:48, Size 707.54&nbsp;MiB, ULed by <i>Anonymous</i></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">2</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905589/The_Angry_Birds_Movie_2.2019.1080p.WEB-DL.X264.AC3-EVO[TGx]" class="detLink" title="Details for The Angry Birds Movie 2.2019.1080p.WEB-DL.X264.AC3-EVO[TGx]">The Angry Birds Movie 2.2019.1080p.WEB-DL.X264.AC3-EVO[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:bab2134b70001d2c99bff2e06959f37399a3fb0c&dn=The+Angry+Birds+Movie+2.2019.1080p.WEB-DL.X264.AC3-EVO%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;22:40, Size 2.72&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905425/The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[EtHD]" class="detLink" title="Details for The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[EtHD]">The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[EtHD]</a>
+</div>
+<a href="magnet:?xt=urn:btih:b57ca64e40803890666d69df5e578bd31de75014&dn=The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG%5BEtHD%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=tXymTkCAOJBmbWnfXleL0x3nUBQ=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[EtHD]" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/EtHD"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;22:16, Size 4.86&nbsp;GiB, ULed by <a class="detDesc" href="/user/EtHD/" title="Browse EtHD">EtHD</a></font>
+		</td>
+		<td align="right">53</td>
+		<td align="right">38</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905418/The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[TGx]" class="detLink" title="Details for The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[TGx]">The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[TGx]</a>
+</div>
+<a href="magnet:?xt=urn:btih:5175ef400fc231e84b09f8215d15d142b66d3402&dn=The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG%5BTGx%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=UXXvQA/CMehLCfghXRXRQrZtNAI=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=The.Angry.Birds.Movie.2.2019.1080p.WEB-DL.AC3.H264-CMRG[TGx]" target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/sotnikam"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;22:07, Size 4.86&nbsp;GiB, ULed by <a class="detDesc" href="/user/sotnikam/" title="Browse sotnikam">sotnikam</a></font>
+		</td>
+		<td align="right">366</td>
+		<td align="right">231</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905180/Dauntless.The.Battle.of.Midway.2019.BluRay.1080p.DTS-HD.MA5.1..." class="detLink" title="Details for Dauntless.The.Battle.of.Midway.2019.BluRay.1080p.DTS-HD.MA5.1...">Dauntless.The.Battle.of.Midway.2019.BluRay.1080p.DTS-HD.MA5.1...</a>
+</div>
+<a href="magnet:?xt=urn:btih:01b7ac56fbc8f273bd1873eceb52ce9ce78f2755&dn=Dauntless.The.Battle.of.Midway.2019.BluRay.1080p.DTS-HD.MA5.1...&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="http://www.bitlord.me/share/?re=ThePirateBay&ba=b8977e&co=fff&sh=AbesVvvI8nO9GHPs61LOnOePJ1U=&ur=//uj3wazyk5u4hnvtk.onion/browse/207&fn=Dauntless.The.Battle.of.Midway.2019.BluRay.1080p.DTS-HD.MA5.1..." target="_blank" title="Play now using Bitlord"><img src="/static/img/icons/icon-bitx.png" alt="Play link" /></a><a href="/user/EtHD"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;21:48, Size 6.4&nbsp;GiB, ULed by <a class="detDesc" href="/user/EtHD/" title="Browse EtHD">EtHD</a></font>
+		</td>
+		<td align="right">56</td>
+		<td align="right">96</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905167/Satanic.Panic.2019.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]" class="detLink" title="Details for Satanic.Panic.2019.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]">Satanic.Panic.2019.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]</a>
+</div>
+<a href="magnet:?xt=urn:btih:abd2bbef2d99db0d19ae015081909c6099aff811&dn=Satanic.Panic.2019.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR%5BEtHD%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/EtHD"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;21:41, Size 6.26&nbsp;GiB, ULed by <a class="detDesc" href="/user/EtHD/" title="Browse EtHD">EtHD</a></font>
+		</td>
+		<td align="right">14</td>
+		<td align="right">11</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34905159/Bloodline.2018.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]" class="detLink" title="Details for Bloodline.2018.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]">Bloodline.2018.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR[EtHD]</a>
+</div>
+<a href="magnet:?xt=urn:btih:fb1b616272c2b01ebcf8134eaa61e9d2ebb21d2a&dn=Bloodline.2018.BluRay.1080p.DTS-HD.MA5.1.HEVC-DDR%5BEtHD%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/EtHD"><img src="/static/img/vip.gif" alt="VIP" title="VIP" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;21:36, Size 5.89&nbsp;GiB, ULed by <a class="detDesc" href="/user/EtHD/" title="Browse EtHD">EtHD</a></font>
+		</td>
+		<td align="right">14</td>
+		<td align="right">15</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904913/Wounds_(2019)_720p_WEB-DL_x264_600MB_(nItRo)-XpoZ" class="detLink" title="Details for Wounds (2019) 720p WEB-DL x264 600MB (nItRo)-XpoZ">Wounds (2019) 720p WEB-DL x264 600MB (nItRo)-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:7a8b9e5e2bacc7ef507f148eb5b2be3a6d7999da&dn=Wounds+%282019%29+720p+WEB-DL+x264+600MB+%28nItRo%29-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:55, Size 599.06&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">17</td>
+		<td align="right">16</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904901/Eli_(2019)_720p_WEB-DL_x264_620MB_(nItRo)-XpoZ" class="detLink" title="Details for Eli (2019) 720p WEB-DL x264 620MB (nItRo)-XpoZ">Eli (2019) 720p WEB-DL x264 620MB (nItRo)-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:9862d88fd0416d386c501665453202b43276c26a&dn=Eli+%282019%29+720p+WEB-DL+x264+620MB+%28nItRo%29-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:50, Size 622.99&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">22</td>
+		<td align="right">14</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904891/The_Laundromat_(2019)_720p_WEB-DL_x264_670MB_nItRo-XpoZ" class="detLink" title="Details for The Laundromat (2019) 720p WEB-DL x264 670MB nItRo-XpoZ">The Laundromat (2019) 720p WEB-DL x264 670MB nItRo-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:1429e7782b1cfda013e39097024e84147e882b4c&dn=The+Laundromat+%282019%29+720p+WEB-DL+x264+670MB+nItRo-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:46, Size 673.81&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">16</td>
+		<td align="right">9</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904880/WWE_Smackdown_Live_2019.10.18_HDTV_x264_400MB_(nItRo)-XpoZ" class="detLink" title="Details for WWE Smackdown Live 2019.10.18 HDTV x264 400MB (nItRo)-XpoZ">WWE Smackdown Live 2019.10.18 HDTV x264 400MB (nItRo)-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:94fa77884077d6ae2e4dbb139bead3edea4cb897&dn=WWE+Smackdown+Live+2019.10.18+HDTV+x264+400MB+%28nItRo%29-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:42, Size 397.87&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">16</td>
+		<td align="right">6</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904875/The_Golden_Glove_(2019)_BluRay_720p_x264_800MB_(Ganool)-XpoZ" class="detLink" title="Details for The Golden Glove (2019) BluRay 720p x264 800MB (Ganool)-XpoZ">The Golden Glove (2019) BluRay 720p x264 800MB (Ganool)-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:6f8fe139c2c7bdea8e3f735e0d8306b15bac171d&dn=The+Golden+Glove+%282019%29+BluRay+720p+x264+800MB+%28Ganool%29-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:40, Size 801.43&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">11</td>
+		<td align="right">10</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904860/Aurora_(2019)_BluRay_720p_x264_800MB_(Ganool)-XpoZ" class="detLink" title="Details for Aurora (2019) BluRay 720p x264 800MB (Ganool)-XpoZ">Aurora (2019) BluRay 720p x264 800MB (Ganool)-XpoZ</a>
+</div>
+<a href="magnet:?xt=urn:btih:d7dc5ecd61b1248546812a519de94adf5a63d0e9&dn=Aurora+%282019%29+BluRay+720p+x264+800MB+%28Ganool%29-XpoZ&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><img src="/static/img/11x11p.png" /><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:36, Size 799.98&nbsp;MiB, ULed by <a class="detDesc" href="/user/meXpoZ/" title="Browse meXpoZ">meXpoZ</a></font>
+		</td>
+		<td align="right">11</td>
+		<td align="right">5</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904807/Batman.vs.Teenage.Mutant.Ninja.Turtles.2019.2160p.UHD.BluRay.HDR" class="detLink" title="Details for Batman.vs.Teenage.Mutant.Ninja.Turtles.2019.2160p.UHD.BluRay.HDR">Batman.vs.Teenage.Mutant.Ninja.Turtles.2019.2160p.UHD.BluRay.HDR</a>
+</div>
+<a href="magnet:?xt=urn:btih:589d8e2645b730fd1e55ab41d05eb1b969c63ea5&dn=Batman.vs.Teenage.Mutant.Ninja.Turtles.2019.2160p.UHD.BluRay.HDR&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:09, Size 5.53&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">6</td>
+		<td align="right">10</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904803/Teenage.Mutant.Ninja.Turtles.Out.of.the.Shadows.2016.2160p.UHD.B" class="detLink" title="Details for Teenage.Mutant.Ninja.Turtles.Out.of.the.Shadows.2016.2160p.UHD.B">Teenage.Mutant.Ninja.Turtles.Out.of.the.Shadows.2016.2160p.UHD.B</a>
+</div>
+<a href="magnet:?xt=urn:btih:21e64b14cd24de939371af2d98101d5649f53d95&dn=Teenage.Mutant.Ninja.Turtles.Out.of.the.Shadows.2016.2160p.UHD.B&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:06, Size 25.32&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">16</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904802/Teenage.Mutant.Ninja.Turtles.2014.2160p.TMNT.UHD.BluRay.X265.HDR" class="detLink" title="Details for Teenage.Mutant.Ninja.Turtles.2014.2160p.TMNT.UHD.BluRay.X265.HDR">Teenage.Mutant.Ninja.Turtles.2014.2160p.TMNT.UHD.BluRay.X265.HDR</a>
+</div>
+<a href="magnet:?xt=urn:btih:0aa7a288a634ea699c98b6c7bca8bbcf947d48db&dn=Teenage.Mutant.Ninja.Turtles.2014.2160p.TMNT.UHD.BluRay.X265.HDR&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:06, Size 27.68&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">2</td>
+		<td align="right">6</td>
+	</tr>
+	<tr>
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904791/Underworld.2003.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos" class="detLink" title="Details for Underworld.2003.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos">Underworld.2003.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos</a>
+</div>
+<a href="magnet:?xt=urn:btih:1ecf14a76cc0877cfb2f9ae0e07197d62ebfa8c0&dn=Underworld.2003.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;19:00, Size 29.22&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">7</td>
+		<td align="right">15</td>
+	</tr>
+	<tr class="alt">
+		<td class="vertTh">
+			<center>
+				<a href="/browse/200" title="More from this category">Video</a><br />
+				(<a href="/browse/207" title="More from this category">HD - Movies</a>)
+			</center>
+		</td>
+		<td>
+<div class="detName">			<a href="/torrent/34904787/Cars.3.2017.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos-TER" class="detLink" title="Details for Cars.3.2017.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos-TER">Cars.3.2017.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos-TER</a>
+</div>
+<a href="magnet:?xt=urn:btih:2eec008b17918d4320186c99e7277fdab1c0b3a4&dn=Cars.3.2017.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos-TER&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet"><img src="/static/img/icon-magnet.gif" alt="Magnet link" /></a><a href="/user/FiNEHD"><img src="/static/img/trusted.png" alt="Trusted" title="Trusted" style="width:11px;" border='0' /></a><img src="/static/img/11x11p.png" />
+			<font class="detDesc">Uploaded Y-day&nbsp;18:57, Size 12.19&nbsp;GiB, ULed by <a class="detDesc" href="/user/FiNEHD/" title="Browse FiNEHD">FiNEHD</a></font>
+		</td>
+		<td align="right">0</td>
+		<td align="right">0</td>
+	</tr>
+<tr><td colspan="9" style="text-align:center;"><b>1</b>&nbsp;<a href="/browse/207/1/3">2</a>&nbsp;<a href="/browse/207/2/3">3</a>&nbsp;<a href="/browse/207/3/3">4</a>&nbsp;<a href="/browse/207/4/3">5</a>&nbsp;<a href="/browse/207/5/3">6</a>&nbsp;<a href="/browse/207/6/3">7</a>&nbsp;<a href="/browse/207/7/3">8</a>&nbsp;<a href="/browse/207/8/3">9</a>&nbsp;<a href="/browse/207/9/3">10</a>&nbsp;<a href="/browse/207/10/3">11</a>&nbsp;<a href="/browse/207/11/3">12</a>&nbsp;<a href="/browse/207/12/3">13</a>&nbsp;<a href="/browse/207/13/3">14</a>&nbsp;<a href="/browse/207/14/3">15</a>&nbsp;<a href="/browse/207/15/3">16</a>&nbsp;<a href="/browse/207/16/3">17</a>&nbsp;<a href="/browse/207/17/3">18</a>&nbsp;<a href="/browse/207/18/3">19</a>&nbsp;<a href="/browse/207/19/3">20</a>&nbsp;<a href="/browse/207/20/3">21</a>&nbsp;<a href="/browse/207/21/3">22</a>&nbsp;<a href="/browse/207/22/3">23</a>&nbsp;<a href="/browse/207/23/3">24</a>&nbsp;<a href="/browse/207/24/3">25</a>&nbsp;<a href="/browse/207/25/3">26</a>&nbsp;<a href="/browse/207/26/3">27</a>&nbsp;<a href="/browse/207/27/3">28</a>&nbsp;<a href="/browse/207/28/3">29</a>&nbsp;<a href="/browse/207/29/3">30</a>&nbsp;<a href="/browse/207/1/3"><img src="/static/img/next.gif" border="0" alt="Next"/></a>&nbsp;
+</td></tr>
+</table>
+</div>
+</div>	</div><!-- //div:content -->
+
+	<div id="foot" style="text-align:center;margin-top:1em;">
+		<p>
+			
+			
+			
+			<a href="/about" title="About">About</a> |
+			<a href="/blog" title="Blog">Blog</a>
+			<br />
+			<!--<a href="/contact" title="Contact us">Contact us</a> |-->
+			<a href="/policy" title="Usage policy">Usage policy</a> |
+			<a href="http://uj3wazyk5u4hnvtk.onion" title="TOR">TOR</a> |
+			<a href="/doodles" title="Doodles">Doodles</a> |
+			<a href="https://pirates-forum.org/" title="Forum" target="_blank">Forum</a> 
+			<br />
+		</p>
+
+<br /><a href="https://bitcoin.org" target="_NEW">BTC</a>: <b>3HcEB6bi4TFPdvk31Pwz77DwAzfAZz2fMn</b><br /><a href="https://bitcoin.org" target="_NEW">BTC (Bech32)</a>: <b>bc1q9x30z7rz52c97jwc2j79w76y7l3ny54nlvd4ew</b><br /><a href="https://litecoin.org" target="_NEW">LTC</a>: <b>LS78aoGtfuGCZ777x3Hmr6tcoW3WaYynx9</b><br /><a href="http://getmonero.org" target="_NEW">XMR</a>: <b>46E5ekYrZd5UCcmNuYEX24FRjWVMgZ1ob79cRViyfvLFZjfyMhPDvbuCe54FqLQvVCgRKP4UUMMW5fy3ZhVQhD1JLLufBtu</b>
+
+		<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50761688-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<div id="fbanners">
+			<a href="/rss" class="rss" title="RSS"><img src="/static/img/rss_small.gif" alt="RSS" /></a>
+		</div><!-- // div:fbanners -->
+	</div><!-- // div:foot -->
+</body>
+</html><!-- Cached 13:56 -->
