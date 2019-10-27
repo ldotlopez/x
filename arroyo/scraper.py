@@ -25,6 +25,7 @@ from arroyo import (
 
 
 import asyncio
+import sys
 
 
 import aiohttp
@@ -62,7 +63,7 @@ class Context:
 class Engine:
     CLIENT_USER_AGENT = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
                          'Gecko/20100101 Firefox/69.0')
-    CLIENT_TIMEOUT = 10
+    CLIENT_TIMEOUT = 15
     CLIENT_MAX_PARALEL_REQUESTS = 5
 
     def process(self, *ctxs):
@@ -74,7 +75,12 @@ class Engine:
     def fetch(self, *ctxs):
         async def _task(acc, ctx, sess, sem):
             async with sem:
-                content = await ctx.provider.fetch(sess, ctx.uri)
+                try:
+                    content = await ctx.provider.fetch(sess, ctx.uri)
+                except asyncio.TimeoutError:
+                    print("Timeout for '{uri}'".format(uri=ctx.uri), file=sys.stderr)
+                    content = ''
+
                 acc.append((ctx, content))
 
         async def _wrapper(ctxs):
