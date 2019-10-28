@@ -38,7 +38,7 @@ class Source(pydantic.BaseModel):
     seeds: typing.Optional[int]
     leechers: typing.Optional[int]
     size: typing.Optional[int]
-    meta: typing.Optional[typing.Dict[str, typing.Any]]
+    metadata: typing.Dict[str, typing.Any] = {}
 
 
 class Episode(pydantic.BaseModel):
@@ -54,6 +54,14 @@ class Movie(pydantic.BaseModel):
     type: typing_extensions.Literal['movie']
     title: str
     year: typing.Optional[int]
+
+
+class Item(pydantic.BaseModel):
+    # FIXME: Item is a too generic name
+    source: Source
+    entity: typing.Optional[typing.Union[Episode, Movie, None]]
+    metadata: typing.Optional[typing.Dict[str, typing.Any]]
+    other: typing.Optional[typing.Dict[str, typing.Any]]
 
 
 entity_type_map = {

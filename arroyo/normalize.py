@@ -95,31 +95,33 @@ KNOWN_DISTRIBUTORS = [
 def normalize(*items, mp=True):
     if mp:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-            ret = pool.map(normalize_one, items)
+            ret = pool.map(_safe_normalize_one, items)
     else:
-        ret = list(map(normalize_one, items))
+        ret = list(map(_safe_normalize_one, items))
 
-    for (orig, proc) in zip(items, ret):
-        if proc is None:
-            print("Cant parse", repr(orig), file=sys.stderr)
-
+    ret = list(filter(lambda x: x is not None, ret))
     return ret
 
 
-def normalize_one(item, type_hint=None):
-    type_hint = type_hint or item.get('type')
-
+def _safe_normalize_one(item, type_hint=None):
     try:
-        entity, metadata, other = parse(item['name'], type_hint)
+        return normalize_one(item, type_hint)
     except NormalizationError:
-        return None
+        logmsg = "Error analyzing '%s'"
+        logmsg = logmsg % item.name
+        _logger.warning(logmsg)
 
-    return {
+
+def normalize_one(item, type_hint=None):
+    type_hint = type_hint or item.metadata.get('type')
+
+    entity, metadata, other = parse(item.name, type_hint)
+    return schema.Item(**{
         'source': item,
         'entity': entity,
         'metadata': metadata,
         'other': other
-    }
+    })
 
 
 def parse(name, type_hint=None):

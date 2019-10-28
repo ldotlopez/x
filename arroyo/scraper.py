@@ -134,11 +134,11 @@ class Engine:
     def _build_source(self, ctx, item):
         item['provider'] = ctx.provider_name
 
-        item['meta'] = {}
+        item['metadata'] = {}
         if ctx.type:
-            item['meta']['type'] = ctx.type
+            item['metadata']['type'] = ctx.type
         if ctx.language:
-            item['meta']['language'] = ctx.language
+            item['metadata']['language'] = ctx.language
 
         return schema.Source(**item)
 

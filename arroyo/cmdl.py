@@ -26,6 +26,7 @@ import sys
 import arroyo
 from arroyo import (
     normalize,
+    schema,
     scraper,
     query
 )
@@ -180,7 +181,7 @@ def do_parse(parser, args):
     buffer = args.input.read()
 
     results = list(engine.parse_one(ctx, buffer))
-    output = json.dumps([dict(x) for x in results], indent=2)
+    output = json.dumps([x.dict() for x in results], indent=2)
 
     args.output.write(output)
 
@@ -205,9 +206,11 @@ def do_normalize(parser, args):
     if isinstance(raw, dict):
         raw = [raw]
 
+    raw = [schema.Source(**x) for x in raw]
     proc = normalize.normalize(*raw, mp=False)
 
-    output = json.dumps(proc, indent=2, default=_json_encode_hook)
+    output = json.dumps([x.dict() for x in proc], indent=2,
+                        default=_json_encode_hook)
     args.output.write(output)
 
 
@@ -240,7 +243,8 @@ def do_query(parser, args):
     data = json.loads(args.input.read())
     results = engine.apply(ctx, data)
 
-    output = json.dumps(results, indent=2)
+    output = json.dumps([x.dict() for x in results], indent=2,
+                        default=_json_encode_hook)
     args.output.write(output)
 
 

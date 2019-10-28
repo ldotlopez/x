@@ -37,7 +37,8 @@ class Query(dict):
     @classmethod
     def fromstring(cls, s):
         entity, _, _ = normalize.parse(s)
-        return cls(**entity)
+        params = {k: v for (k, v) in entity.dict().items() if v is not None}
+        return cls(**params)
 
 
 class Engine:
