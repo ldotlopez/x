@@ -18,8 +18,26 @@
 # USA.
 
 
-from .extensions import Provider
+from kit import ClassLoader
+
+
+from arroyo.extensions import Provider
+
 
 __all__ = [
-    'Provider'
+    'Loader'
+    'Provider',
 ]
+
+
+_plugins = {
+    'providers.eztv': 'arroyo.plugins.providers.eztv.EzTV',
+    'providers.epublibre': 'arroyo.plugins.providers.epublibre.EPubLibre',
+    'providers.torrentapi': 'arroyo.plugins.providers.torrentapi.TorrentAPI',
+    'providers.thepiratebay': 'arroyo.plugins.providers.thepiratebay.ThePirateBay'
+}
+
+
+class Loader(ClassLoader):
+    def __init__(self):
+        super().__init__(_plugins)

@@ -23,8 +23,8 @@ import json
 import sys
 
 
+import arroyo
 from arroyo import (
-    core,
     normalize,
     scraper,
     query
@@ -157,7 +157,7 @@ def do_fetch(parser, args):
         parser.print_help()
         parser.exit(1)
 
-    loader = core.Loader()
+    loader = arroyo.Loader()
     engine = scraper.Engine()
     ctx = scraper.build_context(loader, args.provider, args.uri)
     result = engine.fetch_one(ctx)
@@ -166,7 +166,7 @@ def do_fetch(parser, args):
 
 def do_parse(parser, args):
     engine = scraper.Engine()
-    ctx = scraper.build_context(core.Loader(), args.provider,
+    ctx = scraper.build_context(arroyo.Loader(), args.provider,
                                 type=args.type, language=args.language)
     buffer = args.input.read()
 
@@ -181,7 +181,7 @@ def do_scrape(parser, args):
         parser.print_help()
         parser.exit(1)
 
-    ctxs = scraper.build_n_contexts(core.Loader(), args.iterations,
+    ctxs = scraper.build_n_contexts(arroyo.Loader(), args.iterations,
                                     args.provider, args.uri,
                                     type=args.type, language=args.language)
     engine = scraper.Engine()

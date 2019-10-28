@@ -18,10 +18,8 @@
 # USA.
 
 
-from arroyo import (
-    core,
-    extensions
-)
+import arroyo
+from arroyo import extensions
 
 
 import asyncio
@@ -138,7 +136,7 @@ class ProviderMissingError(Exception):
 
 
 def build_context(loader, provider=None, uri=None, type=None, language=None):
-    if not isinstance(loader, core.Loader):
+    if not isinstance(loader, arroyo.Loader):
         raise TypeError(loader)
 
     if not provider and not uri:
