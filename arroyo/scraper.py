@@ -18,15 +18,18 @@
 # USA.
 
 
-import arroyo
-from arroyo import extensions
-
-
 import asyncio
 import sys
 
 
 import aiohttp
+
+
+import arroyo
+from arroyo import (
+    extensions,
+    schema
+)
 
 
 class Context:
@@ -63,6 +66,9 @@ class Engine:
                          'Gecko/20100101 Firefox/69.0')
     CLIENT_TIMEOUT = 15
     CLIENT_MAX_PARALEL_REQUESTS = 5
+
+    def __init__(self):
+        self.logger = kit.getLogger('scraper.Engine')
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -109,26 +115,30 @@ class Engine:
         ret = []
 
         for (ctx, buffer) in ctxs_and_buffers:
-            try:
-                ret.extend([self._fix_item(ctx, x)
-                            for x in ctx.provider.parse(buffer)])
-            except Exception as e:
-                print(repr(e))
+            for item in ctx.provider.parse(buffer):
+                try:
+                    ret.append(self._build_source(ctx, item))
+                except schema.ValidationError as e:
+                    logmsg = "Got invalid data from provider '%s', skipping."
+                    logmsg = logmsg % ctx.provider_name
+                    self.logger.warning(logmsg)
+                    break
 
         return ret
 
     def parse_one(self, ctx, buffer):
         yield from self.parse((ctx, buffer))
 
-    def _fix_item(self, ctx, item):
+    def _build_source(self, ctx, item):
         item['provider'] = ctx.provider_name
 
+        item['meta'] = {}
         if ctx.type:
-            item['type'] = ctx.type
+            item['meta']['type'] = ctx.type
         if ctx.language:
-            item['language'] = ctx.language
+            item['meta']['language'] = ctx.language
 
-        return item
+        return arroyo.Source(**item)
 
 
 class ProviderMissingError(Exception):

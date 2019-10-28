@@ -56,3 +56,17 @@ class Provider:
 
     def parse_as_soup(self, buffer):
         return bs4.BeautifulSoup(buffer, "html.parser")
+
+
+class Filter:
+    HANDLES = []
+
+    def can_handle(self, key):
+        return key in self.HANDLES
+
+    def filter(self, key, value, item):
+        raise NotImplementedError()
+
+    def apply(self, key, value, collection):
+        return list([item for item in collection
+                     if self.filter(key, value, item)])

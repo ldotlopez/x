@@ -19,15 +19,22 @@
 
 
 import multiprocessing
+import sys
 
 
 import babelfish
 import guessit
+import pydantic
+
+
+import arroyo
+from arroyo import schema
+
+
+_logger = arroyo.getLogger('normalize')
 
 
 _SOURCE_TAGS_PREFIX = 'core.'
-
-
 class Tags:
     AUDIO_CHANNELS = _SOURCE_TAGS_PREFIX + 'audio.channels'
     AUDIO_CODEC = _SOURCE_TAGS_PREFIX + 'audio.codec'
@@ -65,18 +72,6 @@ class Tags:
     #             continue
 
     #         yield value
-
-
-ENTITIES_DEFS = {
-    "movie": {
-        'fields': ['title', 'year'],
-        'requires': ['title']
-    },
-    "episode": {
-        'fields': ['title', 'year', 'country', 'season', 'episode'],
-        'requires': ['title', 'season', 'episode']
-    }
-}
 
 
 METADATA_RULES = [
@@ -117,10 +112,15 @@ KNOWN_DISTRIBUTORS = [
 def normalize(*items, mp=True):
     if mp:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-            return pool.map(normalize_one, items)
+            ret = pool.map(normalize_one, items)
     else:
-        return list(map(normalize_one, items))
+        ret = list(map(normalize_one, items))
 
+    for (orig, proc) in zip(items, ret):
+        if proc is None:
+            print("Cant parse", repr(orig), file=sys.stderr)
+
+    return ret
 
 def normalize_one(item, type_hint=None):
     type_hint = type_hint or item.get('type')
@@ -166,7 +166,14 @@ def parse(name, type_hint=None):
         msg = msg.format(name=name)
         raise NormalizationError(msg)
 
-    entity = extract_entity_data(parsed, type_hint or parsed.get('type'))
+    try:
+        entity = extract_entity(parsed, type_hint or parsed.get('type'))
+    except pydantic.ValidationError as e:
+        entity = None
+        logmsg = "Unable to parse '%s'"
+        logmsg = logmsg % name
+        _logger.warning(logmsg)
+
     metadata = extract_items(parsed, METADATA_RULES)
 
     return (entity, metadata, parsed)
@@ -215,24 +222,29 @@ def parse(name, type_hint=None):
     #             del info['language']
 
 
-def extract_entity_data(info, type=None):
+def extract_entity(info, type=None):
     if type is None:
         type = info.get('type')
 
-    if type not in ENTITIES_DEFS:
+    entity_cls = schema.get_entity_class(type)
+    if entity_cls is None:
         raise UnknowEntityTypeError((info, type))
 
-    for f in ENTITIES_DEFS[type]['requires']:
-        if info.get(f, None) is None:
-            raise MissingEntityDataError(info)
+    if entity_cls is schema.Episode:
+        info['series'] = info.pop('title', None)
+        info['number'] = info.pop('episode', None)
+        fields = ('series', 'year', 'season', 'number')
 
-    entity_data = {'type': info.get('type')}
-    entity_data.update({
-        f: info.pop(f, None)
-        for f in ENTITIES_DEFS[type]['fields']
-    })
-    entity_data = {k: v for (k, v) in entity_data.items() if v is not None}
-    return entity_data
+    elif entity_cls is schema.Movie:
+        fields = ('title', 'year')
+
+    else:
+        raise SystemError('This is a bug')
+
+    fields = fields + ('type',)
+    entity_data = {k: info.pop(k, None) for k in fields}
+
+    return entity_cls(**entity_data)
 
 
 def extract_items(orig, rules):

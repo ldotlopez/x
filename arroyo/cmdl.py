@@ -29,7 +29,10 @@ from arroyo import (
     scraper,
     query
 )
-import kit
+
+
+logger = arroyo.getLogger('arroyo')
+logger.setLevel(arroyo.logging.DEBUG)
 
 
 def main():
@@ -116,15 +119,21 @@ def main():
     #
     query_cmd = commands.add_parser('query')
     query_cmd.add_argument(
+        '--input',
+        type=argparse.FileType('r'),
+        default=sys.stdin)
+    query_cmd.add_argument(
+        '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout)
+    query_cmd.add_argument(
         '--filter',
         dest='queryparams',
         action='append',
-        default=[],
-    )
+        default=[])
     query_cmd.add_argument(
         dest='querystring',
-        nargs='?'
-    )
+        nargs='?')
 
     #
     # Do parsing
@@ -171,7 +180,7 @@ def do_parse(parser, args):
     buffer = args.input.read()
 
     results = list(engine.parse_one(ctx, buffer))
-    output = json.dumps(results, indent=2)
+    output = json.dumps([dict(x) for x in results], indent=2)
 
     args.output.write(output)
 
@@ -223,7 +232,14 @@ def do_query(parser, args):
         params = dict(_parse_queryparams(args.queryparams))
         q = query.Query(**params)
 
-    print(repr(q))
+    engine = query.Engine(arroyo.Loader())
+    ctx = engine.build_filter(q)
+
+    data = json.loads(args.input.read())
+    results = engine.apply(ctx, data)
+
+    output = json.dumps(results, indent=2)
+    args.output.write(output)
 
 def _json_encode_hook(value):
     return str(value)
