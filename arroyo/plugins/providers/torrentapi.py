@@ -39,8 +39,6 @@
 #  'title': 'Westworld.S01E10.iNTERNAL.HDTV.x264-TURBO[rartv]'}
 
 
-import arroyo
-
 import asyncio
 import datetime
 import json
@@ -49,6 +47,10 @@ from urllib import parse
 
 
 import aiohttp
+
+
+import arroyo
+from arroyo import schema
 
 
 class TorrentAPI(arroyo.Provider):

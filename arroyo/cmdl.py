@@ -205,6 +205,7 @@ def do_normalize(parser, args):
         raw = [raw]
 
     proc = normalize.normalize(*raw, mp=False)
+
     output = json.dumps(proc, indent=2, default=_json_encode_hook)
     args.output.write(output)
 
@@ -240,6 +241,7 @@ def do_query(parser, args):
 
     output = json.dumps(results, indent=2)
     args.output.write(output)
+
 
 def _json_encode_hook(value):
     return str(value)

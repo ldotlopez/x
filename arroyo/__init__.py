@@ -33,12 +33,17 @@ __all__ = [
 
 
 _plugins = {
-    'providers.eztv': 'arroyo.plugins.providers.eztv.EzTV',
-    'providers.epublibre': 'arroyo.plugins.providers.epublibre.EPubLibre',
-    'providers.torrentapi': 'arroyo.plugins.providers.torrentapi.TorrentAPI',
-    'providers.thepiratebay': 'arroyo.plugins.providers.thepiratebay.ThePirateBay',
+    'providers.eztv':
+        'arroyo.plugins.providers.eztv.EzTV',
+    'providers.epublibre':
+        'arroyo.plugins.providers.epublibre.EPubLibre',
+    'providers.torrentapi':
+        'arroyo.plugins.providers.torrentapi.TorrentAPI',
+    'providers.thepiratebay':
+        'arroyo.plugins.providers.thepiratebay.ThePirateBay',
 
-    'filters.fields': 'arroyo.plugins.filters.dummy.Generic'
+    'filters.fields':
+        'arroyo.plugins.filters.dummy.Generic'
 }
 
 
@@ -95,6 +100,8 @@ class Loader(_ClassLoader):
 
 
 _loggers = {}
+
+
 def getLogger(name):
     global _loggers
 

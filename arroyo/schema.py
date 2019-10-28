@@ -87,6 +87,7 @@ def validate_entity_name(name: str):
     except KeyError as e:
         raise ValueError(name) from e
 
+
 def validate_entity_class(cls: type):
     try:
         get_entity_name(cls)

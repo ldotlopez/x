@@ -122,6 +122,7 @@ def normalize(*items, mp=True):
 
     return ret
 
+
 def normalize_one(item, type_hint=None):
     type_hint = type_hint or item.get('type')
 
