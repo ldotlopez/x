@@ -61,3 +61,10 @@ class ClassLoader:
         for (name, cls) in self._reg.items():
             if name.startswith(prefix):
                 yield name
+
+class ArgumentParserPairArgument:
+    def __init__(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace(); pass
+
+    def __call__(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace(); pass

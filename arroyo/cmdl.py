@@ -26,8 +26,10 @@ import sys
 from arroyo import (
     core,
     normalize,
-    scraper
+    scraper,
+    query
 )
+import kit
 
 
 def main():
@@ -110,6 +112,21 @@ def main():
         default=sys.stdout)
 
     #
+    # query
+    #
+    query_cmd = commands.add_parser('query')
+    query_cmd.add_argument(
+        '--filter',
+        dest='queryparams',
+        action='append',
+        default=[],
+    )
+    query_cmd.add_argument(
+        dest='querystring',
+        nargs='?'
+    )
+
+    #
     # Do parsing
     #
 
@@ -126,6 +143,9 @@ def main():
 
     elif args.command == 'normalize':
         do_normalize(normalize_cmd, args)
+
+    elif args.command == 'query':
+        do_query(query_cmd, args)
 
     else:
         parser.print_help()
@@ -179,6 +199,31 @@ def do_normalize(parser, args):
     output = json.dumps(proc, indent=2, default=_json_encode_hook)
     args.output.write(output)
 
+
+def do_query(parser, args):
+    def _parse_queryparams(pairs):
+        for pair in pairs:
+            key, value = pair.split('=', 1)
+            if not key or not value:
+                raise ValueError(pair)
+
+            yield (key, value)
+
+    if not args.queryparams and not args.querystring:
+        parser.print_help()
+        errmsg = "filter or querystring are requierd"
+        print(errmsg, file=sys.stderr)
+        parser.exit(1)
+
+    q = {}
+    if args.querystring:
+        q.update(query.Query.fromstring(args.querystring))
+
+    if args.queryparams:
+        params = dict(_parse_queryparams(args.queryparams))
+        q = query.Query(**params)
+
+    print(repr(q))
 
 def _json_encode_hook(value):
     return str(value)
