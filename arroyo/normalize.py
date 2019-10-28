@@ -126,7 +126,7 @@ def normalize_one(item, type_hint=None):
     type_hint = type_hint or item.get('type')
 
     try:
-        entity, metadata, other = _guessit_parse(item['name'], type_hint)
+        entity, metadata, other = parse(item['name'], type_hint)
     except NormalizationError:
         return None
 
@@ -138,7 +138,7 @@ def normalize_one(item, type_hint=None):
     }
 
 
-def _guessit_parse(name, type_hint=None):
+def parse(name, type_hint=None):
     # We preprocess name to extract distributors
     # (distributors != release-teams)
     release_distributors = set()
@@ -166,7 +166,7 @@ def _guessit_parse(name, type_hint=None):
         msg = msg.format(name=name)
         raise NormalizationError(msg)
 
-    entity = extract_entity_data(parsed, type_hint)
+    entity = extract_entity_data(parsed, type_hint or parsed.get('type'))
     metadata = extract_items(parsed, METADATA_RULES)
 
     return (entity, metadata, parsed)
@@ -216,7 +216,10 @@ def _guessit_parse(name, type_hint=None):
 
 
 def extract_entity_data(info, type=None):
-    if (type or info.get('type')) not in ENTITIES_DEFS:
+    if type is None:
+        type = info.get('type')
+
+    if type not in ENTITIES_DEFS:
         raise UnknowEntityTypeError((info, type))
 
     for f in ENTITIES_DEFS[type]['requires']:
