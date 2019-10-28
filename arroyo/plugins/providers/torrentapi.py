@@ -68,15 +68,9 @@ class TorrentAPI(arroyo.Provider):
         r'^http(s)?://([^.]+.)?torrentapi\.org/pubapi_v2.php\?'
     ]
 
-    # APP_ID = 'arroyo'
-    # DEFAULT_URI = ('http://torrentapi.org/pubapi_v2.php?'
-    #                'app_id=arroyo&mode=list')
-    # TOKEN_URL = r'http://torrentapi.org/pubapi_v2.php?get_token=get_token&app_id=arroyo'
-    # SEARCH_URL = r'http://torrentapi.org/pubapi_v2.php?mode=search&app_id=arroyo'
-
     CATEGORY_MAP = {
-        'episode': 'tv',
-        'movie': 'movies'
+        schema.get_entity_name(schema.Episode): 'tv',
+        schema.get_entity_name(schema.Movie): 'movies'
     }
 
     def __init__(self, *args, **kwargs):

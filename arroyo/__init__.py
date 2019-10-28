@@ -82,10 +82,8 @@ class _ClassLoader:
 
         return cls
 
-    def list(self, ns=None):
-        if not ns:
-            prefix =''
-        else:
+    def list(self, ns=''):
+        if ns:
             prefix = ns + '.'
 
         ret = [name for (name, cls) in self._reg.items()

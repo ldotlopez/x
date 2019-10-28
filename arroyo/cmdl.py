@@ -196,7 +196,8 @@ def do_scrape(parser, args):
     engine = scraper.Engine()
     results = engine.process(*ctxs)
 
-    args.output.write(json.dumps(results))
+    output = json.dumps([x.dict() for x in results], indent=2)
+    args.output.write(output)
 
 
 def do_normalize(parser, args):

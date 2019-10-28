@@ -68,7 +68,7 @@ class Engine:
     CLIENT_MAX_PARALEL_REQUESTS = 5
 
     def __init__(self):
-        self.logger = kit.getLogger('scraper.Engine')
+        self.logger = arroyo.getLogger('scraper.Engine')
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -82,7 +82,9 @@ class Engine:
                 try:
                     content = await ctx.provider.fetch(sess, ctx.uri)
                 except asyncio.TimeoutError:
-                    print("Timeout for '{uri}'".format(uri=ctx.uri), file=sys.stderr)
+                    logmsg = "Timeout for '%s'"
+                    logmsg = logmsg % ctx.uri
+                    self.logger(logmsg)
                     content = ''
 
                 acc.append((ctx, content))
@@ -138,7 +140,7 @@ class Engine:
         if ctx.language:
             item['meta']['language'] = ctx.language
 
-        return arroyo.Source(**item)
+        return schema.Source(**item)
 
 
 class ProviderMissingError(Exception):

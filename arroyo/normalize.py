@@ -31,47 +31,30 @@ import arroyo
 from arroyo import schema
 
 
-_logger = arroyo.getLogger('normalize')
-
-
-_SOURCE_TAGS_PREFIX = 'core.'
 class Tags:
-    AUDIO_CHANNELS = _SOURCE_TAGS_PREFIX + 'audio.channels'
-    AUDIO_CODEC = _SOURCE_TAGS_PREFIX + 'audio.codec'
-    AUDIO_PROFILE = _SOURCE_TAGS_PREFIX + 'audio.profile'
-    BROADCAST_DATE = _SOURCE_TAGS_PREFIX + 'broadcast.date'
-    EPISODE_COUNT = _SOURCE_TAGS_PREFIX + 'episode.count'
-    EPISODE_DETAILS = _SOURCE_TAGS_PREFIX + 'episode.details'
-    EPISODE_TITLE = _SOURCE_TAGS_PREFIX + 'episode.title'
-    GUESSIT_OTHER = _SOURCE_TAGS_PREFIX + 'guessit.other'
-    GUESSIT_UUID = _SOURCE_TAGS_PREFIX + 'guessit.uuid'
-    MEDIA_CONTAINER = _SOURCE_TAGS_PREFIX + 'media.container'
-    MEDIA_COUNTRY = _SOURCE_TAGS_PREFIX + 'media.country'
-    MEDIA_LANGUAGE = _SOURCE_TAGS_PREFIX + 'media.language'
-    MIMETYPE = _SOURCE_TAGS_PREFIX + 'mimetype'
-    MOVIE_EDITION = _SOURCE_TAGS_PREFIX + 'edition'
-    RELEASE_DISTRIBUTORS = _SOURCE_TAGS_PREFIX + 'release.distributors'
-    RELEASE_GROUP = _SOURCE_TAGS_PREFIX + 'release.group'
-    RELEASE_PROPER = _SOURCE_TAGS_PREFIX + 'release.proper'
-    RELEASE_SOURCE = _SOURCE_TAGS_PREFIX + 'release.source'
-    STREAMING_SERVICE = _SOURCE_TAGS_PREFIX + 'streaming.service'
-    SUBTITLES_LANGUAGE = _SOURCE_TAGS_PREFIX + 'subtitles.language'
-    VIDEO_CODEC = _SOURCE_TAGS_PREFIX + 'video.codec'
-    VIDEO_FORMAT = _SOURCE_TAGS_PREFIX + 'video.format'
-    VIDEO_SCREEN_SIZE = _SOURCE_TAGS_PREFIX + 'video.screen-size'
-
-    # @classmethod
-    # def values(cls):
-    #     for x in dir(cls):
-    #         if x[0] == '_':
-    #             continue
-
-    #         value = getattr(cls, x)
-    #         if (not isinstance(value, str) or
-    #                 not value.startswith(_SOURCE_TAGS_PREFIX)):
-    #             continue
-
-    #         yield value
+    AUDIO_CHANNELS = 'core.audio.channels'
+    AUDIO_CODEC = 'core.audio.codec'
+    AUDIO_PROFILE = 'core.audio.profile'
+    BROADCAST_DATE = 'core.broadcast.date'
+    EPISODE_COUNT = 'core.episode.count'
+    EPISODE_DETAILS = 'core.episode.details'
+    EPISODE_TITLE = 'core.episode.title'
+    GUESSIT_OTHER = 'core.guessit.other'
+    GUESSIT_UUID = 'core.guessit.uuid'
+    MEDIA_CONTAINER = 'core.media.container'
+    MEDIA_COUNTRY = 'core.media.country'
+    MEDIA_LANGUAGE = 'core.media.language'
+    MIMETYPE = 'core.mimetype'
+    MOVIE_EDITION = 'core.edition'
+    RELEASE_DISTRIBUTORS = 'core.release.distributors'
+    RELEASE_GROUP = 'core.release.group'
+    RELEASE_PROPER = 'core.release.proper'
+    RELEASE_SOURCE = 'core.release.source'
+    STREAMING_SERVICE = 'core.streaming.service'
+    SUBTITLES_LANGUAGE = 'core.subtitles.language'
+    VIDEO_CODEC = 'core.video.codec'
+    VIDEO_FORMAT = 'core.video.format'
+    VIDEO_SCREEN_SIZE = 'core.video.screen-size'
 
 
 METADATA_RULES = [
@@ -278,9 +261,8 @@ class UnknowEntityTypeError(NormalizationError):
     pass
 
 
-class MissingEntityDataError(NormalizationError):
-    pass
-
-
 class ParseError(NormalizationError):
     pass
+
+
+_logger = arroyo.getLogger('normalize')
