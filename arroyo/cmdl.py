@@ -237,6 +237,7 @@ def do_query(parser, args):
     ctx = engine.build_filter(q)
 
     data = json.loads(args.input.read())
+    data = [schema.Item(**x) for x in data]
     results = engine.apply(ctx, data)
 
     output = json.dumps([x.dict() for x in results], indent=2,

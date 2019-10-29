@@ -61,8 +61,9 @@ class Provider:
 class Filter:
     HANDLES = []
 
-    def can_handle(self, key):
-        return key in self.HANDLES
+    @classmethod
+    def can_handle(cls, key):
+        return key in cls.HANDLES
 
     def filter(self, key, value, item):
         raise NotImplementedError()

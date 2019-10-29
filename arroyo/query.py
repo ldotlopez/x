@@ -18,22 +18,12 @@
 # USA.
 
 
-from arroyo import (
-    normalize,
-    schema
-)
-
+from arroyo import normalize
 
 import sys
 
 
 class Query(dict):
-    def __init__(self, type, **kwargs):
-        schema.validate_entity_name(type)
-
-        kwargs['type'] = type
-        super().__init__(**kwargs)
-
     @classmethod
     def fromstring(cls, s):
         entity, _, _ = normalize.parse(s)
