@@ -32,10 +32,6 @@ from arroyo import (
 )
 
 
-logger = arroyo.getLogger('arroyo')
-logger.setLevel(arroyo.logging.DEBUG)
-
-
 def main():
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest='command', required=True)
