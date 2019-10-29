@@ -217,8 +217,16 @@ def extract_entity(info, type=None):
         raise UnknowEntityTypeError((info, type))
 
     if entity_cls is schema.Episode:
+        # Move some fields
         info['series'] = info.pop('title', None)
         info['number'] = info.pop('episode', None)
+
+        # Fix (in our way) series with date-based numbering
+        if ((not info.get('season') and not info.get('number'))
+                and info.get('date')):
+            info['season'] = 0
+            info['number'] = info['date'].strftime('%Y%m%d')
+
         fields = ('series', 'year', 'season', 'number')
 
     elif entity_cls is schema.Movie:
