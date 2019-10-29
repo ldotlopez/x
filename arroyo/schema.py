@@ -38,7 +38,7 @@ class Source(pydantic.BaseModel):
     seeds: typing.Optional[int]
     leechers: typing.Optional[int]
     size: typing.Optional[int]
-    metadata: typing.Dict[str, typing.Any] = {}
+    hints: typing.Dict[str, typing.Any] = {}
 
 
 class Episode(pydantic.BaseModel):

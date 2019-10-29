@@ -113,7 +113,7 @@ def _safe_normalize_one(item, type_hint=None):
 
 
 def normalize_one(item, type_hint=None):
-    type_hint = type_hint or item.metadata.get('type')
+    type_hint = type_hint or item.hints.get('type')
 
     entity, metadata, other = parse(item.name, type_hint)
     return schema.Item(**{

@@ -134,11 +134,18 @@ class Engine:
     def _build_source(self, ctx, item):
         item['provider'] = ctx.provider_name
 
-        item['metadata'] = {}
-        if ctx.type:
-            item['metadata']['type'] = ctx.type
-        if ctx.language:
-            item['metadata']['language'] = ctx.language
+        item_hints = {
+            'type': item.pop('type', None),
+            'language': item.pop('language', None)
+        }
+        ctx_hints = {
+            'type': ctx.type,
+            'language': ctx.language
+        }
+
+        item['hints'] = {k: v for (k, v) in (tuple(item_hints.items()) +
+                                             tuple(ctx_hints.items()))
+                         if v is not None}
 
         return schema.Source(**item)
 
