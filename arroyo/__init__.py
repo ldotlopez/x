@@ -22,11 +22,15 @@ import importlib
 import logging
 
 
-from arroyo.extensions import Provider
+from arroyo.extensions import (
+    Filter,
+    Provider
+)
 
 
 __all__ = [
     'Loader'
+    'Filter',
     'Provider',
     'getLogger'
 ]
