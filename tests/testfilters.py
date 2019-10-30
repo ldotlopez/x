@@ -97,18 +97,24 @@ class TestGenericFilter(unittest.TestCase):
 
 
 class TestEntityAttributeFilter(unittest.TestCase):
-    def test_a(self):
+    def test_basic_attribute_match(self):
         f = EpisodeAttributeFilter()
         i = build_item('Series A S02E03')
 
         self.assertTrue(f.filter('series', 'Series A', i))
         self.assertFalse(f.filter('series', 'Series B', i))
 
-    def test_b(self):
+    def test_alias_filter(self):
         f = EpisodeAttributeFilter()
         i = build_item('Series A (2017) S02E03')
 
         self.assertTrue(f.filter('series-year', '2017', i))
+
+    def test_alias_filter_with_modifier(self):
+        f = MovieAttributeFilter()
+        i = build_item("My.Friend.Flicka.1943.1080p.AMZN.WEBRip.DDP2.0.x264")
+
+        self.assertTrue(f.filter('movie-year-max', '1950', i))
 
 
 if __name__ == '__main__':
