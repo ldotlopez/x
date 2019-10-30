@@ -24,7 +24,8 @@ import logging
 
 from arroyo.extensions import (
     Filter,
-    Provider
+    Provider,
+    Sorter
 )
 
 
@@ -32,11 +33,19 @@ __all__ = [
     'Loader',
     'Filter',
     'Provider',
+    'Sorter',
     'getLogger'
 ]
 
 
 _plugins = {
+    'filters.source':
+        'arroyo.plugins.filters.generic.SourceAttributeFilter',
+    'filters.episode':
+        'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
+    'filters.movie':
+        'arroyo.plugins.filters.generic.MovieAttributeFilter',
+
     'providers.eztv':
         'arroyo.plugins.providers.eztv.EzTV',
     'providers.epublibre':
@@ -46,12 +55,8 @@ _plugins = {
     'providers.thepiratebay':
         'arroyo.plugins.providers.thepiratebay.ThePirateBay',
 
-    'filters.source':
-        'arroyo.plugins.filters.generic.SourceAttributeFilter',
-    'filters.episode':
-        'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
-    'filters.movie':
-        'arroyo.plugins.filters.generic.MovieAttributeFilter',
+    'sorters.basic':
+        'arroyo.plugins.sorters.basic.Basic'
 }
 
 

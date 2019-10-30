@@ -18,6 +18,7 @@
 # USA.
 
 
+import abc
 import fnmatch
 import re
 import sys
@@ -65,9 +66,16 @@ class Filter:
     def can_handle(cls, key):
         return key in cls.HANDLES
 
+    @abc.abstractmethod
     def filter(self, key, value, item):
         raise NotImplementedError()
 
     def apply(self, key, value, collection):
         return list([item for item in collection
                      if self.filter(key, value, item)])
+
+
+class Sorter:
+    @abc.abstractmethod
+    def sort(self, collection):
+        raise NotImplementedError()

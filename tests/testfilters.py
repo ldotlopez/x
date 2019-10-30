@@ -13,6 +13,10 @@ from arroyo.plugins.filters.generic import (
     MovieAttributeFilter
 )
 
+from arroyo.plugins.sorters.basic import (
+    Basic as BasicSorter
+)
+
 
 def build_source(name, **kwargs):
     uri = 'magnet:?dn=' + parse.quote(name)
@@ -115,6 +119,37 @@ class TestEntityAttributeFilter(unittest.TestCase):
         i = build_item("My.Friend.Flicka.1943.1080p.AMZN.WEBRip.DDP2.0.x264")
 
         self.assertTrue(f.filter('movie-year-max', '1950', i))
+
+
+class TestSorter(unittest.TestCase):
+    def test_proper(self):
+        s = BasicSorter()
+
+        i1 = build_item('series x s01e01.mp4')
+        i2 = build_item('series x s01e01.proper.mp4')
+
+        r = s.sort([i1, i2])
+        self.assertTrue(r[0] == i2)
+
+    def test_by_seeds(self):
+        s = BasicSorter()
+
+        i1 = build_item('the.movie', seeds=1000)
+        i2 = build_item('the.movie', seeds=100)
+        i3 = build_item('the.movie', seeds=500)
+
+        r = s.sort([i1, i2, i3])
+        self.assertTrue(r == [i1, i3, i2])
+
+    def test_by_ratio(self):
+        s = BasicSorter()
+
+        i1 = build_item('the.movie', seeds=100, leechers=5)
+        i2 = build_item('the.movie', seeds=100, leechers=200)
+        i3 = build_item('the.movie', seeds=100, leechers=50)
+
+        r = s.sort([i1, i2, i3])
+        self.assertTrue(r == [i1, i3, i2])
 
 
 if __name__ == '__main__':

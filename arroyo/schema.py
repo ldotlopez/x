@@ -49,11 +49,18 @@ class Episode(pydantic.BaseModel):
     number: int
     country: typing.Optional[str]
 
+    def __hash__(self):
+        return hash((self.series, self.country, self.year, self.season,
+                     self.number))
+
 
 class Movie(pydantic.BaseModel):
     type: typing_extensions.Literal['movie']
     title: str
     year: typing.Optional[int]
+
+    def __hash__(self):
+        return hash((self.title, self.year))
 
 
 class Item(pydantic.BaseModel):

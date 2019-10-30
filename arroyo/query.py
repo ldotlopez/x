@@ -59,12 +59,16 @@ class Engine:
 
         return filters
 
-    def apply(self, filters, items, mp=True):
-        ret = items
+    def apply(self, filters, collection, mp=True):
+        ret = collection
         for (f, key, value) in filters:
             ret = f.apply(key, value, ret)
 
         return ret
+
+    def sort(self, collection):
+        sorter = self.loader.get('sorters.basic')
+        return sorter.sort(collection)
 
 
 class MissingFilterError(Exception):

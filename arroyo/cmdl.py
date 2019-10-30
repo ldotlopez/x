@@ -239,6 +239,7 @@ def do_query(parser, args):
     data = json.loads(args.input.read())
     data = [schema.Item(**x) for x in data]
     results = engine.apply(ctx, data)
+    results = engine.sort(results)
 
     output = json.dumps([x.dict() for x in results], indent=2,
                         default=_json_encode_hook)
