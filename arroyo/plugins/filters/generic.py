@@ -18,72 +18,141 @@
 # USA.
 
 
-from arroyo import Filter
+from arroyo import (
+    schema,
+    Filter
+)
 
 
+import time
 import fnmatch
 import re
 
 
-class Generic(Filter):
+class SourceAttributeFilter(Filter):
     HANDLES = [
         # item.source attrib
         'created', 'created-min', 'created-max',
         'leechers', 'leechers-min', 'leechers-max',
         'name', 'name-like', 'name-glob',
         'provider', 'provider-in',
-        'seeds''seeds-min', 'seeds-max',
+        'seeds', 'seeds-min', 'seeds-max',
         'size', 'size-min', 'size-max',
         'uri', 'uri-like', 'uri-glob',
 
-        # other keys
+        # other names
         'age', 'age-min', 'age-max',
         'type', 'type-in',
     ]
 
-    def filter(self, key, value, item):
-        key, fn = eval_key(key)
-        return fn(value, key, g)
+    def filter(self, name, value, item):
+        basename, fn = eval_filter_name(name)
+
+        if basename == 'type':
+            try:
+                itemvalue = item.entity.type
+            except AttributeError:
+                return False
+
+        elif basename == 'age':
+            now = int(time.time())
+            itemvalue = max(now - (item.source.created or 0), 0)
+
+        else:
+            itemvalue = getattr(item.source, basename)
+
+        value = type(itemvalue)(value)
+        return fn(value, itemvalue)
 
 
-def eval_key(key):
-    if key.endswith('-like'):
-        key = key[:-5]
+class EntityAttributeFilter(Filter):
+    ENTITY_TYPE = None
+    HANDLES = []
+
+    def filter(self, name, value, item):
+        if not isinstance(item.entity, self.ENTITY_TYPE):
+            return False
+
+        basename, fn = eval_filter_name(name)
+
+        itemvalue = getattr(item.entity, basename)
+        value = type(itemvalue)(value)
+
+        return fn(value, itemvalue)
+
+
+class EpisodeAttributeFilter(EntityAttributeFilter):
+    ENTITY_TYPE = schema.Episode
+    HANDLES = [
+        'series', 'series-glob', 'series-like',
+        'series-year',
+        'season', 'season-min', 'season-max',
+        'number', 'number-min', 'number-max'
+    ]
+
+    def filter(self, name, value, item):
+        name = name.replace('series-', '')
+        return super().filter(name, value, item)
+
+
+class MovieAttributeFilter(EntityAttributeFilter):
+    ENTITY_TYPE = schema.Movie
+    HANDLES = [
+        'title', 'title-glob', 'title-like',
+        'movie-year', 'movie-year-min', 'movie-year-max'
+    ]
+
+    def filter(self, name, value, item):
+        name = name.replace('movie-', '')
+        return super().filter(name, value, item)
+
+
+def eval_filter_name(name):
+    if name.endswith('-like'):
+        name = name[:-5]
         fn = cmp_like
 
-    elif key.endswith('-glob'):
-        key = key[:-5]
+    elif name.endswith('-glob'):
+        name = name[:-5]
         fn = cmp_glob
 
-    elif key.endswith('-min'):
-        key = key[:-4]
+    elif name.endswith('-min'):
+        name = name[:-4]
         fn = cmp_min
 
-    elif key.endswith('-max'):
-        key = key[:-4]
+    elif name.endswith('-max'):
+        name = name[:-4]
         fn = cmp_max
+
+    elif name.endswith('-in'):
+        name = name[:-3]
+        fn = cmp_in
 
     else:
         fn = cmp_eq
 
-    return key, fn
+    return name, fn
 
 
-def cmp_eq(a, b):
-    return a == b
+def cmp_eq(filtervalue, itemvalue):
+    return filtervalue == itemvalue
 
 
-def cmp_min(n, limit):
-    return n >= limit
+def cmp_min(filtervalue, itemvalue):
+    return filtervalue <= itemvalue
 
 
-def cmp_max(n, limit):
-    return n <= limit
+def cmp_max(filtervalue, itemvalue):
+    return filtervalue >= itemvalue
 
 
-def cmp_glob(s, pattern):
-    return fnmatch.fnmatch(s, pattern)
+def cmp_glob(filtervalue, itemvalue):
+    return fnmatch.fnmatch(itemvalue, filtervalue)
 
 
-def cmp_like(s, pattern):
-    re.match(pattern, s)
+def cmp_like(filtervalue, itemvalue):
+    return re.match(filtervalue, itemvalue) is not None
+
+
+def cmp_in(options, itemvalue):
+    return False

@@ -29,7 +29,7 @@ from arroyo.extensions import (
 
 
 __all__ = [
-    'Loader'
+    'Loader',
     'Filter',
     'Provider',
     'getLogger'
@@ -46,8 +46,12 @@ _plugins = {
     'providers.thepiratebay':
         'arroyo.plugins.providers.thepiratebay.ThePirateBay',
 
-    'filters.fields':
-        'arroyo.plugins.filters.generic.Generic'
+    'filters.source':
+        'arroyo.plugins.filters.generic.SourceAttributeFilter',
+    'filters.episode':
+        'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
+    'filters.movie':
+        'arroyo.plugins.filters.generic.MovieAttributeFilter',
 }
 
 
