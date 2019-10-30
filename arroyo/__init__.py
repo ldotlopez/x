@@ -47,7 +47,7 @@ _plugins = {
         'arroyo.plugins.providers.thepiratebay.ThePirateBay',
 
     'filters.fields':
-        'arroyo.plugins.filters.dummy.Generic'
+        'arroyo.plugins.filters.generic.Generic'
 }
 
 

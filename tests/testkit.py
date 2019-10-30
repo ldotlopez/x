@@ -21,7 +21,7 @@
 import unittest
 
 
-from kit import ClassLoader
+from arroyo import _ClassLoader
 
 
 class Foo:

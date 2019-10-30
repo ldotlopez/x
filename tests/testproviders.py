@@ -21,10 +21,8 @@
 import unittest
 
 
-from arroyo.plugins.providers.dummy import (
-    RarBG
-)
 from arroyo.plugins.providers.epublibre import EPubLibre
+from arroyo.plugins.providers.eztv import EzTV
 from arroyo.plugins.providers.torrentapi import TorrentAPI
 
 
@@ -88,18 +86,12 @@ class TestProviderMixin:
         pass
 
 
-class TestRarBG(TestProviderMixin, unittest.TestCase):
-    PROVIDER_CLASS = RarBG
-    TEST_HANDLED_URLS = [
-        'https://www.rarbg.com/a/b'
-    ]
-    TEST_HANDLED_URLS_NEGATIVE = [
-        'http://www.foobar.com/'
-    ]
-
-
 class TestEPubLibre(TestProviderMixin, unittest.TestCase):
     PROVIDER_CLASS = EPubLibre
+
+
+class TestEzTV(TestProviderMixin, unittest.TestCase):
+    PROVIDER_CLASS = EzTV
 
 
 class TestTorrentAPI(TestProviderMixin, unittest.TestCase):
