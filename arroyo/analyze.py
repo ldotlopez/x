@@ -19,10 +19,6 @@
 
 
 import multiprocessing
-import sys
-
-
-import babelfish
 import guessit
 import pydantic
 
@@ -92,27 +88,27 @@ KNOWN_DISTRIBUTORS = [
 ]  # keep lower case!!
 
 
-def normalize(*items, mp=True):
+def analyze(*items, mp=True):
     if mp:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-            ret = pool.map(_safe_normalize_one, items)
+            ret = pool.map(_safe_analyze_one, items)
     else:
-        ret = list(map(_safe_normalize_one, items))
+        ret = list(map(_safe_analyze_one, items))
 
     ret = list(filter(lambda x: x is not None, ret))
     return ret
 
 
-def _safe_normalize_one(item, type_hint=None):
+def _safe_analyze_one(item, type_hint=None):
     try:
-        return normalize_one(item, type_hint)
+        return analyze_one(item, type_hint)
     except NormalizationError:
         logmsg = "Error analyzing '%s'"
         logmsg = logmsg % item.name
         _logger.warning(logmsg)
 
 
-def normalize_one(item, type_hint=None):
+def analyze_one(item, type_hint=None):
     type_hint = type_hint or item.hints.get('type')
 
     entity, metadata, other = parse(item.name, type_hint)
@@ -275,4 +271,4 @@ class ParseError(NormalizationError):
     pass
 
 
-_logger = arroyo.getLogger('normalize')
+_logger = arroyo.getLogger('analyze')

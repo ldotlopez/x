@@ -5,7 +5,7 @@ import time
 from urllib import parse
 
 
-from arroyo.normalize import normalize_one
+from arroyo.analyze import analyze_one
 from arroyo.schema import Source
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
@@ -26,7 +26,7 @@ def build_source(name, **kwargs):
 
 def build_item(name, **kwargs):
     src = build_source(name, **kwargs)
-    item = normalize_one(src)
+    item = analyze_one(src)
 
     return item
 

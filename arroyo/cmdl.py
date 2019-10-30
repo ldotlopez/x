@@ -25,7 +25,7 @@ import sys
 
 import arroyo
 from arroyo import (
-    normalize,
+    analyze,
     schema,
     scraper,
     query
@@ -99,14 +99,14 @@ def main():
         help='Force language')
 
     #
-    # normalize
+    # analyze
     #
-    normalize_cmd = commands.add_parser('normalize')
-    normalize_cmd.add_argument(
+    analyze_cmd = commands.add_parser('analyze')
+    analyze_cmd.add_argument(
         '--input',
         type=argparse.FileType('r'),
         default=sys.stdin)
-    normalize_cmd.add_argument(
+    analyze_cmd.add_argument(
         '--output',
         type=argparse.FileType('w'),
         default=sys.stdout)
@@ -147,8 +147,8 @@ def main():
     elif args.command == 'scrape':
         do_scrape(scrape_cmd, args)
 
-    elif args.command == 'normalize':
-        do_normalize(normalize_cmd, args)
+    elif args.command == 'analyze':
+        do_analyze(analyze_cmd, args)
 
     elif args.command == 'query':
         do_query(query_cmd, args)
@@ -197,13 +197,13 @@ def do_scrape(parser, args):
     args.output.write(output)
 
 
-def do_normalize(parser, args):
+def do_analyze(parser, args):
     raw = json.loads(args.input.read())
     if isinstance(raw, dict):
         raw = [raw]
 
     raw = [schema.Source(**x) for x in raw]
-    proc = normalize.normalize(*raw, mp=False)
+    proc = analyze.analyze(*raw, mp=False)
 
     output = json.dumps([x.dict() for x in proc], indent=2,
                         default=_json_encode_hook)

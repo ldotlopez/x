@@ -18,7 +18,7 @@
 # USA.
 
 
-from arroyo import normalize
+from arroyo import analyze
 
 import sys
 
@@ -26,7 +26,7 @@ import sys
 class Query(dict):
     @classmethod
     def fromstring(cls, s):
-        entity, _, _ = normalize.parse(s)
+        entity, _, _ = analyze.parse(s)
         params = {k: v for (k, v) in entity.dict().items() if v is not None}
         return cls(**params)
 
