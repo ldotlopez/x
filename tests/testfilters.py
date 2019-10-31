@@ -120,6 +120,16 @@ class TestEntityAttributeFilter(unittest.TestCase):
 
         self.assertTrue(f.filter('movie-year-max', '1950', i))
 
+    def test_filter_none(self):
+        f = MovieAttributeFilter()
+        m1 = build_item('Some movie (1998).avi', type='movie')
+        m2 = build_item('Some movie.avi', type='movie')
+
+        import ipdb; ipdb.set_trace(); pass
+        self.assertEqual(
+            f.apply('movie-year', '1998', [m1, m2]),
+            [m1])
+
 
 class TestSorter(unittest.TestCase):
     def test_proper(self):
