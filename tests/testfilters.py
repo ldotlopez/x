@@ -2,37 +2,17 @@ import unittest
 
 
 import time
-from urllib import parse
 
 
-from arroyo.analyze import analyze_one
-from arroyo.schema import Source
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,
     MovieAttributeFilter
 )
-
 from arroyo.plugins.sorters.basic import (
     Basic as BasicSorter
 )
-
-
-def build_source(name, **kwargs):
-    uri = 'magnet:?dn=' + parse.quote(name)
-    params = {
-        'uri': uri,
-        'provider': 'mock'
-    }
-    params.update(kwargs)
-    return Source(name=name, **params)
-
-
-def build_item(name, **kwargs):
-    src = build_source(name, **kwargs)
-    item = analyze_one(src)
-
-    return item
+from testlib import build_item
 
 
 class TestGenericFilter(unittest.TestCase):
@@ -125,7 +105,6 @@ class TestEntityAttributeFilter(unittest.TestCase):
         m1 = build_item('Some movie (1998).avi', type='movie')
         m2 = build_item('Some movie.avi', type='movie')
 
-        import ipdb; ipdb.set_trace(); pass
         self.assertEqual(
             f.apply('movie-year', '1998', [m1, m2]),
             [m1])
