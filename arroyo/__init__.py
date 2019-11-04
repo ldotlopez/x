@@ -58,11 +58,14 @@ _plugins = {
         'arroyo.plugins.providers.thepiratebay.ThePirateBay',
 
     'sorters.basic':
-        'arroyo.plugins.sorters.basic.Basic'
+        'arroyo.plugins.sorters.basic.Basic',
+
+    'downloaders.transmission':
+        'arroyo.plugins.downloaders.transmission.Tr'
 }
 
 
-class _ClassLoader:
+class ClassLoader:
     def __init__(self, defs=None):
         self._reg = {}
         if defs:
@@ -107,7 +110,7 @@ class _ClassLoader:
         return ret
 
 
-class Loader(_ClassLoader):
+class Loader(ClassLoader):
     def __init__(self):
         super().__init__(_plugins)
 
