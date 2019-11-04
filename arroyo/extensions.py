@@ -79,3 +79,37 @@ class Sorter:
     @abc.abstractmethod
     def sort(self, collection):
         raise NotImplementedError()
+
+
+class Downloader:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @abc.abstractmethod
+    def identifier_for_source(self, source):
+        raise NotImplementedError()
+        # return source.urn.split(':')[2]
+
+    @abc.abstractmethod
+    def add(self, source):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def cancel(self, identifier):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def archive(self, identifier):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def remove(self, identifier, delete_data):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def list(self):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def dump(self):
+        raise NotImplementedError()

@@ -23,13 +23,15 @@ import logging
 
 
 from arroyo.extensions import (
+    Downloader,
     Filter,
     Provider,
-    Sorter
+    Sorter,
 )
 
 
 __all__ = [
+    'Downloader',
     'Loader',
     'Filter',
     'Provider',

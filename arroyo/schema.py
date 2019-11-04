@@ -19,6 +19,7 @@
 
 
 import typing
+from urllib import parse
 
 
 import pydantic
@@ -30,6 +31,7 @@ ValidationError = pydantic.ValidationError
 
 
 class Source(pydantic.BaseModel):
+    id: str
     name: str
     provider: str
     uri: str
@@ -39,6 +41,15 @@ class Source(pydantic.BaseModel):
     leechers: typing.Optional[int]
     size: typing.Optional[int]
     hints: typing.Dict[str, typing.Any] = {}
+
+    def __init__(self, *args, **kwargs):
+        parsed = parse.urlparse(kwargs['uri'])
+        qs = dict(parse.parse_qsl(parsed.query))
+        kwargs['id'] = qs['xt'].split(':')[2]
+        super().__init__(*args, **kwargs)
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 class Episode(pydantic.BaseModel):
@@ -69,6 +80,9 @@ class Item(pydantic.BaseModel):
     entity: typing.Optional[typing.Union[Episode, Movie, None]]
     metadata: typing.Optional[typing.Dict[str, typing.Any]]
     other: typing.Optional[typing.Dict[str, typing.Any]]
+
+    def __hash__(self):
+        return hash((self.source, self.entity))
 
 
 entity_type_map = {
