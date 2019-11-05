@@ -24,9 +24,9 @@ from arroyo import (
 )
 
 
-import time
 import fnmatch
 import re
+import time
 
 
 class SourceAttributeFilter(Filter):
@@ -61,7 +61,7 @@ class SourceAttributeFilter(Filter):
         else:
             itemvalue = getattr(item.source, basename)
 
-        value = type(itemvalue)(value)
+        value = convert_type(value, itemvalue)
         return fn(value, itemvalue)
 
 
@@ -76,8 +76,7 @@ class EntityAttributeFilter(Filter):
         basename, fn = eval_filter_name(name)
 
         itemvalue = getattr(item.entity, basename)
-        value = type(itemvalue)(value)
-
+        value = convert_type(value, itemvalue)
         return fn(value, itemvalue)
 
 
@@ -105,6 +104,10 @@ class MovieAttributeFilter(EntityAttributeFilter):
     def filter(self, name, value, item):
         name = name.replace('movie-', '')
         return super().filter(name, value, item)
+
+
+def convert_type(value, target):
+    return type(target)(value)
 
 
 def eval_filter_name(name):
