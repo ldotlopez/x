@@ -48,17 +48,19 @@ class Engine:
 
     def build_filter(self, query):
         filters = []
+        missing = []
 
         for (key, value) in query.items():
             try:
                 f = self.get_filter(key)
             except MissingFilterError:
-                errmsg = "Missing filter for %s"
-                errmsg = errmsg % key
-                print(errmsg, file=sys.stderr)
+                missing.append(key)
                 continue
 
             filters.append((f, key, value))
+
+        if missing:
+            raise MissingFiltersError(missing)
 
         return filters
 
@@ -88,4 +90,8 @@ class Engine:
 
 
 class MissingFilterError(Exception):
+    pass
+
+
+class MissingFiltersError(MissingFilterError):
     pass

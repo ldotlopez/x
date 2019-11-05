@@ -234,7 +234,13 @@ def do_query(parser, args):
         q = query.Query(**params)
 
     engine = query.Engine(arroyo.Loader())
-    ctx = engine.build_filter(q)
+    try:
+        ctx = engine.build_filter(q)
+    except query.MissingFiltersError as e:
+        errmsg = "Unknow filters: %s"
+        errmsg = errmsg % ', '.join(e.args[0])
+        print(errmsg, file=sys.stderr)
+        parser.exit(1)
 
     data = json.loads(args.input.read())
     data = [schema.Item(**x) for x in data]
