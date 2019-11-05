@@ -241,7 +241,9 @@ def do_query(parser, args):
     results = engine.apply(ctx, data)
     results = engine.sort(results)
 
-    output = json.dumps([x.dict() for x in results], indent=2,
+    results = [[entity.dict(), [src.dict() for src in sources]]
+               for (entity, sources) in results]
+    output = json.dumps(results, indent=2,
                         default=_json_encode_hook)
     args.output.write(output)
 
