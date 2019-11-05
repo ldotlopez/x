@@ -26,19 +26,30 @@ import time
 
 
 from arroyo import ClassLoader
-from arroyo.plugins.downloaders.transmission import (
-    Tr as TransmissionDownloader
-)
 from arroyo.downloads import (
+    Database,
     Downloads,
-    Database as DownloadsDatabase,
-    State as DownloadState
+    State,
+    UnknowObjectError
 )
 from testlib import build_item, build_source
 
 
-class BaseTest:
-    SLOWDOWN = None
+class DatabaseTest(unittest.TestCase):
+    def test_dump_load(self):
+        src1 = build_source('foo')
+
+        db1 = Database()
+        db1.update('foo', src1, State.DOWNLOADING)
+
+        db2 = Database.frombuffer(db1.dump())
+
+        self.assertEqual(db2.get_all_states()['foo'],
+                         State.DOWNLOADING)
+
+
+class DownloaderTestMixin:
+    SLOWDOWN = 0.0
 
     def wait(self):
         if self.SLOWDOWN:
@@ -46,39 +57,63 @@ class BaseTest:
 
     def setUp(self):
         loader = ClassLoader({
-            'downloader': self.DOWNLOADER_CLS
+            'downloader': self.DOWNLOADER_SPEC
         })
         self.downloads = Downloads(loader)
 
-    def test_identifier(self):
-        src1 = build_source('foo')
-        downloader = self.DOWNLOADER_CLS()
-        self.assertEqual(
-            downloader.get_identifier(src1),
-            '0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33'
-        )
-
     def test_add(self):
         s1 = build_source('foo')
+
         self.downloads.add(s1)
         self.wait()
-        self.assertTrue(
-            self.downloads.list() ==
-            [s1]
-        )
+
+        self.assertEqual(self.downloads.list(),
+                         [s1])
 
     def test_add_duplicated(self):
         src1 = build_source('foo')
-        self.downloads.add(src1)
-        self.wait()
+
         self.downloads.add(src1)
         self.wait()
 
-        self.downloads.get_state(src1)
-        self.assertEqual(
-            set(self.downloads.list()),
-            set([src1])
-        )
+        self.downloads.add(src1)
+        self.wait()
+
+        self.assertNotEqual(self.downloads.get_state(src1),
+                            None)
+
+        self.assertEqual(self.downloads.list(),
+                         [src1])
+
+    def test_archive(self):
+        src1 = build_source('foo')
+
+        self.downloads.add(src1)
+        self.wait()
+
+        self.downloads.archive(src1)
+        self.wait()
+
+        self.assertEqual(self.downloads.get_state(src1),
+                         State.ARCHIVED)
+
+        self.assertEqual(self.downloads.list(),
+                         [])
+
+    def test_cancel(self):
+        src1 = build_source('foo')
+
+        self.downloads.add(src1)
+        self.wait()
+
+        self.downloads.cancel(src1)
+        self.wait()
+
+        with self.assertRaises(UnknowObjectError):
+            self.downloads.get_state(src1)
+
+        self.assertEqual(self.downloads.list(),
+                         [])
 
     def test_add_duplicated_archived(self):
         src1 = build_source('foo')
@@ -92,18 +127,92 @@ class BaseTest:
         self.downloads.add(src1)
         self.wait()
 
-        self.assertEqual(
-            self.downloads.list(),
-            [])
+        self.assertNotEqual(self.downloads.get_state(src1),
+                            None)
+
+        self.assertEqual(self.downloads.list(),
+                         [src1])
+
+    def test_remove_unknown_source(self):
+        src1 = build_source('foo')
+        src2 = build_source('bar')
+
+        with self.assertRaises(UnknowObjectError):
+            self.downloads.cancel(src1)
+
+        with self.assertRaises(UnknowObjectError):
+            self.downloads.archive(src2)
+
+    def test_unexpected_download_from_plugin(self):
+        src1 = build_source('foo')
+        src2 = build_source('bar')
+
+        self.downloads.add(src1)
+        self.wait()
+
+        fake_dump = [
+            {'id': self.downloads.db.to_id(src1),
+             'state': State.DOWNLOADING},
+            {'id': 'external-added-id',
+             'state': State.DOWNLOADING}
+        ]
+        with mock.patch.object(self.downloads.downloader.__class__, 'dump',
+                               return_value=fake_dump):
+            self.assertEqual(
+                self.downloads.list(),
+                [src1])
+
+    def test_handle_unexpected_remove_from_plugin_as_cancel(self):
+        src1 = build_source('foo')
+        src2 = build_source('bar')
+
+        self.downloads.add(src1)
+        self.downloads.add(src2)
+        self.wait()
+
+        fake_dump = [
+            {'id': self.downloads.db.to_id(src1),
+             'state': State.DOWNLOADING},
+        ]
+        with mock.patch.object(self.downloads.downloader.__class__, 'dump',
+                               return_value=fake_dump):
+
+            self.assertEqual(
+                self.downloads.list(),
+                [src1])
+
+            with self.assertRaises(UnknowObjectError):
+                self.downloads.get_state(src2)
+
+    def test_handle_unexpected_remove_from_plugin_as_archive(self):
+        src1 = build_source('foo')
+        src2 = build_source('bar')
+
+        self.downloads.add(src1)
+        self.downloads.add(src2)
+        self.wait()
+
+        # Manually update state of src2
+        id2 = self.downloads.db.to_id(src2)
+        self.downloads.db.update(id2, src2, State.SHARING)
+
+        # Mock plugin list to not list src2
+        fake_dump = [
+            {'id': self.downloads.db.to_id(src1),
+             'state': State.DOWNLOADING}
+        ]
+
+        with mock.patch.object(self.downloads.downloader.__class__, 'dump',
+                               return_value=fake_dump):
+            self.assertEqual(
+                self.downloads.get_state(src2),
+                State.ARCHIVED
+            )
 
 
-class TransmissionTest(BaseTest, unittest.TestCase):
-    PLUGINS = ['downloaders.transmission']
-    DOWNLOADER_CLS = TransmissionDownloader
-    SLOWDOWN = 0.2
-
-    def setUp(self):
-        super().setUp()
+class TransmissionTest(DownloaderTestMixin, unittest.TestCase):
+    DOWNLOADER_SPEC = 'arroyo.plugins.downloaders.transmission.Tr'
+    SLOWDOWN = 0.5
 
     def tearDown(self):
         transmission = self.downloads.downloader.client
@@ -115,160 +224,7 @@ class TransmissionTest(BaseTest, unittest.TestCase):
         self.wait()
 
 
-#     def test_add_duplicated(self):
-#         src1 = build_item('foo')
-#         self.app.insert_sources(src1)
-#         self.app.downloads.add(src1)
-#         self.wait()
-
-#         with self.assertRaises(downloads.DuplicatedDownloadError):
-#             self.app.downloads.add(src1)
-
-#         self.assertEqual(
-#             set(self.app.downloads.list()),
-#             set([src1]))
-
-#     def test_add_duplicated_archived(self):
-#         src1 = build_item('foo')
-#         self.app.insert_sources(src1)
-#         self.app.downloads.add(src1)
-#         self.app.downloads.archive(src1)
-#         self.wait()
-
-#         with self.assertRaises(downloads.DuplicatedDownloadError):
-#             self.app.downloads.add(src1)
-
-#         self.assertEqual(
-#             self.app.downloads.list(),
-#             [])
-
-#     def test_cancel(self):
-#         src1 = build_item('foo')
-#         self.app.insert_sources(src1)
-#         self.app.downloads.add(src1)
-#         self.app.downloads.cancel(src1)
-#         self.wait()
-
-#         self.assertEqual(
-#             src1.download,
-#             None)
-#         self.assertEqual(
-#             self.app.downloads.list(),
-#             [])
-
-#     def test_archive(self):
-#         src1 = build_item('foo')
-#         self.app.insert_sources(src1)
-#         self.app.downloads.add(src1)
-#         self.app.downloads.archive(src1)
-#         self.wait()
-
-#         self.assertEqual(
-#             src1.download.state,
-#             models.State.ARCHIVED)
-#         self.assertEqual(
-#             self.app.downloads.list(),
-#             [])
-
-#     def test_remove_unknown_source(self):
-#         src1 = build_item('foo')
-#         src2 = build_item('bar')
-#         self.app.insert_sources(src1, src2)
-#         self.wait()
-
-#         with self.assertRaises(downloads.DownloadNotFoundError):
-#             self.app.downloads.cancel(src1)
-#         with self.assertRaises(downloads.DownloadNotFoundError):
-#             self.app.downloads.archive(src2)
-
-#     def plugin_class(self):
-#         return self.app._get_extension_class(downloads.Downloader,
-#                                              self.DOWNLOADER)
-
-#     def foreign_ids(self, srcs):
-#         return [self.app.downloads.plugin.id_for_source(src)
-#                 for src in srcs]
-
-#     def test_unexpected_download_from_plugin(self):
-#         src1 = build_item('foo')
-#         src2 = build_item('bar')
-#         self.app.insert_sources(src1)
-#         self.app.downloads.add(src1)
-#         self.wait()
-
-#         fake_list = self.foreign_ids([src1, src2])
-#         with mock.patch.object(self.plugin_class(), 'list',
-#                                return_value=fake_list):
-#             self.assertEqual(
-#                 set(self.app.downloads.list()),
-#                 set([src1]))
-
-#     def test_handle_unexpected_remove_from_plugin_as_cancel(self):
-#         src1 = build_item('foo')
-#         src2 = build_item('bar')
-#         self.app.insert_sources(src1, src2)
-#         self.app.downloads.add(src1)
-#         self.app.downloads.add(src2)
-#         self.wait()
-
-#         fake_list = self.foreign_ids([src1])
-#         with mock.patch.object(self.plugin_class(), 'list',
-#                                return_value=fake_list):
-
-#             self.app.downloads.sync()
-
-#         self.assertEqual(
-#             src2.download,
-#             None)
-
-#     def test_handle_unexpected_remove_from_plugin_as_archive(self):
-#         src1 = build_item('foo')
-#         src2 = build_item('bar')
-#         self.app.insert_sources(src1, src2)
-#         self.app.downloads.add(src1)
-#         self.app.downloads.add(src2)
-#         self.wait()
-
-#         # Manually update state of src2
-#         src2.download.state = models.State.SHARING
-
-#         # Mock plugin list to not list src2
-#         fake_list = self.foreign_ids([src1])
-#         with mock.patch.object(self.plugin_class(), 'list',
-#                                return_value=fake_list):
-#             self.app.downloads.sync()
-
-#         self.assertEqual(
-#             src2.download.state,
-#             models.State.ARCHIVED
-#         )
-
-#     def test_info(self):
-#         src = build_item('foo')
-#         self.app.insert_sources(src)
-#         self.app.downloads.add(src)
-#         self.app.downloads.get_info(src)
-
-
-# class MockTest(BaseTest, unittest.TestCase):
-#     DOWNLOADER_CLS = MockDownloader
-
-
-# class TransmissionTest(BaseTest, unittest.TestCase):
-#     PLUGINS = ['downloaders.transmission']
-#     DOWNLOADER = 'transmission'
-#     SLOWDOWN = 0.2
-
-#     def setUp(self):
-#         super().setUp()
-#         for t in self.app.downloads.plugin.api.get_torrents():
-#             if t.name in ['foo', 'bar']:
-#                 self.app.downloads.plugin.api.remove_torrent(
-#                     t.id, delete_data=True)
-#         self.wait()
-
-
-# class DirectoryTest(BaseTest, unittest.TestCase):
+# class DirectoryTest(DownloaderTestMixin, unittest.TestCase):
 #     # TODO:
 #     # - Set storage path to tmpdir
 
@@ -280,31 +236,6 @@ class TransmissionTest(BaseTest, unittest.TestCase):
 #         super().setUp()
 #         cls = self.plugin_class()
 #         cls._fetch_torrent = mock.Mock(return_value=b'')
-
-
-class StorageTest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def _build_db(self):
-        db = DownloadsDatabase()
-
-        src = build_source('Foo s01e02')
-        db.set_state(src, DownloadState.DOWNLOADING)
-
-        return db
-
-    def test_get_and_set(self):
-        db = DownloadsDatabase()
-
-        src = build_source('Foo s01e02')
-        db.set_state(src, DownloadState.DOWNLOADING)
-        state = db.get_state(src)
-        self.assertTrue(state == DownloadState.DOWNLOADING)
-
-    def test_dump(self):
-        db = self._build_db()
-        b = db.dump()
 
 
 if __name__ == '__main__':

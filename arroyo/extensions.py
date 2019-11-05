@@ -113,3 +113,7 @@ class Downloader:
     @abc.abstractmethod
     def dump(self):
         raise NotImplementedError()
+
+
+class ExtensionError(Exception):
+    pass

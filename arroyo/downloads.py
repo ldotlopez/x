@@ -18,7 +18,6 @@
 # USA.
 
 
-import enum
 import pickle
 import typing
 
@@ -30,7 +29,9 @@ from arroyo import schema
 import functools
 
 
-class State(enum.Enum):
+# Don't make state an Enum
+# If state are defined as ints we can compare as __gt__ and __lt__
+class State:
     INITIALIZING = 1
     QUEUED = 2
     PAUSED = 3
@@ -40,25 +41,16 @@ class State(enum.Enum):
     ARCHIVED = 7
 
 
-STATE_SYMBOLS = {
-    # State.NONE: ' ',
-    State.INITIALIZING: '⋯',
-    State.QUEUED: '⋯',
-    State.PAUSED: '‖',
-    State.DOWNLOADING: '↓',
-    State.SHARING: '⇅',
-    State.DONE: '✓',
-    State.ARCHIVED: '▣'
-}
-
-
-class SchemaV1(pydantic.BaseModel):
-    # version: typing_extensions.Literal(1)
-    states: typing.Dict[schema.Source, State] = {}
-    by_id: typing.Dict[str, schema.Item] = {}
-    # by_entity: typing.Dict[
-    #     typing.Union[schema.Episode, schema.Movie], str
-    # ] = {}
+# STATE_SYMBOLS = {
+#     # State.NONE: ' ',
+#     State.INITIALIZING: '⋯',
+#     State.QUEUED: '⋯',
+#     State.PAUSED: '‖',
+#     State.DOWNLOADING: '↓',
+#     State.SHARING: '⇅',
+#     State.DONE: '✓',
+#     State.ARCHIVED: '▣'
+# }
 
 
 class Downloads:
@@ -72,13 +64,13 @@ class Downloads:
         self.db.update(id_, src, State.INITIALIZING)
 
     def cancel(self, src):
-        self.sync()
-        id_ = self.db.get_id(src)
+        id_ = self.db.to_id(src)
+        self.downloader.cancel(id_)
         self.db.remove(id_)
 
     def archive(self, src):
-        self.sync()
         id_ = self.db.to_id(src)
+        self.downloader.archive(id_)
         self.db.update(id_, src, State.ARCHIVED)
 
     def get_state(self, src):
@@ -89,7 +81,10 @@ class Downloads:
 
     def list(self):
         self.sync()
-        return [self.db.to_source(x) for x in self.db.list()]
+        ret = [self.db.to_source(id)
+               for (id, state) in self.db.get_all_states().items()
+               if state < State.ARCHIVED]
+        return ret
 
     def sync(self):
         # Load known data from downloader, indexed by source
@@ -108,10 +103,10 @@ class Downloads:
                 self.db.update(id_, src, downloader_data[src]['state'])
 
             else:
-                if state == State.DONE:
-                    self.db.update(src, State.ARCHIVED)
+                if state >= State.SHARING:
+                    self.db.update(id_, src, State.ARCHIVED)
                 else:
-                    self.db.remove(src)
+                    self.db.remove(id_)
 
 
 def catch_keyerror(meth):
@@ -125,28 +120,34 @@ def catch_keyerror(meth):
     return _wrap
 
 
-class Database:
-    def __init__(self, initial_data: SchemaV1 = None):
-        super().__init__()
-        # self.data = initial_data or SchemaV1()
-        self.by_id: typing.Dict[str, typing.Tuple[schema.Source, State]] = {}
-        self.source_map: typing.Dict[schema.Source, str] = {}
+class Database(pydantic.BaseModel):
+    by_id: typing.Dict[str, typing.Tuple[schema.Source, int]] = {}
+    source_map: typing.Dict[schema.Source, str] = {}
 
-    def load(self, buffer):
-        self.data = pickle.load(buffer)
+    @classmethod
+    def frombuffer(cls, buffer):
+        data = pickle.loads(buffer)
+        return cls(by_id=data['by_id'], source_map=data['source_map'])
 
     def dump(self):
-        return pickle.dump(self.data)
+        return pickle.dumps({
+            'version': 1,
+            'by_id': self.by_id,
+            'source_map': self.source_map
+        })
 
+    @catch_keyerror
     def to_id(self, src):
         return self.source_map[src]
 
+    @catch_keyerror
     def to_source(self, id):
         return self.by_id[id][0]
 
     def list(self):
         return list(self.by_id.keys())
 
+    @catch_keyerror
     def update(self, id, src, state):
         self.by_id[id] = (src, state)
         self.source_map[src] = id
@@ -161,58 +162,6 @@ class Database:
         ret = {id_: state
                for (id_, (_, state)) in self.by_id.items()}
         return ret
-
-    # def _get_key(self, d, key):
-    #     try:
-    #         return d[key]
-    #     except KeyError as e:
-    #         raise UnknowObjectError() from e
-
-    # def add(self, id_, src, state=State.INITIALIZING):
-    #     self.data.states[src] = state
-    #     self.data.by_id[id_] = src
-
-    # def list(self):
-    #     return list(self.data.states.keys())
-
-    # @catch_keyerror
-    # def get_state(self, src):
-    #     return self._get_key(self.data.states, src)
-
-    # def get_source_by_id(self, id_):
-    #     return self._get_key(self.data.by_id, id_)
-
-    # def get_state_by_id(self, id_):
-    #     src = self.get_source_by_id(id_)
-    #     return self.get_state(src)
-
-    # def set_state(self, item, state):
-    #     # O(1)
-    #     self.data.states[item.source] = state
-    #     self.data.by_id[item.source.id] = item.source
-    #     self.data.by_entity[item.entity] = item.source.id
-
-    # def get_state(self, item):
-    #     # O(1)
-    #     return self._get_key(self.data.states, item.source)
-
-    # def get_by_id(self, id_):
-    #     return self._get_key(self.data.by_id, id_)
-
-    # def get_sources_in_state(self, states):
-    #     # O(n)
-    #     if not isinstance(states, (list, tuple)):
-    #         states = list(states)
-
-    #     return [source
-    #             for (source, state) in self.data.states.items()
-    #             if state in states]
-
-    # def get_entity_source(self, entity):
-    #     # O(1)
-    #     id_ = self._get_key(self.data.by_entity, entity)
-    #     src = self._get_key(self.data.by_id, id_)
-    #     return src
 
 
 class UnknowObjectError(Exception):

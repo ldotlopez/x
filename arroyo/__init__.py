@@ -27,6 +27,7 @@ from arroyo.extensions import (
     Filter,
     Provider,
     Sorter,
+    ExtensionError
 )
 
 
@@ -36,6 +37,7 @@ __all__ = [
     'Filter',
     'Provider',
     'Sorter',
+    'ExtensionError',
     'getLogger'
 ]
 
