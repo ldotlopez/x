@@ -36,6 +36,9 @@ class Engine:
         self.loader = loader
         self.plugins = [loader.get(x) for x in loader.list('filters')]
 
+    def get_sorter(self):
+        return self.loader.get('sorters.basic')
+
     def get_filter(self, name):
         for plugin in self.plugins:
             if plugin.can_handle(name):
@@ -67,8 +70,21 @@ class Engine:
         return ret
 
     def sort(self, collection):
-        sorter = self.loader.get('sorters.basic')
-        return sorter.sort(collection)
+        groups = {}
+
+        for item in collection:
+            key = item.entity or item.source
+            if key not in groups:
+                groups[key] = []
+
+            groups[key].append(item)
+
+        sorter = self.get_sorter()
+        ret = [
+            (entity, sorter.sort(collection))
+            for (entity, collection) in groups.items()
+        ]
+        return ret
 
 
 class MissingFilterError(Exception):

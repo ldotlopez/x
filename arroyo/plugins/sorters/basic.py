@@ -27,6 +27,12 @@ import sys
 
 
 class Basic(Sorter):
+    def sort(self, collection):
+        return list(sorted(
+            collection,
+            key=functools.cmp_to_key(self.cmp_source_health)
+        ))
+
     def cmp_source_health(self, a, b):
         def is_proper(item):
             return item.metadata.get('core.release.proper', False)
@@ -113,22 +119,3 @@ class Basic(Sorter):
             return 1
 
         return -1
-
-    def sort(self, items):
-        m = {}
-
-        for item in items:
-            if item.entity not in m:
-                m[item.entity] = []
-
-            m[item.entity].append(item)
-
-        for entity in m:
-            if entity is None:
-                continue
-
-            m[entity] = sorted(
-                m[entity],
-                key=functools.cmp_to_key(self.cmp_source_health))
-
-        return list(itertools.chain.from_iterable((m[k] for k in m)))
