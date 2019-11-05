@@ -24,6 +24,11 @@ import sys
 
 
 class Query(dict):
+    def __init__(self, **kwargs):
+        if 'state' not in kwargs:
+            kwargs['state'] = 'none'
+        super().__init__(**kwargs)
+
     @classmethod
     def fromstring(cls, s):
         entity, _, _ = analyze.parse(s)

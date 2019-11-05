@@ -43,6 +43,8 @@ __all__ = [
 
 
 _plugins = {
+    'filters.state':
+        'arroyo.plugins.filters.generic.StateFilter',
     'filters.source':
         'arroyo.plugins.filters.generic.SourceAttributeFilter',
     'filters.episode':

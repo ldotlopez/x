@@ -29,6 +29,13 @@ import re
 import time
 
 
+class StateFilter(Filter):
+    HANDLES = ['state']
+
+    def filter(self, _, value, item):
+        return True
+
+
 class SourceAttributeFilter(Filter):
     HANDLES = [
         # item.source attrib
