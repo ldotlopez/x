@@ -4,10 +4,10 @@ import unittest
 import time
 
 
-from arroyo import Loader
 from arroyo.analyze import analyze_one
 from arroyo.query import Engine as QueryEngine
 from arroyo.schema import Source
+from arroyo.services import Loader
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,
@@ -145,7 +145,7 @@ class TestSorter(unittest.TestCase):
         self.assertTrue(r == [i1, i3, i2])
 
     def test_mixed_entities(self):
-        engine = QueryEngine(Loader())
+        engine = QueryEngine()
 
         m1 = build_item('movie', type='movie', seeds=1)
         e1 = build_item('series s01e01', type='movie', seeds=2)

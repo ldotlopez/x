@@ -21,7 +21,7 @@
 import unittest
 
 
-from arroyo import _ClassLoader
+from arroyo.services import ClassLoader
 
 
 class Foo:

@@ -24,7 +24,10 @@ import pydantic
 
 
 import arroyo
-from arroyo import schema
+from arroyo import (
+    services,
+    schema
+)
 
 
 class Tags:
@@ -271,4 +274,4 @@ class ParseError(NormalizationError):
     pass
 
 
-_logger = arroyo.getLogger('analyze')
+_logger = services.getLogger('analyze')

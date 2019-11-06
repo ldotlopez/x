@@ -25,13 +25,13 @@ from unittest import mock
 import time
 
 
-from arroyo import ClassLoader
 from arroyo.downloads import (
     Database,
     Downloads,
     State,
     UnknowObjectError
 )
+from arroyo.services import ClassLoader
 from testlib import build_item, build_source
 
 
