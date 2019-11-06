@@ -18,7 +18,10 @@
 # USA.
 
 
-from arroyo import analyze
+from arroyo import (
+    analyze,
+    services
+)
 
 import sys
 
@@ -32,15 +35,15 @@ class Query(dict):
 
 
 class Engine:
-    def __init__(self, loader):
-        self.loader = loader
-        self.plugins = [loader.get(x) for x in loader.list('filters')]
-
     def get_sorter(self):
-        return self.loader.get('sorters.basic')
+        loader = services.get_loader()
+        return loader.get('sorters.basic')
 
     def get_filter(self, name):
-        for plugin in self.plugins:
+        loader = services.get_loader()
+        plugins = [loader.get(x) for x in loader.list('filters')]
+
+        for plugin in plugins:
             if plugin.can_handle(name):
                 return plugin
 

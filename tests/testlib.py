@@ -3,6 +3,7 @@ from urllib import parse
 
 from arroyo.analyze import analyze_one
 from arroyo.schema import Source
+from arroyo.services import set_service, Loader
 
 
 def build_source(name, **kwargs):
@@ -24,3 +25,6 @@ def build_item(name, **kwargs):
     item = analyze_one(src)
 
     return item
+
+
+set_service('loader', Loader())
