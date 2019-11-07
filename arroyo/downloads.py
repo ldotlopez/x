@@ -25,7 +25,10 @@ import typing
 import pydantic
 
 
-from arroyo import schema
+from arroyo import (
+    schema,
+    services
+)
 import functools
 
 
@@ -54,10 +57,16 @@ class State:
 
 
 class Downloads:
-    def __init__(self, loader):
-        self.loader = loader
-        self.downloader = loader.get('downloader')
+    def __init__(self):
         self.db = Database()
+
+    @property
+    def loader(self):
+        return services.get_loader()
+
+    @property
+    def downloader(self):
+        return self.loader.get('downloader')
 
     def add(self, src):
         id_ = self.downloader.add(src.uri)

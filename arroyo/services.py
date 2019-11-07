@@ -64,21 +64,26 @@ def set_service(name, obj):
     _srvs[name] = obj
 
 
+class Services:
+    LOADER = 'loader'
+    SETTINGS = 'settings'
+
+
 def get_service(name):
-    if _srvs[name] is None:
+    if name not in _srvs or _srvs[name] is None:
         errmsg = "service '%s' is not configured"
         errmsg = errmsg % name
-        raise ValueError(errmsg)
+        raise ServiceNotFoundError(errmsg)
 
     return _srvs[name]
 
 
-def get_settings():
-    return get_service('settings')
-
-
 def get_loader():
-    return get_service('loader')
+    return get_service(Services.LOADER)
+
+
+def get_settings():
+    return get_service(Services.SETTINGS)
 
 
 def getLogger(name):
@@ -117,7 +122,10 @@ class ClassLoader:
         return self.get_class(name)(*args, **kwargs)
 
     def get_class(self, name):
-        cls = self._reg[name]
+        try:
+            cls = self._reg[name]
+        except KeyError as e:
+            raise ClassNotFoundError(name) from e
 
         if isinstance(cls, str):
             cls = self.resolve(cls)
@@ -141,3 +149,10 @@ class ClassLoader:
 class Loader(ClassLoader):
     def __init__(self):
         super().__init__(_plugins)
+
+
+class ClassNotFoundError(Exception):
+    pass
+
+class ServiceNotFoundError(Exception):
+    pass
