@@ -22,15 +22,24 @@ import importlib
 import logging
 
 
+DOWNLOADS_DB = 'downloadsdb'
+SETTINGS = 'setting'
+LOADER = 'loader'
+
+
 _services_reg = {
-    'settings': None,
-    'loader': None
+    DOWNLOADS_DB: None,
+    LOADER: None,
+    SETTINGS: None
 }
+
 
 _loggers = {}
 
 
 _plugins = {
+    'filters.state':
+        'arroyo.plugins.filters.generic.StateFilter',
     'filters.source':
         'arroyo.plugins.filters.generic.SourceAttributeFilter',
     'filters.episode':
@@ -76,14 +85,6 @@ def get_service(name):
         raise ServiceNotFoundError(errmsg)
 
     return _services_reg[name]
-
-
-def get_loader():
-    return get_service(Services.LOADER)
-
-
-def get_settings():
-    return get_service(Services.SETTINGS)
 
 
 def getLogger(name):
@@ -153,6 +154,7 @@ class Loader(ClassLoader):
 
 class ClassNotFoundError(Exception):
     pass
+
 
 class ServiceNotFoundError(Exception):
     pass

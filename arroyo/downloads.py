@@ -58,15 +58,12 @@ class State:
 
 class Downloads:
     def __init__(self):
-        self.db = Database()
-
-    @property
-    def loader(self):
-        return services.get_loader()
+        self.db = services.get_service(services.DOWNLOADS_DB)
 
     @property
     def downloader(self):
-        return self.loader.get('downloader')
+        loader = services.get_service(services.LOADER)
+        return loader.get('downloader')
 
     def add(self, src):
         id_ = self.downloader.add(src.uri)
@@ -129,9 +126,20 @@ def catch_keyerror(meth):
     return _wrap
 
 
-class Database(pydantic.BaseModel):
-    by_id: typing.Dict[str, typing.Tuple[schema.Source, int]] = {}
-    source_map: typing.Dict[schema.Source, str] = {}
+class RawDatabase:
+    def __init__(self,
+                 by_id:
+                 typing.Dict[str, typing.Tuple[schema.Source, int]] = None,
+                 source_map:
+                 typing.Dict[schema.Source, str] = None):
+        if by_id is None:
+            by_id = {}
+
+        if source_map is None:
+            source_map = {}
+
+        self.by_id = by_id
+        self.source_map = source_map
 
     @classmethod
     def frombuffer(cls, buffer):
@@ -170,6 +178,33 @@ class Database(pydantic.BaseModel):
     def get_all_states(self):
         ret = {id_: state
                for (id_, (_, state)) in self.by_id.items()}
+        return ret
+
+
+class Database(RawDatabase):
+    dbpath: str
+
+    def __init__(self, dbpath):
+        self.dbpath = dbpath
+
+        try:
+            with open(self.dbpath, 'rb') as fh:
+                data = pickle.loads(fh.read())
+
+        except FileNotFoundError:
+            data = {
+                'by_id': {},
+                'source_map': {}
+            }
+
+        super().__init__(by_id=data['by_id'], source_map=data['source_map'])
+
+    def update(self, *args, **kwargs):
+        ret = super().update(*args, **kwargs)
+
+        with open(self.dbpath, 'wb') as fh:
+            fh.write(self.dump())
+
         return ret
 
 

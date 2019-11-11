@@ -20,6 +20,7 @@
 
 from arroyo import (
     schema,
+    services,
     Filter
 )
 
@@ -32,8 +33,12 @@ import time
 class StateFilter(Filter):
     HANDLES = ['state']
 
-    def filter(self, _, value, item):
-        return True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.db = services.get_service(services.DOWNLOADS_DB)
+
+    def filter(self, name, value, item):
+        raise NotImplementedError()
 
 
 class SourceAttributeFilter(Filter):

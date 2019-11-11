@@ -157,7 +157,7 @@ class ProviderMissingError(Exception):
 
 
 def build_context(provider=None, uri=None, type=None, language=None):
-    loader = services.get_loader()
+    loader = services.get_service(services.LOADER)
 
     if not provider and not uri:
         errmsg = "Either provider or uri must be specified"

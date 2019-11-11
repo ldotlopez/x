@@ -23,13 +23,12 @@ from arroyo import (
     services
 )
 
-import sys
-
 
 class Query(dict):
     def __init__(self, **kwargs):
         if 'state' not in kwargs:
             kwargs['state'] = 'none'
+
         super().__init__(**kwargs)
 
     @classmethod
@@ -40,13 +39,15 @@ class Query(dict):
 
 
 class Engine:
+    @property
+    def loader(self):
+        return services.get_service(services.LOADER)
+
     def get_sorter(self):
-        loader = services.get_loader()
-        return loader.get('sorters.basic')
+        return self.loader.get('sorters.basic')
 
     def get_filter(self, name):
-        loader = services.get_loader()
-        plugins = [loader.get(x) for x in loader.list('filters')]
+        plugins = [self.loader.get(x) for x in self.loader.list('filters')]
 
         for plugin in plugins:
             if plugin.can_handle(name):

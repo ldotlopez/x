@@ -26,6 +26,7 @@ import sys
 import arroyo
 from arroyo import (
     analyze,
+    downloads,
     services,
     schema,
     scraper,
@@ -125,6 +126,10 @@ def main():
         type=argparse.FileType('w'),
         default=sys.stdout)
     query_cmd.add_argument(
+        '--db',
+        type=str,
+        default='/tmp/arroyo-downloads.db')
+    query_cmd.add_argument(
         '--filter',
         dest='queryparams',
         action='append',
@@ -141,7 +146,7 @@ def main():
     #
     # Setup arroyo
     #
-    services.set_service('loader', services.Loader())
+    services.set_service(services.LOADER, services.Loader())
 
     #
     # Run subcommand
@@ -159,6 +164,8 @@ def main():
         do_analyze(analyze_cmd, args)
 
     elif args.command == 'query':
+        services.set_service(services.DOWNLOADS_DB,
+                             downloads.Database(args.db))
         do_query(query_cmd, args)
 
     else:
