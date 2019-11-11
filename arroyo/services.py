@@ -22,7 +22,7 @@ import importlib
 import logging
 
 
-_srvs = {
+_services_reg = {
     'settings': None,
     'loader': None
 }
@@ -56,12 +56,12 @@ _plugins = {
 
 
 def set_service(name, obj):
-    if _srvs[name] is not None:
+    if _services_reg[name] is not None:
         errmsg = "service '%s' already set"
         errmsg = errmsg % name
         raise ValueError(errmsg)
 
-    _srvs[name] = obj
+    _services_reg[name] = obj
 
 
 class Services:
@@ -70,12 +70,12 @@ class Services:
 
 
 def get_service(name):
-    if name not in _srvs or _srvs[name] is None:
+    if name not in _services_reg or _services_reg[name] is None:
         errmsg = "service '%s' is not configured"
         errmsg = errmsg % name
         raise ServiceNotFoundError(errmsg)
 
-    return _srvs[name]
+    return _services_reg[name]
 
 
 def get_loader():
