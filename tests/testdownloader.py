@@ -32,8 +32,18 @@ from arroyo.downloads import (
     State,
     UnknowObjectError
 )
-from arroyo.services import ClassLoader
-from testlib import build_item, build_source, patch_service, unpatch_service
+from arroyo.services import (
+        DOWNLOADS_DB,
+        LOADER,
+        ClassLoader
+)
+
+
+from testlib import (
+    build_source,
+    patch_service,
+    unpatch_service
+)
 
 
 class DatabaseTest(unittest.TestCase):
@@ -75,14 +85,15 @@ class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
     def setUp(self):
-        patch_service('loader', ClassLoader({
+        patch_service(LOADER, ClassLoader({
             'downloader': self.DOWNLOADER_SPEC
         }))
-
+        patch_service(DOWNLOADS_DB, RawDatabase())
         self.downloads = Downloads()
 
     def tearDown(self):
-        unpatch_service('loader')
+        unpatch_service(LOADER)
+        unpatch_service(DOWNLOADS_DB)
 
     def wait(self):
         if self.SLOWDOWN:

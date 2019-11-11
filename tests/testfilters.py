@@ -4,10 +4,11 @@ import unittest
 import time
 
 
-from arroyo.analyze import analyze_one
 from arroyo.query import Engine as QueryEngine
-from arroyo.schema import Source
-from arroyo.services import Loader
+from arroyo.services import (
+    LOADER,
+    Loader
+)
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,
@@ -16,7 +17,11 @@ from arroyo.plugins.filters.generic import (
 from arroyo.plugins.sorters.basic import (
     Basic as BasicSorter
 )
-from testlib import build_item
+from testlib import (
+    build_item,
+    patch_service,
+    unpatch_service
+)
 
 
 class TestGenericFilter(unittest.TestCase):
@@ -161,4 +166,6 @@ class TestSorter(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    patch_service(LOADER, Loader())
     unittest.main()
+    unpatch_service(LOADER)

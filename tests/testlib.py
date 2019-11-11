@@ -27,8 +27,7 @@ def build_source(name, **kwargs):
 def build_item(name, **kwargs):
     src = build_source(name, **kwargs)
     item = analyze_one(src)
-
-    return
+    return item
 
 
 def patch_service(service, obj):
