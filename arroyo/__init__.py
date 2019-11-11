@@ -18,10 +18,6 @@
 # USA.
 
 
-import importlib
-import logging
-
-
 from arroyo.extensions import (
     Downloader,
     Filter,
@@ -33,102 +29,8 @@ from arroyo.extensions import (
 
 __all__ = [
     'Downloader',
-    'Loader',
     'Filter',
     'Provider',
     'Sorter',
     'ExtensionError',
-    'getLogger'
 ]
-
-
-_plugins = {
-    'filters.state':
-        'arroyo.plugins.filters.generic.StateFilter',
-    'filters.source':
-        'arroyo.plugins.filters.generic.SourceAttributeFilter',
-    'filters.episode':
-        'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
-    'filters.movie':
-        'arroyo.plugins.filters.generic.MovieAttributeFilter',
-
-    'providers.eztv':
-        'arroyo.plugins.providers.eztv.EzTV',
-    'providers.epublibre':
-        'arroyo.plugins.providers.epublibre.EPubLibre',
-    'providers.torrentapi':
-        'arroyo.plugins.providers.torrentapi.TorrentAPI',
-    'providers.thepiratebay':
-        'arroyo.plugins.providers.thepiratebay.ThePirateBay',
-
-    'sorters.basic':
-        'arroyo.plugins.sorters.basic.Basic',
-
-    'downloaders.transmission':
-        'arroyo.plugins.downloaders.transmission.Tr'
-}
-
-
-class ClassLoader:
-    def __init__(self, defs=None):
-        self._reg = {}
-        if defs:
-            for (name, cls) in defs.items():
-                self.register(name, cls)
-
-    def resolve(self, clsstr):
-        parts = clsstr.split('.')
-        mod, cls = '.'.join(parts[0:-1]), parts[-1]
-
-        if not mod:
-            raise ValueError(clsstr)
-
-        mod = importlib.import_module(mod)
-        return getattr(mod, cls)
-
-    def register(self, name, target):
-        self._reg[name] = target
-
-    def get(self, name, *args, **kwargs):
-        return self.get_class(name)(*args, **kwargs)
-
-    def get_class(self, name):
-        cls = self._reg[name]
-
-        if isinstance(cls, str):
-            cls = self.resolve(cls)
-            self._reg[name] = cls
-
-        if not isinstance(cls, type):
-            raise TypeError(type)
-
-        return cls
-
-    def list(self, ns=''):
-        if ns:
-            prefix = ns + '.'
-
-        ret = [name for (name, cls) in self._reg.items()
-               if name.startswith(prefix)]
-
-        return ret
-
-
-class Loader(ClassLoader):
-    def __init__(self):
-        super().__init__(_plugins)
-
-
-_loggers = {}
-
-
-def getLogger(name):
-    global _loggers
-
-    if not _loggers:
-        logging.basicConfig()
-
-    if name not in _loggers:
-        _loggers[name] = logging.getLogger(name)
-
-    return _loggers[name]

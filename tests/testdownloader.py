@@ -25,13 +25,14 @@ from unittest import mock
 import time
 
 
-from arroyo import ClassLoader
 from arroyo.downloads import (
     Database,
     Downloads,
     State,
     UnknowObjectError
 )
+from arroyo import services
+from arroyo.services import ClassLoader
 from testlib import build_item, build_source
 
 
@@ -51,15 +52,22 @@ class DatabaseTest(unittest.TestCase):
 class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
+    def setUp(self):
+        # Patch loader
+        self.orig_loader = services._srvs['loader']
+        services._srvs['loader'] = ClassLoader({
+            'downloader': self.DOWNLOADER_SPEC
+        })
+
+        self.downloads = Downloads()
+
+    def tearDown(self):
+        # Unpatch loader
+        services._srvs['loader'] = self.orig_loader
+
     def wait(self):
         if self.SLOWDOWN:
             time.sleep(self.SLOWDOWN)
-
-    def setUp(self):
-        loader = ClassLoader({
-            'downloader': self.DOWNLOADER_SPEC
-        })
-        self.downloads = Downloads(loader)
 
     def test_add(self):
         s1 = build_source('foo')

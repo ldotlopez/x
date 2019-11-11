@@ -26,6 +26,7 @@ import sys
 import arroyo
 from arroyo import (
     analyze,
+    services,
     schema,
     scraper,
     query
@@ -135,9 +136,16 @@ def main():
     #
     # Do parsing
     #
-
     args = parser.parse_args(sys.argv[1:])
 
+    #
+    # Setup arroyo
+    #
+    services.set_service('loader', services.Loader())
+
+    #
+    # Run subcommand
+    #
     if args.command == 'fetch':
         do_fetch(fetch_cmd, args)
 
@@ -163,16 +171,15 @@ def do_fetch(parser, args):
         parser.print_help()
         parser.exit(1)
 
-    loader = arroyo.Loader()
     engine = scraper.Engine()
-    ctx = scraper.build_context(loader, args.provider, args.uri)
+    ctx = scraper.build_context(args.provider, args.uri)
     result = engine.fetch_one(ctx)
     args.output.write(result)
 
 
 def do_parse(parser, args):
     engine = scraper.Engine()
-    ctx = scraper.build_context(arroyo.Loader(), args.provider,
+    ctx = scraper.build_context(args.provider,
                                 type=args.type, language=args.language)
     buffer = args.input.read()
 
@@ -187,8 +194,7 @@ def do_scrape(parser, args):
         parser.print_help()
         parser.exit(1)
 
-    ctxs = scraper.build_n_contexts(arroyo.Loader(), args.iterations,
-                                    args.provider, args.uri,
+    ctxs = scraper.build_n_contexts(args.iterations, args.provider, args.uri,
                                     type=args.type, language=args.language)
     engine = scraper.Engine()
     results = engine.process(*ctxs)
@@ -233,7 +239,7 @@ def do_query(parser, args):
         params = dict(_parse_queryparams(args.queryparams))
         q = query.Query(**params)
 
-    engine = query.Engine(arroyo.Loader())
+    engine = query.Engine()
     try:
         ctx = engine.build_filter(q)
     except query.MissingFiltersError as e:

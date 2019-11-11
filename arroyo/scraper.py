@@ -28,7 +28,8 @@ import aiohttp
 import arroyo
 from arroyo import (
     extensions,
-    schema
+    schema,
+    services
 )
 
 
@@ -62,13 +63,14 @@ class Context:
 
 
 class Engine:
+    # Move to settings
     CLIENT_USER_AGENT = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
                          'Gecko/20100101 Firefox/69.0')
     CLIENT_TIMEOUT = 15
     CLIENT_MAX_PARALEL_REQUESTS = 5
 
     def __init__(self):
-        self.logger = arroyo.getLogger('scraper.Engine')
+        self.logger = services.getLogger('scraper.Engine')
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -154,9 +156,8 @@ class ProviderMissingError(Exception):
     pass
 
 
-def build_context(loader, provider=None, uri=None, type=None, language=None):
-    if not isinstance(loader, arroyo.Loader):
-        raise TypeError(loader)
+def build_context(provider=None, uri=None, type=None, language=None):
+    loader = services.get_loader()
 
     if not provider and not uri:
         errmsg = "Either provider or uri must be specified"
@@ -182,7 +183,7 @@ def build_context(loader, provider=None, uri=None, type=None, language=None):
     return Context(provider, uri, type=type, language=language)
 
 
-def build_n_contexts(loader, n, *args, **kwargs):
+def build_n_contexts(n, *args, **kwargs):
     def _expand(ctx, n):
         g = ctx.provider.paginate(ctx.uri)
         for _ in range(n):
@@ -194,5 +195,5 @@ def build_n_contexts(loader, n, *args, **kwargs):
             yield Context(provider=ctx.provider, uri=uri,
                           type=ctx.type, language=ctx.language)
 
-    ctx0 = build_context(loader, *args, **kwargs)
+    ctx0 = build_context(*args, **kwargs)
     return list(_expand(ctx0, n))
