@@ -1,11 +1,13 @@
 import abc
 import contextlib
+import copy
 import threading
 import typing
 import pathlib
 import json
 import os
 import unittest
+import functools
 
 # import tinydb
 # import tinydb.storages
@@ -31,6 +33,8 @@ class Storage:
 
 
 class Table:
+    DEFAULTS: typing.Dict[typing.Any, typing.Any] = {}
+
     def __init__(self,
                  data: DataContainer,
                  notify_fn: typing.Callable,
@@ -46,7 +50,7 @@ class Table:
         self.lock.release()
 
     def sync(self):
-        self.notify()
+        self.notify(self.data)
 
 
 class Database:
@@ -64,12 +68,18 @@ class Database:
     def sync(self) -> None:
         self.storage.write(self.data)
 
-    def create_table(self, name, cls):
-        if name not in self.data:
-            self.data[name] = {}
+    def notify(self, name, data):
+        if not (self.data[name] is data):
+            self.data[name] = data
         self.sync()
 
-        self.tables[name] = cls(self.data[name], self.sync, self.lock)
+    def create_table(self, name, cls):
+        if name not in self.data:
+            self.data[name] = copy.copy(cls.DEFAULTS)
+        self.sync()
+
+        fn = functools.partial(self.notify, name)
+        self.tables[name] = cls(self.data[name], fn, self.lock)
         return self.tables[name]
 
     def table(self, name):
@@ -183,9 +193,7 @@ class KeyValueTable(Table):
 class DocumentTable(Table):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        keys = list(self.data.keys())
-        for k in keys:
-            self.data[int(k)] = self.data.pop(k)
+        self.data = {int(k): v for (k, v) in self.data.items()}
 
     def _last_id(self):
         if not self.data:
@@ -233,6 +241,26 @@ class TestingDatabase(Database):
         super().__init__(*args, **kwargs)
         self.kv = self.create_table('kv', KeyValueTable)
         self.docs = self.create_table('docs', DocumentTable)
+        self.d = self.create_table('d', TestingTable)
+
+
+class TestingTable(Table):
+    DEFAULTS = {
+        'map': {},
+        'list': []
+    }
+
+    def map(self, a, b):
+        self.data['map'][a] = b
+
+    def append(self, x):
+        self.data['list'].append(x)
+
+    def list(self):
+        return self.data['list']
+
+    def items(self):
+        return dict(self.data['map'].items())
 
 
 class NoDBTest(unittest.TestCase):
@@ -248,6 +276,12 @@ class NoDBTest(unittest.TestCase):
         db.kv.set('bar', 2)
         db.docs.insert({'name': 'foo', 'id': 1})
         db.docs.insert({'name': 'bar', 'id': 2})
+        db.d.map('x', 'y')
+        db.d.map('foo', 'bar')
+        db.d.append(1)
+        db.d.append(2)
+        self.assertEqual(db.d.items(), {'x': 'y', 'foo': 'bar'})
+        self.assertEqual(db.d.list(), [1, 2])
 
         db2 = TestingDatabase(storage=JSONStorage, path='/tmp/nodb-test.json')
         self.assertEqual(db2.kv.get('foo'), 1)
