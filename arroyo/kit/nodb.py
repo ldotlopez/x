@@ -48,6 +48,7 @@ class Table:
         self.lock.acquired()
         yield self
         self.lock.release()
+        self.sync()
 
     def sync(self):
         self.notify(self.data)
@@ -65,8 +66,19 @@ class Database:
     def __del__(self) -> None:
         self.close()
 
+    @contextlib.contextmanager
+    def transaction(self):
+        self.lock.acquired()
+        yield self
+        self.lock.release()
+        self.sync()
+
     def sync(self) -> None:
-        self.storage.write(self.data)
+        if self.lock.acquire(blocking=False):
+            self.storage.write(self.data)
+            self.lock.release()
+        else:
+            print("In transaction, ignore sync")
 
     def notify(self, name, data):
         if not (self.data[name] is data):
@@ -88,13 +100,6 @@ class Database:
     def close(self):
         self.storage.write(self.data)
         self.storage.close()
-
-    # def __getattr__(self, attr):
-    #     tables = getattr(self, 'tables')
-    #     try:
-    #         return tables[attr]
-    #     except KeyError as e:
-    #         raise TableNotFoundError(attr) from e
 
 
 #

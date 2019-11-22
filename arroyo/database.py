@@ -6,7 +6,7 @@ class Database(nodb.Database):
         super().__init__(*args, **kwargs)
         self.states = self.create_table('states', States)
         self.links = self.create_table('links', Links)
-        self.id_mapping = self.create_table('id_mapping', IdMapping)
+        self.external_ids = self.create_table('external_ids', IdMapping)
 
 
 class IdMapping(nodb.Table):
@@ -15,9 +15,9 @@ class IdMapping(nodb.Table):
         'reverse': {}
     }
 
-    def map(self, native_id, external_id):
-        self.data['native'][native_id] = external_id
-        self.data['reverse'][external_id] = native_id
+    def map(self, source, external_id):
+        self.data['native'][source] = external_id
+        self.data['reverse'][external_id] = source
 
     def get_native(self, external_id):
         return self.data['reverse'][external_id]
@@ -27,11 +27,17 @@ class IdMapping(nodb.Table):
 
 
 class States(nodb.Table):
-    def save(self, src, state):
-        self.data[src.id] = state
+    def set(self, src, state):
+        self.data[src] = state
 
     def get(self, src):
-        return self.data[src.id]
+        return self.data[src]
+
+    def drop(self, src):
+        del(self.data[src])
+
+    def all(self):
+        return self.data.items()
 
 
 class Links(nodb.Table):
