@@ -58,7 +58,7 @@ class State:
 
 class Downloads:
     def __init__(self):
-        self.db = services.get_service(services.DOWNLOADS_DB)
+        self.db = services.get_service(services.DATABASE)
 
     @property
     def downloader(self):
@@ -67,28 +67,32 @@ class Downloads:
 
     def add(self, src):
         id_ = self.downloader.add(src.uri)
-        self.db.update(id_, src, State.INITIALIZING)
+        self.db.external_ids.map(src, id_)
+        self.db.states.set(src, State.INITIALIZING)
 
     def cancel(self, src):
-        id_ = self.db.to_id(src)
-        self.downloader.cancel(id_)
-        self.db.remove(id_)
+        self.db.states.drop(src)
+        # id_ = self.db.to_id(src)
+        # self.downloader.cancel(id_)
+        # self.db.remove(id_)
 
     def archive(self, src):
-        id_ = self.db.to_id(src)
-        self.downloader.archive(id_)
-        self.db.update(id_, src, State.ARCHIVED)
+        self.db.states.set(src, State.ARCHIVED)
+        # id_ = self.db.to_id(src)
+        # self.downloader.archive(id_)
+        # self.db.update(id_, src, State.ARCHIVED)
 
     def get_state(self, src):
         self.sync()
-        id_ = self.db.to_id(src)
-        states = self.db.get_all_states()
-        return states[id_]
+        return self.db.states.get(src)
+        # id_ = self.db.to_id(src)
+        # states = self.db.get_all_states()
+        # return states[id_]
 
     def list(self):
         self.sync()
-        ret = [self.db.to_source(id)
-               for (id, state) in self.db.get_all_states().items()
+        ret = [src
+               for (src, state) in self.db.states.all()
                if state < State.ARCHIVED]
         return ret
 
@@ -96,23 +100,23 @@ class Downloads:
         # Load known data from downloader, indexed by source
         downloader_data = {}
         for x in self.downloader.dump():
+            external_id = x['id']
             try:
-                downloader_data[self.db.to_source(x['id'])] = x
+                native_id = self.db.external_ids.get_native(external_id)
+                downloader_data[native_id] = x
             except UnknowObjectError:
                 pass
 
         # Update in-app db data
-        for (id_, state) in self.db.get_all_states().items():
-            src = self.db.to_source(id_)
-
+        for (src, state) in self.db.states.all():
             if src in downloader_data:
-                self.db.update(id_, src, downloader_data[src]['state'])
+                self.db.states.set(src, downloader_data[src]['state'])
 
             else:
                 if state >= State.SHARING:
-                    self.db.update(id_, src, State.ARCHIVED)
+                    self.db.states.set(src, State.ARCHIVED)
                 else:
-                    self.db.remove(id_)
+                    self.db.states.drop(src)
 
 
 def catch_keyerror(meth):
@@ -126,87 +130,87 @@ def catch_keyerror(meth):
     return _wrap
 
 
-class RawDatabase:
-    def __init__(self,
-                 by_id:
-                 typing.Dict[str, typing.Tuple[schema.Source, int]] = None,
-                 source_map:
-                 typing.Dict[schema.Source, str] = None):
-        if by_id is None:
-            by_id = {}
+# class RawDatabase:
+#     def __init__(self,
+#                  by_id:
+#                  typing.Dict[str, typing.Tuple[schema.Source, int]] = None,
+#                  source_map:
+#                  typing.Dict[schema.Source, str] = None):
+#         if by_id is None:
+#             by_id = {}
 
-        if source_map is None:
-            source_map = {}
+#         if source_map is None:
+#             source_map = {}
 
-        self.by_id = by_id
-        self.source_map = source_map
+#         self.by_id = by_id
+#         self.source_map = source_map
 
-    @classmethod
-    def frombuffer(cls, buffer):
-        data = pickle.loads(buffer)
-        return cls(by_id=data['by_id'], source_map=data['source_map'])
+#     @classmethod
+#     def frombuffer(cls, buffer):
+#         data = pickle.loads(buffer)
+#         return cls(by_id=data['by_id'], source_map=data['source_map'])
 
-    def dump(self):
-        return pickle.dumps({
-            'version': 1,
-            'by_id': self.by_id,
-            'source_map': self.source_map
-        })
+#     def dump(self):
+#         return pickle.dumps({
+#             'version': 1,
+#             'by_id': self.by_id,
+#             'source_map': self.source_map
+#         })
 
-    @catch_keyerror
-    def to_id(self, src):
-        return self.source_map[src]
+#     @catch_keyerror
+#     def to_id(self, src):
+#         return self.source_map[src]
 
-    @catch_keyerror
-    def to_source(self, id):
-        return self.by_id[id][0]
+#     @catch_keyerror
+#     def to_source(self, id):
+#         return self.by_id[id][0]
 
-    def list(self):
-        return list(self.by_id.keys())
+#     def list(self):
+#         return list(self.by_id.keys())
 
-    @catch_keyerror
-    def update(self, id, src, state):
-        self.by_id[id] = (src, state)
-        self.source_map[src] = id
+#     @catch_keyerror
+#     def update(self, id, src, state):
+#         self.by_id[id] = (src, state)
+#         self.source_map[src] = id
 
-    @catch_keyerror
-    def remove(self, id):
-        src = self.to_source(id)
-        del(self.by_id[id])
-        del(self.source_map[src])
+#     @catch_keyerror
+#     def remove(self, id):
+#         src = self.to_source(id)
+#         del(self.by_id[id])
+#         del(self.source_map[src])
 
-    def get_all_states(self):
-        ret = {id_: state
-               for (id_, (_, state)) in self.by_id.items()}
-        return ret
-
-
-class Database(RawDatabase):
-    dbpath: str
-
-    def __init__(self, dbpath):
-        self.dbpath = dbpath
-
-        try:
-            with open(self.dbpath, 'rb') as fh:
-                data = pickle.loads(fh.read())
-
-        except FileNotFoundError:
-            data = {
-                'by_id': {},
-                'source_map': {}
-            }
-
-        super().__init__(by_id=data['by_id'], source_map=data['source_map'])
-
-    def update(self, *args, **kwargs):
-        ret = super().update(*args, **kwargs)
-
-        with open(self.dbpath, 'wb') as fh:
-            fh.write(self.dump())
-
-        return ret
+#     def get_all_states(self):
+#         ret = {id_: state
+#                for (id_, (_, state)) in self.by_id.items()}
+#         return ret
 
 
-class UnknowObjectError(Exception):
-    pass
+# class Database(RawDatabase):
+#     dbpath: str
+
+#     def __init__(self, dbpath):
+#         self.dbpath = dbpath
+
+#         try:
+#             with open(self.dbpath, 'rb') as fh:
+#                 data = pickle.loads(fh.read())
+
+#         except FileNotFoundError:
+#             data = {
+#                 'by_id': {},
+#                 'source_map': {}
+#             }
+
+#         super().__init__(by_id=data['by_id'], source_map=data['source_map'])
+
+#     def update(self, *args, **kwargs):
+#         ret = super().update(*args, **kwargs)
+
+#         with open(self.dbpath, 'wb') as fh:
+#             fh.write(self.dump())
+
+#         return ret
+
+
+# class UnknowObjectError(Exception):
+#     pass

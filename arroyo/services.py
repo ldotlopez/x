@@ -22,13 +22,13 @@ import importlib
 import logging
 
 
-DOWNLOADS_DB = 'downloadsdb'
+DATABASE = 'database'
 SETTINGS = 'setting'
 LOADER = 'loader'
 
 
 _services_reg = {
-    DOWNLOADS_DB: None,
+    DATABASE: None,
     LOADER: None,
     SETTINGS: None
 }
