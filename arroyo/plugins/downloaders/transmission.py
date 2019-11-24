@@ -23,7 +23,6 @@
 
 
 import functools
-from urllib import parse
 
 
 import transmissionrpc

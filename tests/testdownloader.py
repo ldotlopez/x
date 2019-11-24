@@ -19,13 +19,12 @@
 
 
 import unittest
-import os
-import random
 import time
 from unittest import mock
 
 from arroyo.kit.nodb import MemoryStorage
 from arroyo.database import Database
+
 from arroyo.downloads import (
     Downloads,
     State,
@@ -44,41 +43,6 @@ from testlib import (
 )
 
 
-# class DatabaseTest(unittest.TestCase):
-#     def test_raw_dump_and_load(self):
-#         src1 = build_source('foo')
-
-#         db1 = RawDatabase()
-#         db1.update('foo', src1, 1)
-
-#         db2 = RawDatabase.frombuffer(db1.dump())
-
-#         self.assertEqual(db2.get_all_states(),
-#                          {'foo': 1})
-
-#     def test_load_new_database(self):
-#         path = '/tmp/arroyo-test-%04d' % random.randint(0, 8192)
-#         db = Database(path)
-
-#         self.assertEqual(db.list(), [])
-#         with self.assertRaises(FileNotFoundError):
-#             os.remove(path)
-
-#     def test_load_previous_database(self):
-#         path = '/tmp/arroyo-test-%04d' % random.randint(0, 8192)
-
-#         db1 = Database(path)
-#         src = build_source('foo')
-#         db1.update('id:1', src, State.DOWNLOADING)
-
-#         db2 = Database(path)
-
-#         self.assertEqual(db1.list(), ['id:1'])
-#         self.assertEqual(db2.list(), ['id:1'])
-
-#         os.remove(path)
-
-
 class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
@@ -86,8 +50,8 @@ class DownloaderTestMixin:
         patch_service(LOADER, ClassLoader({
             'downloader': self.DOWNLOADER_SPEC
         }))
-
         patch_service(DATABASE, Database(storage=MemoryStorage))
+
         self.downloads = Downloads()
 
     def tearDown(self):

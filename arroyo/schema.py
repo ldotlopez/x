@@ -74,10 +74,13 @@ class Movie(pydantic.BaseModel):
         return hash((self.title, self.year))
 
 
+Entity = typing.Union[Episode, Movie]
+
+
 class Item(pydantic.BaseModel):
     # FIXME: Item is a too generic name
     source: Source
-    entity: typing.Optional[typing.Union[Episode, Movie, None]]
+    entity: typing.Optional[Entity]
     metadata: typing.Optional[typing.Dict[str, typing.Any]]
     other: typing.Optional[typing.Dict[str, typing.Any]]
 

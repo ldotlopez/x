@@ -18,18 +18,7 @@
 # USA.
 
 
-import pickle
-import typing
-
-
-import pydantic
-
-
-from arroyo import (
-    schema,
-    services
-)
-import functools
+from arroyo import services
 
 
 # Don't make state an Enum
@@ -54,7 +43,6 @@ class State:
 #     State.DONE: '✓',
 #     State.ARCHIVED: '▣'
 # }
-
 
 class Downloads:
     def __init__(self):
@@ -98,11 +86,12 @@ class Downloads:
         ret = [src
                for (src, state) in self.db.states.all()
                if state < State.ARCHIVED]
+
         return ret
 
     def sync(self):
-        # Load known data from downloader, indexed by source
         downloader_data = {}
+
         for x in self.downloader.dump():
             external_id = x['id']
             try:
@@ -121,100 +110,3 @@ class Downloads:
                     self.db.states.set(src, State.ARCHIVED)
                 else:
                     self.db.states.drop(src)
-
-
-def catch_keyerror(meth):
-    @functools.wraps(meth)
-    def _wrap(*args, **kwargs):
-        try:
-            return meth(*args, **kwargs)
-        except KeyError as e:
-            raise UnknowObjectError() from e
-
-    return _wrap
-
-
-# class RawDatabase:
-#     def __init__(self,
-#                  by_id:
-#                  typing.Dict[str, typing.Tuple[schema.Source, int]] = None,
-#                  source_map:
-#                  typing.Dict[schema.Source, str] = None):
-#         if by_id is None:
-#             by_id = {}
-
-#         if source_map is None:
-#             source_map = {}
-
-#         self.by_id = by_id
-#         self.source_map = source_map
-
-#     @classmethod
-#     def frombuffer(cls, buffer):
-#         data = pickle.loads(buffer)
-#         return cls(by_id=data['by_id'], source_map=data['source_map'])
-
-#     def dump(self):
-#         return pickle.dumps({
-#             'version': 1,
-#             'by_id': self.by_id,
-#             'source_map': self.source_map
-#         })
-
-#     @catch_keyerror
-#     def to_id(self, src):
-#         return self.source_map[src]
-
-#     @catch_keyerror
-#     def to_source(self, id):
-#         return self.by_id[id][0]
-
-#     def list(self):
-#         return list(self.by_id.keys())
-
-#     @catch_keyerror
-#     def update(self, id, src, state):
-#         self.by_id[id] = (src, state)
-#         self.source_map[src] = id
-
-#     @catch_keyerror
-#     def remove(self, id):
-#         src = self.to_source(id)
-#         del(self.by_id[id])
-#         del(self.source_map[src])
-
-#     def get_all_states(self):
-#         ret = {id_: state
-#                for (id_, (_, state)) in self.by_id.items()}
-#         return ret
-
-
-# class Database(RawDatabase):
-#     dbpath: str
-
-#     def __init__(self, dbpath):
-#         self.dbpath = dbpath
-
-#         try:
-#             with open(self.dbpath, 'rb') as fh:
-#                 data = pickle.loads(fh.read())
-
-#         except FileNotFoundError:
-#             data = {
-#                 'by_id': {},
-#                 'source_map': {}
-#             }
-
-#         super().__init__(by_id=data['by_id'], source_map=data['source_map'])
-
-#     def update(self, *args, **kwargs):
-#         ret = super().update(*args, **kwargs)
-
-#         with open(self.dbpath, 'wb') as fh:
-#             fh.write(self.dump())
-
-#         return ret
-
-
-# class UnknowObjectError(Exception):
-#     pass
