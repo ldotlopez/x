@@ -86,6 +86,7 @@ class DownloaderTestMixin:
         patch_service(LOADER, ClassLoader({
             'downloader': self.DOWNLOADER_SPEC
         }))
+
         patch_service(DATABASE, Database(storage=MemoryStorage))
         self.downloads = Downloads()
 
@@ -145,7 +146,8 @@ class DownloaderTestMixin:
         self.downloads.cancel(src1)
         self.wait()
 
-        with self.assertRaises(UnknowObjectError):
+        # Replace KeyError with nodb.NotFoundError or similar
+        with self.assertRaises(KeyError):
             self.downloads.get_state(src1)
 
         self.assertEqual(self.downloads.list(),
@@ -171,13 +173,16 @@ class DownloaderTestMixin:
 
     def test_remove_unknown_source(self):
         src1 = build_source('foo')
-        src2 = build_source('bar')
 
-        with self.assertRaises(UnknowObjectError):
+        with self.assertRaises(KeyError):
             self.downloads.cancel(src1)
 
-        with self.assertRaises(UnknowObjectError):
-            self.downloads.archive(src2)
+    def test_archive_unknown_source(self):
+        # This test fails if the name is foo. ¿?
+        src1 = build_source('foo')
+
+        with self.assertRaises(KeyError):
+            self.downloads.archive(src1)
 
     def test_unexpected_download_from_plugin(self):
         src1 = build_source('foo')
@@ -187,7 +192,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.to_id(src1),
+            {'id': self.downloads.db.external_ids.get_external(src1),
              'state': State.DOWNLOADING},
             {'id': 'external-added-id',
              'state': State.DOWNLOADING}
@@ -207,7 +212,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.to_id(src1),
+            {'id': self.downloads.db.external_ids.get_external(src1),
              'state': State.DOWNLOADING},
         ]
         with mock.patch.object(self.downloads.downloader.__class__, 'dump',
@@ -217,7 +222,7 @@ class DownloaderTestMixin:
                 self.downloads.list(),
                 [src1])
 
-            with self.assertRaises(UnknowObjectError):
+            with self.assertRaises(KeyError):
                 self.downloads.get_state(src2)
 
     def test_handle_unexpected_remove_from_plugin_as_archive(self):
@@ -229,12 +234,12 @@ class DownloaderTestMixin:
         self.wait()
 
         # Manually update state of src2
-        id2 = self.downloads.db.to_id(src2)
-        self.downloads.db.update(id2, src2, State.SHARING)
+        id2 = self.downloads.db.external_ids.get_external(src2)
+        self.downloads.db.states.set(src2, State.SHARING)
 
         # Mock plugin list to not list src2
         fake_dump = [
-            {'id': self.downloads.db.to_id(src1),
+            {'id': self.downloads.db.external_ids.get_external(src1),
              'state': State.DOWNLOADING}
         ]
 
@@ -248,7 +253,7 @@ class DownloaderTestMixin:
 
 class TransmissionTest(DownloaderTestMixin, unittest.TestCase):
     DOWNLOADER_SPEC = 'arroyo.plugins.downloaders.transmission.Tr'
-    SLOWDOWN = 0.5
+    SLOWDOWN = 0.2
 
     def tearDown(self):
         transmission = self.downloads.downloader.client

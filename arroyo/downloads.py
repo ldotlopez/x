@@ -71,12 +71,16 @@ class Downloads:
         self.db.states.set(src, State.INITIALIZING)
 
     def cancel(self, src):
+        external_id = self.db.external_ids.get_external(src)
+        self.downloader.cancel(external_id)
         self.db.states.drop(src)
         # id_ = self.db.to_id(src)
         # self.downloader.cancel(id_)
         # self.db.remove(id_)
 
     def archive(self, src):
+        external_id = self.db.external_ids.get_external(src)
+        self.downloader.archive(external_id)
         self.db.states.set(src, State.ARCHIVED)
         # id_ = self.db.to_id(src)
         # self.downloader.archive(id_)
@@ -102,13 +106,13 @@ class Downloads:
         for x in self.downloader.dump():
             external_id = x['id']
             try:
-                native_id = self.db.external_ids.get_native(external_id)
+                native_id = self.db.external_ids.get_source(external_id)
                 downloader_data[native_id] = x
-            except UnknowObjectError:
+            except KeyError:
                 pass
 
         # Update in-app db data
-        for (src, state) in self.db.states.all():
+        for (src, state) in list(self.db.states.all()):
             if src in downloader_data:
                 self.db.states.set(src, downloader_data[src]['state'])
 
