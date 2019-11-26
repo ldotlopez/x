@@ -1,6 +1,7 @@
 import abc
 import contextlib
 import copy
+import functools
 import threading
 import typing
 import pathlib
@@ -9,10 +10,18 @@ import os
 import unittest
 import functools
 
-# import tinydb
-# import tinydb.storages
 
 DataContainer = typing.Dict[str, typing.Any]
+
+
+def writes(fn):
+    @functools.wraps(fn)
+    def _wrap(self, *args, **kwargs):
+        ret = fn(self, *args, **kwargs)
+        self.notify()
+        return ret
+
+    return _wrap
 
 
 class Storage:
@@ -33,74 +42,82 @@ class Storage:
 
 
 class Table:
-    DEFAULTS: typing.Dict[typing.Any, typing.Any] = {}
+    DEFAULTS: typing.Any = None
 
     def __init__(self,
                  data: DataContainer,
                  notify_fn: typing.Callable,
                  lock: typing.Optional[threading.Lock] = None):
         self.data = data
-        self.notify = notify_fn
-        self.lock = lock
+        self._notify = notify_fn
 
-    @contextlib.contextmanager
-    def transaction(self):
-        self.lock.acquired()
-        yield self
-        self.lock.release()
-        self.sync()
+    @classmethod
+    def init_data(self, data):
+        return data
 
-    def sync(self):
-        self.notify(self.data)
+    def notify(self):
+        self._notify(self.data)
 
 
 class Database:
     def __init__(self,
                  storage: typing.Type[Storage] = Storage,
                  **kwargs: typing.Dict[str, typing.Any]):
-        self.storage = storage(**kwargs)
-        self.lock = threading.Lock()
-        self.tables: typing.Dict[str, typing.Type[Table]] = {}
-        self.data: DataContainer = self.storage.read() or {}
+        self._storage = storage(**kwargs)
+        self._tables: typing.Dict[str, typing.Type[Table]] = {}
+        self._lock = threading.Lock()
+
+        self.data: DataContainer = self._storage.read() or {}
+        self.in_transaction = threading.Lock()
 
     def __del__(self) -> None:
         self.close()
 
     @contextlib.contextmanager
     def transaction(self):
-        self.lock.acquired()
-        yield self
-        self.lock.release()
-        self.sync()
+        with self.in_transaction:
+            yield self
+        self.commit()
 
-    def sync(self) -> None:
-        if self.lock.acquire(blocking=False):
-            self.storage.write(self.data)
-            self.lock.release()
+    def commit(self) -> None:
+        if self.in_transaction.acquire(blocking=False):
+            with self._lock:
+                self._storage.write(self.data)
+            self.in_transaction.release()
         else:
-            print("In transaction, ignore sync")
+            pass
 
-    def notify(self, name, data):
+    def rollback(self) -> None:
+        self.data = self._storage.read()
+        for (name, table) in self._tables.items():
+            self.data[name] = table.init_data(self.data[name])
+            self._tables[name].data = self.data[name]
+
+    def notify(self, name, data):   
         if not (self.data[name] is data):
-            self.data[name] = data
-        self.sync()
+            raise ValueError("Tables should not modify data attribute")
+
+        self.commit()
 
     def create_table(self, name, cls):
         if name not in self.data:
-            self.data[name] = copy.copy(cls.DEFAULTS)
-        self.sync()
+            table_data = copy.deepcopy(cls.DEFAULTS)
+            table_data = cls.init_data(table_data)
+            self.data[name] = table_data
+
+        self.commit()
 
         fn = functools.partial(self.notify, name)
-        self.tables[name] = cls(self.data[name], fn, self.lock)
-        return self.tables[name]
+
+        self._tables[name] = cls(self.data[name], fn, self._lock)
+        return self._tables[name]
 
     def table(self, name):
-        return self.tables[name]
+        return self._tables[name]
 
     def close(self):
-        self.storage.write(self.data)
-        self.storage.close()
-
+        self._storage.write(self.data)
+        self._storage.close()
 
 #
 # Useful exceptions
@@ -130,10 +147,10 @@ class MemoryStorage(Storage):
         self.memory = {}
 
     def read(self):
-        return self.memory
+        return copy.deepcopy(self.memory)
 
     def write(self, data):
-        self.memory = data
+        self.memory = copy.deepcopy(data)
 
     def close(self):
         pass
@@ -181,9 +198,11 @@ class JSONStorage(Storage):
 #
 
 class KeyValueTable(Table):
+    DEFAULTS: typing.Dict[typing.Any, typing.Any] = {}
+
     def set(self, k, v):
         self.data[k] = v
-        self.sync()
+        self.notify()
 
     def get(self, k):
         return self.data[k]
@@ -191,14 +210,17 @@ class KeyValueTable(Table):
     def get_all(self):
         return list(self.data.keys())
 
+    @writes
     def remove(self, k):
         del(self.data[k])
 
 
 class DocumentTable(Table):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.data = {int(k): v for (k, v) in self.data.items()}
+    DEFAULTS: typing.Dict[int, typing.Any] = {}
+
+    @classmethod
+    def init_data(cls, data):
+        return {int(k): v for (k, v) in data.items()}
 
     def _last_id(self):
         if not self.data:
@@ -206,10 +228,11 @@ class DocumentTable(Table):
 
         return max(self.data.keys())
 
+    @writes
     def insert(self, doc):
         id_ = self._last_id() + 1
         self.data[id_] = doc
-        self.sync()
+        self.notify()
 
     def _search(self, fn):
         for (id_, doc) in self.data.items():
@@ -233,6 +256,7 @@ class DocumentTable(Table):
 
         raise MultipleResultsError()
 
+    @writes
     def delete(self, fn):
         res = self._search(fn)
         for (id_, doc) in res:
@@ -255,9 +279,11 @@ class TestingTable(Table):
         'list': []
     }
 
+    @writes
     def map(self, a, b):
         self.data['map'][a] = b
 
+    @writes
     def append(self, x):
         self.data['list'].append(x)
 
@@ -293,6 +319,17 @@ class NoDBTest(unittest.TestCase):
         self.assertEqual(db2.kv.get('bar'), 2)
         self.assertEqual(db2.docs.get(lambda x: x.get('name') == 'foo'),
                          {'name': 'foo', 'id': 1})
+
+
+        db3 = TestingDatabase(storage=MemoryStorage)
+        db3.kv.set('foo', 'bar')
+        with db3.transaction():
+            db3.kv.remove('foo')
+            with self.assertRaises(KeyError):
+                db3.kv.get('foo')
+            db3.rollback()
+
+        self.assertEqual(db3.kv.get('foo'), 'bar')
 
 
 if __name__ == '__main__':
