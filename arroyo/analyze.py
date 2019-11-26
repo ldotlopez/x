@@ -23,7 +23,6 @@ import guessit
 import pydantic
 
 
-import arroyo
 from arroyo import (
     services,
     schema

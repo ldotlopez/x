@@ -38,6 +38,7 @@ from arroyo.services import (
 
 from testlib import (
     build_source,
+    build_item,
     patch_service,
     unpatch_service
 )
@@ -213,6 +214,11 @@ class DownloaderTestMixin:
                 self.downloads.get_state(src2),
                 State.ARCHIVED
             )
+
+    def test_ignore_duplicated_entity(self):
+        e1 = build_item('Some.Series.2019.S01E01.720p.mkv')
+        e2 = build_item('Some.Series.2019.S01E01.1080p.mkv')
+        import ipdb; ipdb.set_trace(); pass
 
 
 class TransmissionTest(DownloaderTestMixin, unittest.TestCase):

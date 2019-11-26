@@ -23,14 +23,16 @@ import json
 import sys
 
 
-import arroyo
 from arroyo import (
     analyze,
-    downloads,
+    database,
     services,
     schema,
     scraper,
     query
+)
+from arroyo.kit import (
+    nodb
 )
 
 
@@ -164,8 +166,8 @@ def main():
         do_analyze(analyze_cmd, args)
 
     elif args.command == 'query':
-        services.set_service(services.DOWNLOADS_DB,
-                             downloads.Database(args.db))
+        services.set_service(services.DATABASE,
+                             database.Database(storage=nodb.JSONStorage, path=args.db))
         do_query(query_cmd, args)
 
     else:

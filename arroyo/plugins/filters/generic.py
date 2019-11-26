@@ -35,9 +35,10 @@ class StateFilter(Filter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = services.get_service(services.DOWNLOADS_DB)
+        self.db = services.get_service(services.DATABASE)
 
     def filter(self, name, value, item):
+        return True
         raise NotImplementedError()
 
 
