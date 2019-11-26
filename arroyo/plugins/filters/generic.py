@@ -57,39 +57,39 @@ class SourceAttributeFilter(Filter):
         'type', 'type-in',
     ]
 
-    def filter(self, name, value, item):
+    def filter(self, name, value, source):
         basename, fn = eval_filter_name(name)
 
         if basename == 'type':
             try:
-                itemvalue = item.entity.type
+                sourcevalue = source.entity.type
             except AttributeError:
                 return False
 
         elif basename == 'age':
             now = int(time.time())
-            itemvalue = max(now - (item.source.created or 0), 0)
+            sourcevalue = max(now - (source.created or 0), 0)
 
         else:
-            itemvalue = getattr(item.source, basename)
+            sourcevalue = getattr(source, basename)
 
-        value = convert_type(value, itemvalue)
-        return fn(value, itemvalue)
+        value = convert_type(value, sourcevalue)
+        return fn(value, sourcevalue)
 
 
 class EntityAttributeFilter(Filter):
     ENTITY_TYPE = None
     HANDLES = []
 
-    def filter(self, name, value, item):
-        if not isinstance(item.entity, self.ENTITY_TYPE):
+    def filter(self, name, value, source):
+        if not isinstance(source.entity, self.ENTITY_TYPE):
             return False
 
         basename, fn = eval_filter_name(name)
 
-        itemvalue = getattr(item.entity, basename)
-        value = convert_type(value, itemvalue)
-        return fn(value, itemvalue)
+        sourcevalue = getattr(source.entity, basename)
+        value = convert_type(value, sourcevalue)
+        return fn(value, sourcevalue)
 
 
 class EpisodeAttributeFilter(EntityAttributeFilter):
@@ -149,25 +149,29 @@ def eval_filter_name(name):
     return name, fn
 
 
-def cmp_eq(filtervalue, itemvalue):
-    return filtervalue == itemvalue
+def cmp_eq(filtervalue, sourcevalue):
+    if isinstance(filtervalue, str) and isinstance(sourcevalue, str):
+        filtervalue = filtervalue.lower()
+        sourcevalue = sourcevalue.lower()
+
+    return filtervalue == sourcevalue
 
 
-def cmp_min(filtervalue, itemvalue):
-    return filtervalue <= itemvalue
+def cmp_min(filtervalue, sourcevalue):
+    return filtervalue <= sourcevalue
 
 
-def cmp_max(filtervalue, itemvalue):
-    return filtervalue >= itemvalue
+def cmp_max(filtervalue, sourcevalue):
+    return filtervalue >= sourcevalue
 
 
-def cmp_glob(filtervalue, itemvalue):
-    return fnmatch.fnmatch(itemvalue, filtervalue)
+def cmp_glob(filtervalue, sourcevalue):
+    return fnmatch.fnmatch(sourcevalue, filtervalue)
 
 
-def cmp_like(filtervalue, itemvalue):
-    return re.match(filtervalue, itemvalue) is not None
+def cmp_like(filtervalue, sourcevalue):
+    return re.match(filtervalue, sourcevalue) is not None
 
 
-def cmp_in(options, itemvalue):
+def cmp_in(options, sourcevalue):
     return False

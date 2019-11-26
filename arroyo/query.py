@@ -83,17 +83,18 @@ class Engine:
     def sort(self, collection):
         groups = {}
 
-        for item in collection:
-            key = item.entity or item.source
+        # Group by entity or by source itself
+        for source in collection:
+            key = source.entity or source
             if key not in groups:
                 groups[key] = []
 
-            groups[key].append(item)
+            groups[key].append(source)
 
         sorter = self.get_sorter()
         ret = [
-            (entity, sorter.sort(collection))
-            for (entity, collection) in groups.items()
+            (key, sorter.sort(collection))
+            for (key, collection) in groups.items()
         ]
         return ret
 

@@ -34,20 +34,20 @@ class Basic(Sorter):
         ))
 
     def cmp_source_health(self, a, b):
-        def is_proper(item):
-            return item.metadata.get('core.release.proper', False)
+        def is_proper(source):
+            return source.metadata.get('core.release.proper', False)
 
-        def has_release_group(item):
-            return item.metadata.get('core.release.group', None) is not None
+        def has_release_group(source):
+            return source.metadata.get('core.release.group', None) is not None
 
-        def seeds_are_relevant(item):
-            return (item.source.seeds or 0) > 10
+        def seeds_are_relevant(source):
+            return (source.seeds or 0) > 10
 
-        def share_ratio(item):
-            seeds = item.source.seeds or 0
-            leechers = item.source.leechers or 0
+        def share_ratio(source):
+            seeds = source.seeds or 0
+            leechers = source.leechers or 0
 
-            if not item.source.seeds and not item.source.leechers:
+            if not source.seeds and not source.leechers:
                 return None
 
             if seeds and (leechers == 0):
@@ -115,7 +115,7 @@ class Basic(Sorter):
             return 1
 
         # Retry with pure seeds
-        if b.source.seeds > a.source.seeds:
+        if b.seeds > a.seeds:
             return 1
 
         return -1

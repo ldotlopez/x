@@ -256,7 +256,7 @@ def do_query(parser, args):
         parser.exit(1)
 
     data = json.loads(args.input.read())
-    data = [schema.Item(**x) for x in data]
+    data = [schema.Source(**x) for x in data]
     results = engine.apply(ctx, data)
     results = engine.sort(results)
 

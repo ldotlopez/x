@@ -91,36 +91,38 @@ KNOWN_DISTRIBUTORS = [
 ]  # keep lower case!!
 
 
-def analyze(*items, mp=True):
+def analyze(*sources, mp=True):
     if mp:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-            ret = pool.map(_safe_analyze_one, items)
+            ret = pool.map(_safe_analyze_one, sources)
     else:
-        ret = list(map(_safe_analyze_one, items))
+        ret = list(map(_safe_analyze_one, sources))
 
     ret = list(filter(lambda x: x is not None, ret))
     return ret
 
 
-def _safe_analyze_one(item, type_hint=None):
+def _safe_analyze_one(source, type_hint=None):
     try:
-        return analyze_one(item, type_hint)
+        return analyze_one(source, type_hint)
     except NormalizationError:
         logmsg = "Error analyzing '%s'"
-        logmsg = logmsg % item.name
+        logmsg = logmsg % source.name
         _logger.warning(logmsg)
 
 
-def analyze_one(item, type_hint=None):
-    type_hint = type_hint or item.hints.get('type')
+def analyze_one(source, type_hint=None):
+    type_hint = type_hint or source.hints.get('type')
 
-    entity, metadata, other = parse(item.name, type_hint)
-    return schema.Item(**{
-        'source': item,
+    entity, metadata, other = parse(source.name, type_hint)
+    params = source.dict()
+    params.update({
         'entity': entity,
         'metadata': metadata,
         'other': other
     })
+
+    return schema.Source(**params)
 
 
 def parse(name, type_hint=None):
