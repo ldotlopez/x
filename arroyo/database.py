@@ -1,6 +1,3 @@
-import typing
-
-
 from arroyo.kit import nodb
 from arroyo import schema
 
@@ -14,15 +11,15 @@ class Database(nodb.Database):
 
 
 class IdMapping(nodb.Table):
-    DEFAULTS = {
+    SCHEMA = {
         'native': {},
         'reverse': {}
     }
 
+    @nodb.writes
     def map(self, source: schema.Source, external_id: str) -> None:
         self.data['native'][source] = external_id
         self.data['reverse'][external_id] = source
-        self.sync()
 
     def get_source(self, external_id: str) -> schema.Source:
         return self.data['reverse'][external_id]
@@ -32,29 +29,33 @@ class IdMapping(nodb.Table):
 
 
 class States(nodb.Table):
+    SCHEMA = {}
+
+    @nodb.writes
     def set(self, src, state):
         self.data[src] = state
-        self.sync()
 
     def get(self, src):
         return self.data[src]
 
+    @nodb.writes
     def drop(self, src):
         del(self.data[src])
-        self.sync()
 
     def all(self):
         return self.data.items()
 
 
 class Links(nodb.Table):
+    SCHEMA = {}
+
+    @nodb.writes
     def link(self, src, entity):
         self.data[src.id] = entity
-        self.sync()
 
+    @nodb.writes
     def unlink(self, src, entity):
         del(self.data[src.id])
-        self.sync()
 
     def get_source(self, entity):
         return {v: k for (k, v) in self.items()}[entity]

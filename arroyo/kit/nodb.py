@@ -8,7 +8,6 @@ import pathlib
 import json
 import os
 import unittest
-import functools
 
 
 DataContainer = typing.Dict[str, typing.Any]
@@ -17,8 +16,11 @@ DataContainer = typing.Dict[str, typing.Any]
 def writes(fn):
     @functools.wraps(fn)
     def _wrap(self, *args, **kwargs):
-        ret = fn(self, *args, **kwargs)
-        self.notify()
+        # print("Try lock in write")
+        with self._lock:
+            ret = fn(self, *args, **kwargs)
+
+        self._notify()
         return ret
 
     return _wrap
@@ -42,21 +44,19 @@ class Storage:
 
 
 class Table:
-    DEFAULTS: typing.Any = None
+    SCHEMA: typing.Any = None
 
     def __init__(self,
                  data: DataContainer,
                  notify_fn: typing.Callable,
-                 lock: typing.Optional[threading.Lock] = None):
+                 lock: threading.Lock = None):
         self.data = data
+        self._lock = lock
         self._notify = notify_fn
 
     @classmethod
     def init_data(self, data):
         return data
-
-    def notify(self):
-        self._notify(self.data)
 
 
 class Database:
@@ -65,26 +65,48 @@ class Database:
                  **kwargs: typing.Dict[str, typing.Any]):
         self._storage = storage(**kwargs)
         self._tables: typing.Dict[str, typing.Type[Table]] = {}
+        self._data: DataContainer = self._storage.read() or {}
         self._lock = threading.Lock()
+        self._in_transaction = threading.Lock()
 
-        self.data: DataContainer = self._storage.read() or {}
-        self.in_transaction = threading.Lock()
+    # def __del__(self) -> None:
+    #     import ipdb; ipdb.set_trace(); pass
+    #     self.close()
 
-    def __del__(self) -> None:
-        self.close()
+    def close(self):
+        self._storage.write(self._data)
+        self._storage.close()
+
+    def create_table(self, name, cls):
+        if name in self._tables:
+            return self._tables[name]
+
+        if name not in self._data:
+            self._data[name] = copy.deepcopy(cls.SCHEMA)
+
+        fn = functools.partial(self._table_notify_cb, name)
+        self._data[name] = cls.init_data(self._data[name])
+        self._tables[name] = cls(self._data[name], fn, self._lock)
+
+        return self._tables[name]
+
+    def table(self, name):
+        return self._tables[name]
 
     @contextlib.contextmanager
     def transaction(self):
-        with self.in_transaction:
+        with self._in_transaction:
             yield self
         self.commit()
 
-    def commit(self) -> None:
-        if self.in_transaction.acquire(blocking=False):
+    def commit(self):
+        if self._in_transaction.acquire(blocking=False):
+            # print("Try lock in commit")
             with self._lock:
-                self._storage.write(self.data)
-            self.in_transaction.release()
+                self._storage.write(self._data)
+            self._in_transaction.release()
         else:
+            # print("Commit ignored in transaction")
             pass
 
     def rollback(self) -> None:
@@ -93,35 +115,18 @@ class Database:
             self.data[name] = table.init_data(self.data[name])
             self._tables[name].data = self.data[name]
 
-    def notify(self, name, data):   
-        if not (self.data[name] is data):
+    def _table_notify_cb(self, name):
+        if not (self._data[name] is self._tables[name].data):
             raise ValueError("Tables should not modify data attribute")
 
         self.commit()
 
-    def create_table(self, name, cls):
-        if name not in self.data:
-            table_data = copy.deepcopy(cls.DEFAULTS)
-            table_data = cls.init_data(table_data)
-            self.data[name] = table_data
-
-        self.commit()
-
-        fn = functools.partial(self.notify, name)
-
-        self._tables[name] = cls(self.data[name], fn, self._lock)
-        return self._tables[name]
-
-    def table(self, name):
-        return self._tables[name]
-
-    def close(self):
-        self._storage.write(self.data)
-        self._storage.close()
 
 #
 # Useful exceptions
 #
+
+
 class TableNotFoundError(Exception):
     pass
 
@@ -198,11 +203,11 @@ class JSONStorage(Storage):
 #
 
 class KeyValueTable(Table):
-    DEFAULTS: typing.Dict[typing.Any, typing.Any] = {}
+    SCHEMA: typing.Dict[typing.Any, typing.Any] = {}
 
+    @writes
     def set(self, k, v):
         self.data[k] = v
-        self.notify()
 
     def get(self, k):
         return self.data[k]
@@ -216,7 +221,7 @@ class KeyValueTable(Table):
 
 
 class DocumentTable(Table):
-    DEFAULTS: typing.Dict[int, typing.Any] = {}
+    SCHEMA: typing.Dict[int, typing.Any] = {}
 
     @classmethod
     def init_data(cls, data):
@@ -232,7 +237,6 @@ class DocumentTable(Table):
     def insert(self, doc):
         id_ = self._last_id() + 1
         self.data[id_] = doc
-        self.notify()
 
     def _search(self, fn):
         for (id_, doc) in self.data.items():
@@ -274,7 +278,7 @@ class TestingDatabase(Database):
 
 
 class TestingTable(Table):
-    DEFAULTS = {
+    SCHEMA = {
         'map': {},
         'list': []
     }
@@ -319,7 +323,6 @@ class NoDBTest(unittest.TestCase):
         self.assertEqual(db2.kv.get('bar'), 2)
         self.assertEqual(db2.docs.get(lambda x: x.get('name') == 'foo'),
                          {'name': 'foo', 'id': 1})
-
 
         db3 = TestingDatabase(storage=MemoryStorage)
         db3.kv.set('foo', 'bar')

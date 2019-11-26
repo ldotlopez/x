@@ -30,9 +30,9 @@ from arroyo.downloads import (
     State,
 )
 from arroyo.services import (
-        DATABASE,
-        LOADER,
-        ClassLoader
+    DATABASE,
+    LOADER,
+    ClassLoader
 )
 
 
