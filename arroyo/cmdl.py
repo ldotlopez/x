@@ -26,19 +26,33 @@ import sys
 from arroyo import (
     analyze,
     database,
-    services,
+    downloads,
     schema,
     scraper,
+    settings,
+    services,
     query
 )
-from arroyo.kit import (
-    nodb
-)
+from arroyo.kit import storage
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--db',
+        type=str,
+        default='/tmp/arroyo-db.json')
+    parser.add_argument(
+        '--settings',
+        type=str,
+        default='/tmp/arroyo-settings.json')
+
     commands = parser.add_subparsers(dest='command', required=True)
+
+    #
+    # No OP
+    #
+    noop_cmd = commands.add_parser('noop')  # noqa
 
     #
     # Fetch command
@@ -128,10 +142,6 @@ def main():
         type=argparse.FileType('w'),
         default=sys.stdout)
     query_cmd.add_argument(
-        '--db',
-        type=str,
-        default='/tmp/arroyo-downloads.db')
-    query_cmd.add_argument(
         '--filter',
         dest='queryparams',
         action='append',
@@ -141,6 +151,23 @@ def main():
         nargs='?')
 
     #
+    # download
+    #
+    download_cmd = commands.add_parser('download')
+    download_cmd.add_argument(
+        '--input',
+        type=argparse.FileType('r'),
+        default=sys.stdin)
+    download_cmd.add_argument(
+        '--add',
+        action='store_true'
+    )
+    download_cmd.add_argument(
+        '--list',
+        action='store_true'
+    )
+
+    #
     # Do parsing
     #
     args = parser.parse_args(sys.argv[1:])
@@ -148,12 +175,20 @@ def main():
     #
     # Setup arroyo
     #
+    db = database.Database(storage=storage.JSONStorage(location=args.db))
+    s = settings.Settings(args.settings)
+
+    services.set_service(services.DATABASE, db)
     services.set_service(services.LOADER, services.Loader())
+    services.set_service(services.SETTINGS, s)
 
     #
     # Run subcommand
     #
-    if args.command == 'fetch':
+    if args.command == 'noop':
+        pass
+
+    elif args.command == 'fetch':
         do_fetch(fetch_cmd, args)
 
     elif args.command == 'parse':
@@ -166,9 +201,10 @@ def main():
         do_analyze(analyze_cmd, args)
 
     elif args.command == 'query':
-        services.set_service(services.DATABASE,
-                             database.Database(storage=nodb.JSONStorage, path=args.db))
         do_query(query_cmd, args)
+
+    elif args.command == 'download':
+        do_download(download_cmd, args)
 
     else:
         parser.print_help()
@@ -267,6 +303,24 @@ def do_query(parser, args):
     output = json.dumps(results, indent=2,
                         default=_json_encode_hook)
     args.output.write(output)
+
+
+def do_download(parser, args):
+    dls = downloads.Downloads()
+    if args.list:
+        print(repr(dls.get_active()))
+
+    elif args.add:
+        data = json.loads(args.input.read())
+        data = [
+            (schema.Entity(**key), [schema.Source(**src) for src in collection])
+            for (key, collection) in data]
+
+        for (key, collection) in data:
+            dls.add(collection[0])
+
+    else:
+        print("Command needed", file=sys.stderr)
 
 
 def _json_encode_hook(value):

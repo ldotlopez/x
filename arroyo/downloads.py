@@ -18,7 +18,11 @@
 # USA.
 
 
-from arroyo import services
+from arroyo import (
+    database,
+    services,
+    settings
+)
 
 
 # Don't make state an Enum
@@ -47,44 +51,48 @@ class State:
 class Downloads:
     def __init__(self):
         self.db = services.get_service(services.DATABASE)
+        self.settings = services.get_service(services.SETTINGS)
 
     @property
     def downloader(self):
         loader = services.get_service(services.LOADER)
-        return loader.get('downloader')
+        name = self.settings.get('downloader')
+        return loader.get('downloaders.' + name)
 
     def add(self, src):
+        try:
+            state = self.db.downloads.get_state(src)
+        except database.NotFoundError:
+            state = None
+
+        if state is not None and state != State.ARCHIVED:
+            # Download in progress, ignore
+            return
+
         id_ = self.downloader.add(src.uri)
-        self.db.external_ids.map(src, id_)
-        self.db.states.set(src, State.INITIALIZING)
+        if state is None:
+            self.db.downloads.add(src, id_, State.INITIALIZING, src.entity)
+        else:
+            self.db.downloads.set_state(src, State.INITIALIZING)
 
     def cancel(self, src):
-        external_id = self.db.external_ids.get_external(src)
+        external_id = self.db.downloads.external_for_source(src)
         self.downloader.cancel(external_id)
-        self.db.states.drop(src)
-        # id_ = self.db.to_id(src)
-        # self.downloader.cancel(id_)
-        # self.db.remove(id_)
+        self.db.downloads.delete(src)
 
     def archive(self, src):
-        external_id = self.db.external_ids.get_external(src)
+        external_id = self.db.downloads.external_for_source(src)
         self.downloader.archive(external_id)
-        self.db.states.set(src, State.ARCHIVED)
-        # id_ = self.db.to_id(src)
-        # self.downloader.archive(id_)
-        # self.db.update(id_, src, State.ARCHIVED)
+        self.db.downloads.set_state(src, State.ARCHIVED)
 
     def get_state(self, src):
         self.sync()
-        return self.db.states.get(src)
-        # id_ = self.db.to_id(src)
-        # states = self.db.get_all_states()
-        # return states[id_]
+        return self.db.downloads.get_state(src)
 
-    def list(self):
+    def get_active(self):
         self.sync()
         ret = [src
-               for (src, state) in self.db.states.all()
+               for (src, state) in self.db.downloads.all_states()
                if state < State.ARCHIVED]
 
         return ret
@@ -95,18 +103,18 @@ class Downloads:
         for x in self.downloader.dump():
             external_id = x['id']
             try:
-                native_id = self.db.external_ids.get_source(external_id)
-                downloader_data[native_id] = x
-            except KeyError:
+                src = self.db.downloads.source_for_external(external_id)
+                downloader_data[src] = x
+            except database.NotFoundError:
                 pass
 
         # Update in-app db data
-        for (src, state) in list(self.db.states.all()):
+        for (src, state) in self.db.downloads.all_states():
             if src in downloader_data:
-                self.db.states.set(src, downloader_data[src]['state'])
+                self.db.downloads.set_state(src, downloader_data[src]['state'])
 
             else:
                 if state >= State.SHARING:
-                    self.db.states.set(src, State.ARCHIVED)
+                    self.db.downloads.set_state(src, State.ARCHIVED)
                 else:
-                    self.db.states.drop(src)
+                    self.db.downloads.delete(src)

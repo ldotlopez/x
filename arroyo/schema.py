@@ -18,6 +18,7 @@
 # USA.
 
 
+import hashlib
 import typing
 from urllib import parse
 
@@ -42,9 +43,25 @@ class Episode(pydantic.BaseModel):
     number: int
     country: typing.Optional[str]
 
+    @property
+    def id(self):
+        dig = hashlib.sha1()
+        s = '\0'.join([
+            self.type,
+            self.series,
+            str(self.year or ''),
+            str(self.season),
+            str(self.number),
+            self.country or '',
+        ])
+        dig.update(s.encode('utf-8'))
+        return dig.hexdigest()
+
     def __hash__(self):
-        return hash((self.series, self.country, self.year, self.season,
-                     self.number))
+        return hash(self.id)
+
+    def __repr__(self):
+        return f'<Episode id={self.id}>'
 
 
 class Movie(pydantic.BaseModel):
@@ -52,12 +69,26 @@ class Movie(pydantic.BaseModel):
     title: str
     year: typing.Optional[int]
 
+    @property
+    def id(self):
+        dig = hashlib.sha1()
+        s = '\0'.join([
+            self.type,
+            self.title,
+            str(self.year or '')
+        ])
+        dig.update(s.encode('utf-8'))
+        return dig.hexdigest()
+
     def __hash__(self):
-        return hash((self.title, self.year))
+        return hash(self.id)
+
+    def __repr__(self):
+        return f'<Movie id={self.id}>'
 
 
-Entity = typing.Union[Episode, Movie]
-Metadata = typing.Dict[str, typing.Any]
+EntityType = typing.Union[Episode, Movie]
+MetadataType = typing.Dict[str, typing.Any]
 
 
 class Source(pydantic.BaseModel):
@@ -72,31 +103,21 @@ class Source(pydantic.BaseModel):
     size: typing.Optional[int]
     hints: typing.Dict[str, typing.Any] = {}
 
-    entity: typing.Optional[Entity] = None
-    metadata: Metadata = {}
+    entity: typing.Optional[EntityType] = None
+    metadata: MetadataType = {}
 
     def __init__(self, *args, **kwargs):
         parsed = parse.urlparse(kwargs['uri'])
         qs = dict(parse.parse_qsl(parsed.query))
         kwargs['id'] = qs['xt'].split(':')[2]
+
         super().__init__(*args, **kwargs)
 
     def __hash__(self):
         return hash(self.id)
 
-
-
-
-
-# class Item(pydantic.BaseModel):
-#     # FIXME: Item is a too generic name
-#     source: Source
-#     entity: typing.Optional[Entity]
-#     metadata: typing.Optional[typing.Dict[str, typing.Any]]
-#     other: typing.Optional[typing.Dict[str, typing.Any]]
-
-#     def __hash__(self):
-#         return hash((self.source, self.entity))
+    def __repr__(self):
+        return f'<Source id={self.id}>'
 
 
 entity_type_map = {
@@ -108,12 +129,12 @@ entity_type_map = {
 entity_type_reverse_map = {v: k for (k, v) in entity_type_map.items()}
 
 
-# def Entity(**kwargs):
-#     cls = entity_type_map.get('type', None)
-#     if cls is None:
-#         raise ValueError(kwargs)
+def Entity(**kwargs):
+    cls = entity_type_map.get(kwargs.get('type'), None)
+    if cls is None:
+        raise ValueError(kwargs)
 
-#     return cls(**kwargs)
+    return cls(**kwargs)
 
 
 def get_entity_name(cls: typing.Type):

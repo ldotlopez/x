@@ -38,8 +38,13 @@ class StateFilter(Filter):
         self.db = services.get_service(services.DATABASE)
 
     def filter(self, name, value, item):
-        return True
-        raise NotImplementedError()
+        if not item.entity:
+            return True
+
+        if not self.db.downloads.sources_for_entity(item.entity):
+            return True
+
+        return False
 
 
 class SourceAttributeFilter(Filter):

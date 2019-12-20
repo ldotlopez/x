@@ -22,9 +22,12 @@ import unittest
 import time
 from unittest import mock
 
-from arroyo.kit.nodb import MemoryStorage
-from arroyo.database import Database
-
+from arroyo.kit.storage import MemoryStorage
+from arroyo.database import (
+    Database,
+    NotFoundError
+)
+from arroyo.settings import Settings
 from arroyo.downloads import (
     Downloads,
     State,
@@ -32,7 +35,8 @@ from arroyo.downloads import (
 from arroyo.services import (
     DATABASE,
     LOADER,
-    ClassLoader
+    SETTINGS,
+    ClassLoader,
 )
 
 
@@ -48,10 +52,13 @@ class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
     def setUp(self):
+        patch_service(SETTINGS, Settings(storage=MemoryStorage()))
+
+        name, clsspec = self.DOWNLOADER_SPEC
         patch_service(LOADER, ClassLoader({
-            'downloader': self.DOWNLOADER_SPEC
+            name: clsspec
         }))
-        patch_service(DATABASE, Database(storage=MemoryStorage))
+        patch_service(DATABASE, Database(storage=MemoryStorage()))
 
         self.downloads = Downloads()
 
@@ -69,7 +76,7 @@ class DownloaderTestMixin:
         self.downloads.add(s1)
         self.wait()
 
-        self.assertEqual(self.downloads.list(),
+        self.assertEqual(self.downloads.get_active(),
                          [s1])
 
     def test_add_duplicated(self):
@@ -84,7 +91,7 @@ class DownloaderTestMixin:
         self.assertNotEqual(self.downloads.get_state(src1),
                             None)
 
-        self.assertEqual(self.downloads.list(),
+        self.assertEqual(self.downloads.get_active(),
                          [src1])
 
     def test_archive(self):
@@ -99,7 +106,7 @@ class DownloaderTestMixin:
         self.assertEqual(self.downloads.get_state(src1),
                          State.ARCHIVED)
 
-        self.assertEqual(self.downloads.list(),
+        self.assertEqual(self.downloads.get_active(),
                          [])
 
     def test_cancel(self):
@@ -111,11 +118,10 @@ class DownloaderTestMixin:
         self.downloads.cancel(src1)
         self.wait()
 
-        # Replace KeyError with nodb.NotFoundError or similar
-        with self.assertRaises(KeyError):
+        with self.assertRaises(NotFoundError):
             self.downloads.get_state(src1)
 
-        self.assertEqual(self.downloads.list(),
+        self.assertEqual(self.downloads.get_active(),
                          [])
 
     def test_add_duplicated_archived(self):
@@ -133,20 +139,20 @@ class DownloaderTestMixin:
         self.assertNotEqual(self.downloads.get_state(src1),
                             None)
 
-        self.assertEqual(self.downloads.list(),
+        self.assertEqual(self.downloads.get_active(),
                          [src1])
 
     def test_remove_unknown_source(self):
         src1 = build_source('foo')
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(NotFoundError):
             self.downloads.cancel(src1)
 
     def test_archive_unknown_source(self):
         # This test fails if the name is foo. ¿?
         src1 = build_source('foo')
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(NotFoundError):
             self.downloads.archive(src1)
 
     def test_unexpected_download_from_plugin(self):
@@ -157,7 +163,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.external_ids.get_external(src1),
+            {'id': self.downloads.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
             {'id': 'external-added-id',
              'state': State.DOWNLOADING}
@@ -165,7 +171,7 @@ class DownloaderTestMixin:
         with mock.patch.object(self.downloads.downloader.__class__, 'dump',
                                return_value=fake_dump):
             self.assertEqual(
-                self.downloads.list(),
+                self.downloads.get_active(),
                 [src1])
 
     def test_handle_unexpected_remove_from_plugin_as_cancel(self):
@@ -177,17 +183,17 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.external_ids.get_external(src1),
+            {'id': self.downloads.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
         ]
         with mock.patch.object(self.downloads.downloader.__class__, 'dump',
                                return_value=fake_dump):
 
             self.assertEqual(
-                self.downloads.list(),
+                self.downloads.get_active(),
                 [src1])
 
-            with self.assertRaises(KeyError):
+            with self.assertRaises(NotFoundError):
                 self.downloads.get_state(src2)
 
     def test_handle_unexpected_remove_from_plugin_as_archive(self):
@@ -199,12 +205,11 @@ class DownloaderTestMixin:
         self.wait()
 
         # Manually update state of src2
-        id2 = self.downloads.db.external_ids.get_external(src2)
-        self.downloads.db.states.set(src2, State.SHARING)
+        self.downloads.db.downloads.set_state(src2, State.SHARING)
 
         # Mock plugin list to not list src2
         fake_dump = [
-            {'id': self.downloads.db.external_ids.get_external(src1),
+            {'id': self.downloads.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING}
         ]
 
@@ -216,24 +221,36 @@ class DownloaderTestMixin:
             )
 
     def test_ignore_duplicated_entity(self):
-        e1 = build_item('Some.Series.2019.S01E01.720p.mkv')
-        e2 = build_item('Some.Series.2019.S01E01.1080p.mkv')
-        import ipdb; ipdb.set_trace(); pass
+        s1 = build_item('foo.2019.S01E01.720p.mkv')
+        s2 = build_item('foo.2019.S01E01.1080p.mkv')
+
+        self.downloads.add(s1)
+        self.downloads.add(s2)
+
+        self.assertEqual(
+            self.downloads.get_active(),
+            [s1, s2]
+        )
+
+        self.assertEqual(
+            self.downloads.db.downloads.sources_for_entity(s1.entity),
+            [s1, s2])
 
 
 class TransmissionTest(DownloaderTestMixin, unittest.TestCase):
-    DOWNLOADER_SPEC = 'arroyo.plugins.downloaders.transmission.Tr'
+    DOWNLOADER_SPEC = ('downloaders.transmission',
+                       'arroyo.plugins.downloaders.transmission.Tr')
     SLOWDOWN = 0.2
 
     def tearDown(self):
         transmission = self.downloads.downloader.client
 
         for x in transmission.get_torrents():
-            if x.name in ['foo', 'bar']:
+            if 'foo' in x.name or 'bar' in x.name:
                 transmission.remove_torrent(x.id, delete_data=True)
 
         self.wait()
-
+        super().tearDown()
 
 # class DirectoryTest(DownloaderTestMixin, unittest.TestCase):
 #     # TODO:
