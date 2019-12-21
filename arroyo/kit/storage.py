@@ -79,7 +79,7 @@ class JSONStorage(Storage):
                 os.utime(fname, None)
 
 
-class ConfigFileStorate(Storage):
+class ConfigFileStorage(Storage):
     def __init__(self, location, root):
         super().__init__(location)
         self.root = root
@@ -87,7 +87,12 @@ class ConfigFileStorate(Storage):
     def readflat(self):
         def f():
             cp = configparser.ConfigParser()
-            cp.read(self.location)
+            try:
+                fh = open(self.location, encoding='utf-8')
+            except FileNotFoundError as e:
+                raise LocationNotFoundError() from e
+
+            cp.read_file(fh)
             for sect in cp.sections():
                 for (k, v) in cp[sect].items():
                     if self.root == sect:
@@ -95,6 +100,7 @@ class ConfigFileStorate(Storage):
                     else:
                         k2 = sect + '.' + k
                     yield (k2, v)
+            fh.close()
 
         return dict(f())
 
@@ -113,3 +119,7 @@ class ConfigFileStorate(Storage):
             update(ret, k, v)
 
         return ret
+
+
+class LocationNotFoundError(Exception):
+    pass

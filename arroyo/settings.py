@@ -17,11 +17,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
+from arroyo import services
 from arroyo.kit.settings import (
     Settings as KitSettings,
     UNDEF
 )
-from arroyo.kit.storage import ConfigFileStorate
+from arroyo.kit.storage import (
+    ConfigFileStorage,
+    LocationNotFoundError
+)
+
+
+class SafeConfigFileStore(ConfigFileStorage):
+    def __init__(self, *args, logger, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logger
+
+    def read(self):
+        try:
+            return super().read()
+        except LocationNotFoundError:
+            logmsg = "Location '%s' not found" % self.location
+            self.logger.warning(logmsg)
+            return {}
 
 
 class Settings(KitSettings):
@@ -32,7 +50,9 @@ class Settings(KitSettings):
     }
 
     def __init__(self, location):
-        super().__init__(ConfigFileStorate(location, root='arroyo'))
+        self.logger = services.getLogger('services')
+        store = SafeConfigFileStore(location, root='arroyo', logger=self.logger)
+        super().__init__(store)
 
     def get(self, key, default=UNDEF):
         if default == UNDEF:
