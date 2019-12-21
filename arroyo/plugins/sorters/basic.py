@@ -82,14 +82,15 @@ class Basic(Sorter):
         #
         sr_a = share_ratio(a)
         sr_b = share_ratio(b)
-        sr_diff = abs(sr_a - sr_b)
-        percent20 = (sr_a + sr_b) / 2 * 0.2
+        if sr_a and sr_b:
+            sr_diff = abs(sr_a - sr_b)
+            percent20 = (sr_a + sr_b) / 2 * 0.2
 
-        if sr_diff > percent20:
-            if sr_a > sr_b:
-                return -1
-            else:
-                return 1
+            if sr_diff > percent20:
+                if sr_a > sr_b:
+                    return -1
+                else:
+                    return 1
 
         # if (a.source.leechers and b.source.leechers):
         #     try:

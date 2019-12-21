@@ -19,13 +19,11 @@
 
 
 import asyncio
-import sys
 
 
 import aiohttp
 
 
-import arroyo
 from arroyo import (
     extensions,
     schema,
@@ -122,7 +120,7 @@ class Engine:
             for item in ctx.provider.parse(buffer):
                 try:
                     ret.append(self._build_source(ctx, item))
-                except schema.ValidationError as e:
+                except schema.ValidationError:
                     logmsg = "Got invalid data from provider '%s', skipping."
                     logmsg = logmsg % ctx.provider_name
                     self.logger.warning(logmsg)
@@ -197,3 +195,29 @@ def build_n_contexts(n, *args, **kwargs):
 
     ctx0 = build_context(*args, **kwargs)
     return list(_expand(ctx0, n))
+
+
+def build_contexts_for_query(q):
+    def _get_url(provider):
+        try:
+            url = provider.get_query_uri(q)
+        except Exception as e:
+            print("Invalid query for %s: %s" %
+                  (provider.__class__, e))
+            return None
+
+        if url is None:
+            print("Provider %s returns null instead for raise an exception. "
+                  "fix it" % provider.__class__)
+
+        return url
+
+    loader = services.get_service(services.LOADER)
+    providers = [loader.get(x) for x in loader.list('providers')]
+    prov_and_uris = [(x, _get_url(x)) for x in providers]
+    prov_and_uris = [(p, u) for (p, u) in prov_and_uris if u]
+
+    ctxs = [build_context(provider=p, uri=u)
+            for(p, u) in prov_and_uris]
+
+    return ctxs

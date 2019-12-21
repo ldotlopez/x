@@ -267,7 +267,7 @@ class ThePirateBay(arroyo.Provider):
         return now
 
     def get_query_uri(self, query):
-        q = query.base_string
+        q = query.str()
         if not q:
             return
 

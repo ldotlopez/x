@@ -152,6 +152,23 @@ def main():
         nargs='?')
 
     #
+    # query2
+    #
+    query_cmd = commands.add_parser('query2')
+    query_cmd.add_argument(
+        '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout)
+    query_cmd.add_argument(
+        '--filter',
+        dest='queryparams',
+        action='append',
+        default=[])
+    query_cmd.add_argument(
+        dest='querystring',
+        nargs='?')
+
+    #
     # download
     #
     download_cmd = commands.add_parser('download')
@@ -203,6 +220,9 @@ def main():
 
     elif args.command == 'query':
         do_query(query_cmd, args)
+
+    elif args.command == 'query2':
+        do_query2(query_cmd, args)
 
     elif args.command == 'download':
         do_download(download_cmd, args)
@@ -299,6 +319,57 @@ def do_query(parser, args):
     results = engine.apply(ctx, data)
     results = engine.sort(results)
 
+    results = [[entity.dict(), [src.dict() for src in sources]]
+               for (entity, sources) in results]
+    output = json.dumps(results, indent=2,
+                        default=_json_encode_hook)
+    args.output.write(output)
+
+
+def do_query2(parser, args):
+    def _parse_queryparams(pairs):
+        for pair in pairs:
+            key, value = pair.split('=', 1)
+            if not key or not value:
+                raise ValueError(pair)
+
+            yield (key, value)
+
+    if not args.queryparams and not args.querystring:
+        parser.print_help()
+        errmsg = "filter or querystring are requierd"
+        print(errmsg, file=sys.stderr)
+        parser.exit(1)
+
+    q = {}
+    if args.querystring:
+        q = query.Query.fromstring(args.querystring)
+
+    if args.queryparams:
+        params = dict(_parse_queryparams(args.queryparams))
+        q = query.Query(**params)
+
+    # Setup filters before scrape anything
+    query_engine = query.Engine()
+    try:
+        filters = query_engine.build_filter(q)
+    except query.MissingFiltersError as e:
+        errmsg = "Unknow filters: %s"
+        errmsg = errmsg % ', '.join(e.args[0])
+        print(errmsg, file=sys.stderr)
+        parser.exit(1)
+
+    # Build scrape ctxs and process them
+    ctxs = scraper.build_contexts_for_query(q)
+    scrape_engine = scraper.Engine()
+    sources = scrape_engine.process(*ctxs)
+    sources = analyze.analyze(*sources)
+
+    # Pass sources thru filters
+    results = query_engine.apply(filters, sources)
+    results = query_engine.sort(results)
+
+    # Output
     results = [[entity.dict(), [src.dict() for src in sources]]
                for (entity, sources) in results]
     output = json.dumps(results, indent=2,
