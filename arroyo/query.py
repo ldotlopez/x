@@ -37,6 +37,74 @@ class Query(dict):
         params = {k: v for (k, v) in entity.dict().items() if v is not None}
         return cls(**params)
 
+    def __str__(self):
+        """
+        Prevent usage of old APIs
+        """
+        raise SystemError()
+
+    def str(self):
+        def _get_base_string(key='name'):
+            try:
+                return self[key].strip()
+            except KeyError:
+                pass
+
+            try:
+                return self[key + '_glob'].replace('*', ' ').strip()
+            except KeyError:
+                pass
+
+            return ''
+
+        def _source_base_string():
+            return _get_base_string('name')
+
+        def _episode_base_string():
+            ret = _get_base_string('series')
+            if not ret:
+                return _source_base_string()
+
+            try:
+                ret += " ({})".format(self['series_year'])
+            except KeyError:
+                pass
+
+            try:
+                ret += " S" + str(self['season']).zfill(2)
+            except KeyError:
+                return ret
+
+            try:
+                ret += "E" + str(self['number']).zfill(2)
+            except KeyError:
+                pass
+
+            return ret
+
+        def _movie_base_string():
+            ret = _get_base_string('title')
+            try:
+                ret += " ({})".format(self['movie_year'])
+            except KeyError:
+                pass
+
+            return ret
+
+        handlers = {
+            'episode': _episode_base_string,
+            'movie': _movie_base_string,
+            'source': _source_base_string,
+        }
+
+        try:
+            return handlers[self['type']]()
+
+        except KeyError:
+            err = "base_string for {type} not implmented"
+            err = err.format(type=self.type)
+            raise NotImplementedError(err)
+
 
 class Engine:
     @property

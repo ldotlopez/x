@@ -22,15 +22,15 @@ import abc
 import fnmatch
 import re
 import sys
-
+import typing
 
 import bs4
 
 
 class Provider:
-    DEFAULT_URI = None
-    URI_GLOBS = []
-    URI_REGEXPS = []
+    DEFAULT_URI: str
+    URI_GLOBS: typing.List[str] = []
+    URI_REGEXPS: typing.List[str] = []
 
     @classmethod
     def can_handle(cls, url):
@@ -58,9 +58,12 @@ class Provider:
     def parse_as_soup(self, buffer):
         return bs4.BeautifulSoup(buffer, "html.parser")
 
+    def get_query_uri(self, query):
+        return None
+
 
 class Filter:
-    HANDLES = []
+    HANDLES: typing.List[str] = []
 
     @classmethod
     def can_handle(cls, key):

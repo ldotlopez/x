@@ -21,6 +21,10 @@
 import unittest
 
 
+from arroyo.query import Query
+from arroyo.plugins.providers import IncompatibleQueryError
+
+
 from arroyo.plugins.providers.epublibre import EPubLibre
 from arroyo.plugins.providers.eztv import EzTV
 from arroyo.plugins.providers.torrentapi import TorrentAPI
@@ -30,6 +34,7 @@ class TestProviderMixin:
     PROVIDER_CLASS = None
     TEST_HANDLED_URLS = []
     TEST_HANDLED_URLS_NEGATIVE = []
+    TEST_QUERY_URLS = []
 
     def test_default_uri(self):
         cls = self.PROVIDER_CLASS
@@ -80,7 +85,19 @@ class TestProviderMixin:
             self.assertTrue(can_handle == expected)
 
     def test_query(self):
-        pass
+        provider = self.PROVIDER_CLASS()
+        for (query, url_or_exc) in self.TEST_QUERY_URLS:
+            if isinstance(query, str):
+                query = Query.fromstring(query)
+            else:
+                query = Query(**query)
+
+            if type(url_or_exc) is type and issubclass(url_or_exc, Exception):
+                with self.assertRaises(url_or_exc):
+                    provider.get_query_uri(query)
+            else:
+                url = provider.get_query_uri(query)
+                self.assertEqual(url_or_exc, url)
 
     def test_parse(self):
         pass
@@ -88,14 +105,31 @@ class TestProviderMixin:
 
 class TestEPubLibre(TestProviderMixin, unittest.TestCase):
     PROVIDER_CLASS = EPubLibre
+    TEST_QUERY_URLS = [
+        ('westworld.s01e02', IncompatibleQueryError),
+        ('some.movie.2019', IncompatibleQueryError),
+        (dict(type='ebook', ebook_title='title'), 'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/title'),
+        (dict(type='ebook', ebook_title='title', ebook_author='author'), 'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/author%20title'),
+        (dict(type='ebook', ebook_author='author'), 'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/author'),
+        (dict(type='ebook', name='title'), 'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/title'),
+        (dict(type='ebook', other='foo'), IncompatibleQueryError),
+    ]
 
 
 class TestEzTV(TestProviderMixin, unittest.TestCase):
     PROVIDER_CLASS = EzTV
+    TEST_QUERY_URLS = [
+        ('westworld.s01e02', 'https://eztv.io/search/westworld'),
+        ('some.movie.2019', IncompatibleQueryError)
+    ]
 
 
 class TestTorrentAPI(TestProviderMixin, unittest.TestCase):
     PROVIDER_CLASS = TorrentAPI
+    TEST_QUERY_URLS = [
+        ('westworld.s01e02', 'http://torrentapi.org/pubapi_v2.php?app_id=arroyo&mode=search&search_string=westworld+S01E02&category=tv'),
+        ('some.movie.2019', 'http://torrentapi.org/pubapi_v2.php?app_id=arroyo&mode=search&search_string=some+movie&category=movies')
+    ]
 
 
 if __name__ == '__main__':

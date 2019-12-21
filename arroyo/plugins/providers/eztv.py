@@ -25,6 +25,7 @@ from urllib import parse
 
 import arroyo
 from arroyo import utils
+from arroyo.plugins import providers
 
 
 import humanfriendly
@@ -74,19 +75,20 @@ class EzTV(arroyo.Provider):
 
     def get_query_uri(self, query):
         # eztv only has series
-        if query.type != 'episode':
-            raise arroyo.exc.IncompatibleQueryError()
+        if query.get('type') != 'episode':
+            excmsg = "query is not for an episode"
+            raise providers.IncompatibleQueryError(excmsg)
 
         try:
-            series = query.series
-        except AttributeError:
-            err = 'Missing series'
-            raise kit.IncompatibleQueryError(err)
+            series = query['series']
+        except KeyError:
+            excmsg = "query doesn't have a series parameter"
+            raise providers.IncompatibleQueryError(excmsg)
 
         q = series.strip().replace(' ', '-')
 
         return '{base}/search/{q}'.format(
-            base=self._BASE_DOMAIN,
+            base=self.BASE_URI,
             q=parse.quote_plus(q))
 
     def parse(self, buffer):

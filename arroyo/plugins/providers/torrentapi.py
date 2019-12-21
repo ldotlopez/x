@@ -151,12 +151,12 @@ class TorrentAPI(arroyo.Provider):
         return ret
 
     def get_query_uri(self, query):
-        querystr = query.base_string
+        querystr = query.str()
         if not querystr:
             return None
 
         q = {
-            'search_string': query.base_string
+            'search_string': querystr
         }
 
         try:

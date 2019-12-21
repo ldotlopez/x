@@ -22,6 +22,7 @@ from urllib import parse
 
 
 import arroyo
+from arroyo.plugins import providers
 
 
 class EPubLibre(arroyo.Provider):
@@ -32,17 +33,26 @@ class EPubLibre(arroyo.Provider):
         r'^http(s)?://([^.]\.)?epublibre\.org/'
     ]
 
-    # def get_query_uri(self, query):
-    #     if query.type != 'ebook':
-    #         raise arroyo.exc.IncompatibleQueryError()
+    def get_query_uri(self, query):
+        if query.get('type') != 'ebook':
+            excmsg = "query is not for an ebook"
+            raise providers.IncompatibleQueryError(excmsg)
 
-    #     try:
-    #         querystr = str(query)
-    #     except arroyo.exc.QueryConversionError as e:
-    #         err = "Incomprehensible query"
-    #         raise arroyo.exc.IncompatibleQueryError(err) from e
+        author = query.get('ebook_author')
+        title = query.get('ebook_title')
+        name = query.get('name')
 
-    #     return self.DEFAULT_URI + parse.quote(querystr)
+        if not author and not title and not name:
+            excmsg = "ebook_title or ebook_author or name is required"
+            raise providers.IncompatibleQueryError(excmsg)
+
+        if author or title:
+            querystr = "%s %s" % (author or '', title or '')
+        else:
+            querystr = name
+
+        querystr = parse.quote(querystr.strip())
+        return self.DEFAULT_URI + querystr
 
     def parse_soup(self, soup):
         if soup.select('#titulo_libro'):
