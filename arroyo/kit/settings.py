@@ -41,11 +41,22 @@ class Settings:
 
     def set(self, key, value):
         validatekey(key)
+        if self.is_namespace(key):
+            raise ValueError()
+
         self.data[key] = value
         self._sync()
 
     def _sync(self):
         self._storage.write(self.data)
+
+    def is_namespace(self, key):
+        nstest = key + '.'
+        for x in self.data:
+            if x.startswith(nstest):
+                return True
+
+        return False
 
 
 def validatekey(key: str) -> None:

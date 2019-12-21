@@ -82,14 +82,6 @@ class Sorter:
 
 
 class Downloader:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @abc.abstractmethod
-    def identifier_for_source(self, source):
-        raise NotImplementedError()
-        # return source.urn.split(':')[2]
-
     @abc.abstractmethod
     def add(self, source):
         raise NotImplementedError()

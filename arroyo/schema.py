@@ -119,6 +119,9 @@ class Source(pydantic.BaseModel):
     def __repr__(self):
         return f'<Source id={self.id}>'
 
+    def __str__(self):
+        return self.name
+
 
 entity_type_map = {
     'episode': Episode,

@@ -20,8 +20,7 @@
 
 from arroyo import (
     database,
-    services,
-    settings
+    services
 )
 
 
@@ -48,8 +47,10 @@ class State:
 #     State.ARCHIVED: '▣'
 # }
 
+
 class Downloads:
-    def __init__(self):
+    def __init__(self, logger=None):
+        self.logger = logger or services.getLogger('downloads')
         self.db = services.get_service(services.DATABASE)
         self.settings = services.get_service(services.SETTINGS)
 

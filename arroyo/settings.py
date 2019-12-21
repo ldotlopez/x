@@ -21,7 +21,7 @@ from arroyo.kit.settings import (
     Settings as KitSettings,
     UNDEF
 )
-from arroyo.kit.storage import JSONStorage
+from arroyo.kit.storage import ConfigFileStorate
 
 
 class Settings(KitSettings):
@@ -32,7 +32,7 @@ class Settings(KitSettings):
     }
 
     def __init__(self, location):
-        super().__init__(JSONStorage(location))
+        super().__init__(ConfigFileStorate(location, root='arroyo'))
 
     def get(self, key, default=UNDEF):
         if default == UNDEF:

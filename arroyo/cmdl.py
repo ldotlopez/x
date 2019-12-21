@@ -23,6 +23,7 @@ import json
 import sys
 
 
+import arroyo
 from arroyo import (
     analyze,
     database,
@@ -313,11 +314,16 @@ def do_download(parser, args):
     elif args.add:
         data = json.loads(args.input.read())
         data = [
-            (schema.Entity(**key), [schema.Source(**src) for src in collection])
+            (schema.Entity(**key),
+             [schema.Source(**src) for src in collection])
             for (key, collection) in data]
 
         for (key, collection) in data:
-            dls.add(collection[0])
+            try:
+                dls.add(collection[0])
+            except arroyo.ExtensionError as e:
+                print("Add '%s' failed. Extension error: %r" %
+                      (collection[0], e))
 
     else:
         print("Command needed", file=sys.stderr)
