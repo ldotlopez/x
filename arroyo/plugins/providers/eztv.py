@@ -20,11 +20,12 @@
 
 import enum
 import re
+import time
+from datetime import datetime
 from urllib import parse
 
 
 import arroyo
-from arroyo import utils
 from arroyo.plugins import providers
 
 
@@ -155,7 +156,7 @@ class EzTV(arroyo.Provider):
 
     def parse_timestamp(cls, node):
         def _do_diff(diff):
-            return utils.now_timestamp() - diff
+            return int(time.mktime(datetime.datetime.now().timetuple())) - diff
 
         _table_mults = {
             's': 1,

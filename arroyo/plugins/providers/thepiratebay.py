@@ -183,7 +183,7 @@ class ThePirateBay(arroyo.Provider):
                 'uri': row.findAll('a')[3]['href'],
                 'type': typ,
                 'size': size,
-                'created': created,  # utils.now_timestamp(),
+                'created': created,
                 'seeds': int(row.findAll('td')[-2].text),
                 'leechers': int(row.findAll('td')[-1].text)
             }
@@ -224,7 +224,7 @@ class ThePirateBay(arroyo.Provider):
 
             return int(time.mktime(p.timetuple()))
 
-        now = utils.now_timestamp()
+        now = int(time.mktime(datetime.datetime.now().timetuple()))
         now_dt = datetime.now()
         now_dt = dict(
             Y=now_dt.year,
