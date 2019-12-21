@@ -116,7 +116,7 @@ class Basic(Sorter):
             return 1
 
         # Retry with pure seeds
-        if b.seeds > a.seeds:
+        if (b.seeds or -1) > (a.seeds or -1):
             return 1
 
         return -1
