@@ -156,7 +156,7 @@ class EzTV(arroyo.Provider):
 
     def parse_timestamp(cls, node):
         def _do_diff(diff):
-            return int(time.mktime(datetime.datetime.now().timetuple())) - diff
+            return int(time.mktime(datetime.now().timetuple())) - diff
 
         _table_mults = {
             's': 1,

@@ -31,7 +31,7 @@ from arroyo.kit.storage import (
 class SafeConfigFileStore(ConfigFileStorage):
     def __init__(self, *args, logger, **kwargs):
         super().__init__(*args, **kwargs)
-        self.logger = logger
+        self.logger = services.getLogger('safe-config-file-store')
 
     def read(self):
         try:
@@ -48,11 +48,6 @@ class Settings(KitSettings):
         'plugin.transmission.host': 'localhost',
         'plugin.transmission.port': '9091',
     }
-
-    def __init__(self, location):
-        self.logger = services.getLogger('services')
-        store = SafeConfigFileStore(location, root='arroyo', logger=self.logger)
-        super().__init__(store)
 
     def get(self, key, default=UNDEF):
         if default == UNDEF:

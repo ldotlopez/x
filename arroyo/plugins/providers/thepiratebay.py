@@ -19,7 +19,6 @@
 
 
 import arroyo
-from arroyo import utils
 
 import re
 import sys
@@ -224,7 +223,7 @@ class ThePirateBay(arroyo.Provider):
 
             return int(time.mktime(p.timetuple()))
 
-        now = int(time.mktime(datetime.datetime.now().timetuple()))
+        now = int(time.mktime(datetime.now().timetuple()))
         now_dt = datetime.now()
         now_dt = dict(
             Y=now_dt.year,

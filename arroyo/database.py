@@ -19,13 +19,12 @@
 
 
 from arroyo import schema
-from arroyo.kit import storage
 
 
 class Database:
-    def __init__(self, storage: storage.Storage):
+    def __init__(self, storage):
         self._storage = storage
-        self.data = storage.read() or {
+        self.data = self._storage.read() or {
             'version': 1,
             'downloads': {}
         }

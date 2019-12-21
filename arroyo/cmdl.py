@@ -20,6 +20,7 @@
 
 import argparse
 import json
+import logging
 import sys
 
 
@@ -28,6 +29,7 @@ from arroyo import (
     analyze,
     database,
     downloads,
+    loader,
     schema,
     scraper,
     settings,
@@ -193,12 +195,20 @@ def main():
     #
     # Setup arroyo
     #
-    db = database.Database(storage=storage.JSONStorage(location=args.db))
-    s = settings.Settings(args.settings)
+    db_store = storage.JSONStorage(location=args.db)
+    db_srv = database.Database(db_store)
 
-    services.set_service(services.DATABASE, db)
-    services.set_service(services.LOADER, services.Loader())
-    services.set_service(services.SETTINGS, s)
+    settings_store = settings.SafeConfigFileStore(
+        location=args.settings,
+        root='arroyo',
+        logger=logging.getLogger('settings'))
+    settings_srv = settings.Settings(settings_store)
+
+    loader_srv = loader.Loader()
+
+    services.set_service(services.DATABASE, db_srv)
+    services.set_service(services.LOADER, loader_srv)
+    services.set_service(services.SETTINGS, settings_srv)
 
     #
     # Run subcommand

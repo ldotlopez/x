@@ -3,12 +3,9 @@ import unittest
 
 import time
 
-
+from arroyo.loader import Loader
 from arroyo.query import Engine as QueryEngine
-from arroyo.services import (
-    LOADER,
-    Loader
-)
+from arroyo.services import LOADER
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,

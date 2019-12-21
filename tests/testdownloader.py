@@ -27,6 +27,7 @@ from arroyo.database import (
     Database,
     NotFoundError
 )
+from arroyo.kit.loader import ClassLoader
 from arroyo.settings import Settings
 from arroyo.downloads import (
     Downloads,
@@ -36,7 +37,6 @@ from arroyo.services import (
     DATABASE,
     LOADER,
     SETTINGS,
-    ClassLoader,
 )
 
 
@@ -52,13 +52,13 @@ class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
     def setUp(self):
-        patch_service(SETTINGS, Settings(storage=MemoryStorage()))
+        settings = Settings(storage=MemoryStorage())
+        database = Database(storage=MemoryStorage())
+        loader = ClassLoader(dict([self.DOWNLOADER_SPEC]))
 
-        name, clsspec = self.DOWNLOADER_SPEC
-        patch_service(LOADER, ClassLoader({
-            name: clsspec
-        }))
-        patch_service(DATABASE, Database(storage=MemoryStorage()))
+        patch_service(SETTINGS, settings)
+        patch_service(LOADER, loader)
+        patch_service(DATABASE, database)
 
         self.downloads = Downloads()
 
