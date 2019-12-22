@@ -107,15 +107,13 @@ class Query(dict):
 
 
 class Engine:
-    @property
-    def loader(self):
-        return services.get_service(services.LOADER)
-
     def get_sorter(self):
-        return self.loader.get('sorters.basic')
+        name = services.settings.get('sorter')
+        return services.loader.get('sorters.' + name)
 
     def get_filter(self, name):
-        plugins = [self.loader.get(x) for x in self.loader.list('filters')]
+        plugins = [services.loader.get(x)
+                   for x in services.loader.list('filters')]
 
         for plugin in plugins:
             if plugin.can_handle(name):

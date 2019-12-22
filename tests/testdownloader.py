@@ -22,6 +22,7 @@ import unittest
 import time
 from unittest import mock
 
+from arroyo import services
 from arroyo.kit.storage import MemoryStorage
 from arroyo.database import (
     Database,
@@ -33,18 +34,11 @@ from arroyo.downloads import (
     Downloads,
     State,
 )
-from arroyo.services import (
-    DATABASE,
-    LOADER,
-    SETTINGS,
-)
 
 
 from testlib import (
     build_source,
-    build_item,
-    patch_service,
-    unpatch_service
+    build_item
 )
 
 
@@ -56,15 +50,11 @@ class DownloaderTestMixin:
         database = Database(storage=MemoryStorage())
         loader = ClassLoader(dict([self.DOWNLOADER_SPEC]))
 
-        patch_service(SETTINGS, settings)
-        patch_service(LOADER, loader)
-        patch_service(DATABASE, database)
+        services.settings = settings
+        services.loader = loader
+        services.db = database
 
         self.downloads = Downloads()
-
-    def tearDown(self):
-        unpatch_service(LOADER)
-        unpatch_service(DATABASE)
 
     def wait(self):
         if self.SLOWDOWN:
@@ -163,7 +153,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.downloads.external_for_source(src1),
+            {'id': services.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
             {'id': 'external-added-id',
              'state': State.DOWNLOADING}
@@ -183,7 +173,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': self.downloads.db.downloads.external_for_source(src1),
+            {'id': services.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
         ]
         with mock.patch.object(self.downloads.downloader.__class__, 'dump',
@@ -205,11 +195,11 @@ class DownloaderTestMixin:
         self.wait()
 
         # Manually update state of src2
-        self.downloads.db.downloads.set_state(src2, State.SHARING)
+        services.db.downloads.set_state(src2, State.SHARING)
 
         # Mock plugin list to not list src2
         fake_dump = [
-            {'id': self.downloads.db.downloads.external_for_source(src1),
+            {'id': services.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING}
         ]
 
@@ -233,7 +223,7 @@ class DownloaderTestMixin:
         )
 
         self.assertEqual(
-            self.downloads.db.downloads.sources_for_entity(s1.entity),
+            services.db.downloads.sources_for_entity(s1.entity),
             [s1, s2])
 
 

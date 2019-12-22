@@ -18,15 +18,13 @@
 # USA.
 
 
+import logging
 import multiprocessing
 import guessit
 import pydantic
 
 
-from arroyo import (
-    services,
-    schema
-)
+from arroyo import schema
 
 
 class Tags:
@@ -275,4 +273,4 @@ class ParseError(NormalizationError):
     pass
 
 
-_logger = services.getLogger('analyze')
+_logger = logging.getLogger('arroyo.analyze')

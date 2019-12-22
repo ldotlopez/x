@@ -33,15 +33,11 @@ import time
 class StateFilter(Filter):
     HANDLES = ['state']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db = services.get_service(services.DATABASE)
-
     def filter(self, name, value, item):
         if not item.entity:
             return True
 
-        if not self.db.downloads.sources_for_entity(item.entity):
+        if not services.db.downloads.sources_for_entity(item.entity):
             return True
 
         return False

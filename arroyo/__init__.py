@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
+import logging
 
 from arroyo.extensions import (
     Downloader,
@@ -27,10 +28,52 @@ from arroyo.extensions import (
 )
 
 
+class _Services:
+    def __init__(self):
+        self._loader = None
+        self._settings = None
+        self._db = None
+        self._logger = logging.getLogger('arroyo.services')
+
+    def _setter(self, attr, value):
+        logmsg = "Setting service %s to %s"
+        logmsg = logmsg % (attr, value)
+        self._logger.debug(logmsg)
+        setattr(self, '_' + attr, value)
+
+    @property
+    def loader(self):
+        return self._loader
+
+    @loader.setter
+    def loader(self, x):
+        self._setter('loader', x)
+
+    @property
+    def settings(self):
+        return self._settings
+
+    @settings.setter
+    def settings(self, x):
+        self._setter('settings', x)
+
+    @property
+    def db(self):
+        return self._db
+
+    @db.setter
+    def db(self, x):
+        self._setter('db', x)
+
+
+services = _Services()
+
+
 __all__ = [
     'Downloader',
     'Filter',
     'Provider',
     'Sorter',
     'ExtensionError',
+    'services'
 ]

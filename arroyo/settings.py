@@ -17,7 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
-from arroyo import services
+
+import logging
+
+
 from arroyo.kit.settings import (
     Settings as KitSettings,
     UNDEF
@@ -29,22 +32,23 @@ from arroyo.kit.storage import (
 
 
 class SafeConfigFileStore(ConfigFileStorage):
-    def __init__(self, *args, logger, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.logger = services.getLogger('safe-config-file-store')
+        self._logger = logging.getLogger('arroyo.safe-config-file-store')
 
     def read(self):
         try:
             return super().read()
         except LocationNotFoundError:
             logmsg = "Location '%s' not found" % self.location
-            self.logger.warning(logmsg)
+            self._logger.warning(logmsg)
             return {}
 
 
 class Settings(KitSettings):
     DEFAULTS = {
         'downloader': 'transmission',
+        'sorter': 'basic',
         'plugin.transmission.host': 'localhost',
         'plugin.transmission.port': '9091',
     }

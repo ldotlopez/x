@@ -49,20 +49,14 @@ class State:
 
 
 class Downloads:
-    def __init__(self, logger=None):
-        self.logger = logger or services.getLogger('downloads')
-        self.db = services.get_service(services.DATABASE)
-        self.settings = services.get_service(services.SETTINGS)
-
     @property
     def downloader(self):
-        loader = services.get_service(services.LOADER)
-        name = self.settings.get('downloader')
-        return loader.get('downloaders.' + name)
+        name = services.settings.get('downloader')
+        return services.loader.get('downloaders.' + name)
 
     def add(self, src):
         try:
-            state = self.db.downloads.get_state(src)
+            state = services.db.downloads.get_state(src)
         except database.NotFoundError:
             state = None
 
@@ -72,28 +66,28 @@ class Downloads:
 
         id_ = self.downloader.add(src.uri)
         if state is None:
-            self.db.downloads.add(src, id_, State.INITIALIZING, src.entity)
+            services.db.downloads.add(src, id_, State.INITIALIZING, src.entity)
         else:
-            self.db.downloads.set_state(src, State.INITIALIZING)
+            services.db.downloads.set_state(src, State.INITIALIZING)
 
     def cancel(self, src):
-        external_id = self.db.downloads.external_for_source(src)
+        external_id = services.db.downloads.external_for_source(src)
         self.downloader.cancel(external_id)
-        self.db.downloads.delete(src)
+        services.db.downloads.delete(src)
 
     def archive(self, src):
-        external_id = self.db.downloads.external_for_source(src)
+        external_id = services.db.downloads.external_for_source(src)
         self.downloader.archive(external_id)
-        self.db.downloads.set_state(src, State.ARCHIVED)
+        services.db.downloads.set_state(src, State.ARCHIVED)
 
     def get_state(self, src):
         self.sync()
-        return self.db.downloads.get_state(src)
+        return services.db.downloads.get_state(src)
 
     def get_active(self):
         self.sync()
         ret = [src
-               for (src, state) in self.db.downloads.all_states()
+               for (src, state) in services.db.downloads.all_states()
                if state < State.ARCHIVED]
 
         return ret
@@ -104,18 +98,19 @@ class Downloads:
         for x in self.downloader.dump():
             external_id = x['id']
             try:
-                src = self.db.downloads.source_for_external(external_id)
+                src = services.db.downloads.source_for_external(external_id)
                 downloader_data[src] = x
             except database.NotFoundError:
                 pass
 
         # Update in-app db data
-        for (src, state) in self.db.downloads.all_states():
+        for (src, state) in services.db.downloads.all_states():
             if src in downloader_data:
-                self.db.downloads.set_state(src, downloader_data[src]['state'])
+                services.db.downloads.set_state(src,
+                                                downloader_data[src]['state'])
 
             else:
                 if state >= State.SHARING:
-                    self.db.downloads.set_state(src, State.ARCHIVED)
+                    services.db.downloads.set_state(src, State.ARCHIVED)
                 else:
-                    self.db.downloads.delete(src)
+                    services.db.downloads.delete(src)

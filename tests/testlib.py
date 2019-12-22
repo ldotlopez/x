@@ -1,13 +1,8 @@
 import hashlib
-from typing import *
 from urllib import parse
 
 from arroyo.analyze import analyze_one
 from arroyo.schema import Source
-from arroyo.services import _services_reg
-
-
-_services_patches: Dict[str, object] = {}
 
 
 def build_source(name, **kwargs):
@@ -28,20 +23,3 @@ def build_item(name, **kwargs):
     src = build_source(name, **kwargs)
     item = analyze_one(src)
     return item
-
-
-def patch_service(service, obj):
-    global _services_patches
-
-    if service not in _services_patches:
-        _services_patches[service] = []
-
-    _services_patches[service].append(_services_reg[service])
-    _services_reg[service] = obj
-
-
-def unpatch_service(service):
-    global _services_patches
-
-    obj = _services_patches[service].pop(-1)
-    _services_reg[service] = obj

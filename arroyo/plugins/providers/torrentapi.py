@@ -104,7 +104,9 @@ class TorrentAPI(arroyo.Provider):
             await resp.release()
             await client.close()
 
+            # FIXME: Handle json.JSONDecodeError
             self.token = json.loads(buff.decode('utf-8'))['token']
+
             self.token_ts = time.time()
             self.token_last_use = None
             return

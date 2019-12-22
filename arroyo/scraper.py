@@ -19,6 +19,7 @@
 
 
 import asyncio
+import logging
 
 
 import aiohttp
@@ -68,7 +69,7 @@ class Engine:
     CLIENT_MAX_PARALEL_REQUESTS = 5
 
     def __init__(self):
-        self.logger = services.getLogger('scraper.Engine')
+        self.logger = logging.getLogger('arroyo.scraper.engine')
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -155,15 +156,13 @@ class ProviderMissingError(Exception):
 
 
 def build_context(provider=None, uri=None, type=None, language=None):
-    loader = services.get_service(services.LOADER)
-
     if not provider and not uri:
         errmsg = "Either provider or uri must be specified"
         raise ValueError(errmsg)
 
     if provider is None:
-        for name in loader.list('providers'):
-            cls = loader.get_class(name)
+        for name in services.loader.list('providers'):
+            cls = services.loader.get_class(name)
             if cls.can_handle(uri):
                 provider = cls()
                 break
@@ -171,7 +170,7 @@ def build_context(provider=None, uri=None, type=None, language=None):
             raise ProviderMissingError(uri)
 
     elif isinstance(provider, str):
-        provider = loader.get('providers.%s' % (provider))
+        provider = services.loader.get('providers.%s' % (provider))
 
     if not isinstance(provider, extensions.Provider):
         raise TypeError(provider)
@@ -212,8 +211,8 @@ def build_contexts_for_query(q):
 
         return url
 
-    loader = services.get_service(services.LOADER)
-    providers = [loader.get(x) for x in loader.list('providers')]
+    providers = [services.loader.get(x)
+                 for x in services.loader.list('providers')]
     prov_and_uris = [(x, _get_url(x)) for x in providers]
     prov_and_uris = [(p, u) for (p, u) in prov_and_uris if u]
 

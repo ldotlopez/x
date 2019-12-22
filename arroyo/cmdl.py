@@ -24,6 +24,13 @@ import logging
 import sys
 
 
+try:
+    import colorama
+    _has_color = True
+except ImportError:
+    _has_color = False
+
+
 import arroyo
 from arroyo import (
     analyze,
@@ -195,20 +202,20 @@ def main():
     #
     # Setup arroyo
     #
+    setupLogging()
+
     db_store = storage.JSONStorage(location=args.db)
     db_srv = database.Database(db_store)
 
-    settings_store = settings.SafeConfigFileStore(
-        location=args.settings,
-        root='arroyo',
-        logger=logging.getLogger('settings'))
+    settings_store = settings.SafeConfigFileStore(location=args.settings,
+                                                  root='arroyo')
     settings_srv = settings.Settings(settings_store)
 
     loader_srv = loader.Loader()
 
-    services.set_service(services.DATABASE, db_srv)
-    services.set_service(services.LOADER, loader_srv)
-    services.set_service(services.SETTINGS, settings_srv)
+    services.db = db_srv
+    services.loader = loader_srv
+    services.settings = settings_srv
 
     #
     # Run subcommand
@@ -287,7 +294,8 @@ def do_analyze(parser, args):
     raw = [schema.Source(**x) for x in raw]
     proc = analyze.analyze(*raw, mp=False)
 
-    output = json.dumps([x.dict() for x in proc], indent=2,
+    output = json.dumps([x.dict() for x in proc],
+                        indent=2,
                         default=_json_encode_hook)
     args.output.write(output)
 
@@ -408,6 +416,36 @@ def do_download(parser, args):
 
     else:
         print("Command needed", file=sys.stderr)
+
+
+def setupLogging():
+    handler = logging.StreamHandler()
+    handler.setFormatter(LogFormatter("[%(levelname)s] [%(name)s] %(message)s"))
+    logger = logging.getLogger('arroyo')
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+
+
+class LogFormatter(logging.Formatter):
+    if _has_color:
+        COLOR_MAP = {
+            logging.DEBUG: colorama.Fore.CYAN,
+            logging.INFO: colorama.Fore.GREEN,
+            logging.WARNING: colorama.Fore.YELLOW,
+            logging.ERROR: colorama.Fore.RED,
+            logging.CRITICAL: colorama.Back.RED,
+        }
+    else:
+        COLOR_MAP = {}
+
+    def format(self, record):
+        s = super().format(record)
+
+        color = self.COLOR_MAP.get(record.levelno)
+        if color:
+            s = color + s + colorama.Style.RESET_ALL
+
+        return s
 
 
 def _json_encode_hook(value):
