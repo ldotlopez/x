@@ -29,7 +29,10 @@ import transmissionrpc
 
 
 import arroyo
-from arroyo import downloads
+from arroyo import (
+    downloads,
+    services
+)
 
 
 STATUS_MAP = {
@@ -54,31 +57,44 @@ def trap_transmission_error(fn):
 
 
 class Tr(arroyo.Downloader):
-    @trap_transmission_error
-    def __init__(self):
-        self.client = transmissionrpc.Client(
-            address='localhost',
-            port=9091,
-            user=None,
-            password=None)
+    SETTINGS_PREFIX = "plugin.downloader.transmission"
+
+    @property
+    def client(self):
+        return transmissionrpc.Client(
+            services.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
+            services.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
+            services.settings.get(self.SETTINGS_PREFIX + '.username', None),
+            services.settings.get(self.SETTINGS_PREFIX + '.password', None),
+        )
 
     @trap_transmission_error
     def add(self, uri):
+        """
+        raises transmissionrpc.TransmissionError on error
+        """
         ret = self.client.add_torrent(uri)
         return ret.hashString
 
     @trap_transmission_error
     def archive(self, id):
+        """
+        On invalid or non existent torrents it just ignores them
+        """
         self.client.remove_torrent(id, delete_data=False)
 
     @trap_transmission_error
     def cancel(self, id):
+        """
+        On invalid or non existent torrents it just ignores them
+        """
         self.client.remove_torrent(id, delete_data=True)
 
     @trap_transmission_error
     def dump(self):
         return [{'id': x.hashString,
-                 'state': STATUS_MAP[x.status]}
+                 'state': STATUS_MAP[x.status],
+                 'progress': x.progress / 100}
                 for x in self.client.get_torrents()]
 
 
