@@ -44,6 +44,12 @@ class SafeConfigFileStore(ConfigFileStorage):
             self._logger.warning(logmsg)
             return {}
 
+    def write(self, data):
+        raise NotImplementedError()
+
+    def close(self):
+        raise NotImplementedError()
+
 
 class Settings(KitSettings):
     DEFAULTS = {
