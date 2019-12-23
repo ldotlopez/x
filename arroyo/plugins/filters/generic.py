@@ -26,6 +26,7 @@ from arroyo import (
 
 
 import fnmatch
+import functools
 import re
 import time
 
@@ -77,6 +78,33 @@ class SourceAttributeFilter(Filter):
 
         value = convert_type(value, sourcevalue)
         return fn(value, sourcevalue)
+
+
+class MetadataAttributeFilter(Filter):
+    ENTITY_TYPE = None
+    HANDLES = ['codec', 'quality']
+
+    def filter(self, name, value, source):
+        m = {
+            'quality': 'core.video.screen-size',
+            'codec': 'core.video.codec'
+        }
+        mkey = m.get(name) or name
+        if not source.metadata or mkey not in source.metadata:
+            return False
+
+        # Normalize both values
+        srcvalue = source.metadata[mkey].lower()
+        usrvalue = value.lower()
+
+        if name == 'codec':
+            # Normalize codec values
+            codec_sub = functools.partial(re.sub,
+                                          r'^(h|x)\.?26([45])', r'h26\2')
+            srcvalue = codec_sub(srcvalue)
+            usrvalue = codec_sub(usrvalue)
+
+        return srcvalue == usrvalue
 
 
 class EntityAttributeFilter(Filter):

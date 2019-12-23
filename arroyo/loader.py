@@ -30,6 +30,8 @@ _plugins = {
         'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
     'filters.movie':
         'arroyo.plugins.filters.generic.MovieAttributeFilter',
+    'filters.metadata':
+        'arroyo.plugins.filters.generic.MetadataAttributeFilter',
 
     'providers.eztv':
         'arroyo.plugins.providers.eztv.EzTV',
