@@ -93,8 +93,11 @@ class Downloads:
         return ret
 
     def sync(self):
+        # 1. Get data from plugin using .dump()
+        # 2. Match each torrent from dump() with known sources (those who are
+        #    in the db)
+        # 3. Store this info in downloader_data
         downloader_data = {}
-
         for x in self.downloader.dump():
             external_id = x['id']
             try:
@@ -103,7 +106,10 @@ class Downloads:
             except database.NotFoundError:
                 pass
 
-        # Update in-app db data
+        # 4. for each pair of (src, data) in the db check if it is still in the
+        #    plugin
+        # 5. If it is: update db state
+        # 6. If it is NOT: delete or archive depending of the last known state
         for (src, state) in services.db.downloads.all_states():
             if src in downloader_data:
                 services.db.downloads.set_state(src,
