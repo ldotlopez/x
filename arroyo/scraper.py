@@ -25,6 +25,7 @@ import logging
 import aiohttp
 
 
+from arroyo.kit import cache
 from arroyo import (
     extensions,
     schema,
@@ -79,14 +80,40 @@ class Engine:
 
     def fetch(self, *ctxs):
         async def _task(acc, ctx, sess, sem):
+            try:
+                content = services.cache.get(ctx.uri)
+            except cache.CacheKeyError:
+                content = None
+
+            if content:
+                logmsg = "URI '%s' found in cache, %s bytes"
+                logmsg = logmsg % (ctx.uri, len(content))
+                self.logger.debug(logmsg)
+                acc.append((ctx, content))
+                return
+
             async with sem:
                 try:
+                    logmsg = "Requesting '%s'..."
+                    logmsg = logmsg % ctx.uri
+                    self.logger.debug(logmsg)
                     content = await ctx.provider.fetch(sess, ctx.uri)
                 except asyncio.TimeoutError:
                     logmsg = "Timeout for '%s'"
                     logmsg = logmsg % ctx.uri
-                    self.logger(logmsg)
+                    self.logger.warning(logmsg)
                     content = ''
+
+                logmsg = "URI '%s' fetched, %s bytes"
+                logmsg = logmsg % (ctx.uri, len(content))
+                self.logger.debug(logmsg)
+
+                if content:
+                    logmsg = "URI '%s' saved to cache, %s bytes"
+                    logmsg = logmsg % (ctx.uri, len(content))
+                    self.logger.debug(logmsg)
+
+                    services.cache.set(ctx.uri, content)
 
                 acc.append((ctx, content))
 

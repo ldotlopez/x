@@ -18,7 +18,7 @@
 # USA.
 
 import logging
-
+from arroyo.kit import cache
 from arroyo.extensions import (
     Downloader,
     Filter,
@@ -30,6 +30,7 @@ from arroyo.extensions import (
 
 class _Services:
     def __init__(self):
+        self._cache = cache.NullCache()
         self._loader = None
         self._settings = None
         self._db = None
@@ -40,6 +41,14 @@ class _Services:
         logmsg = logmsg % (attr, value)
         self._logger.debug(logmsg)
         setattr(self, '_' + attr, value)
+
+    @property
+    def cache(self):
+        return self._cache
+
+    @cache.setter
+    def cache(self, x):
+        self._setter('cache', x)
 
     @property
     def loader(self):
