@@ -93,9 +93,25 @@ class Tr(arroyo.Downloader):
     @trap_transmission_error
     def dump(self):
         return [{'id': x.hashString,
-                 'state': STATUS_MAP[x.status],
+                 'state': self.state_for_torrent(x),
                  'progress': x.progress / 100}
                 for x in self.client.get_torrents()]
+
+    def state_for_torrent(self, torrent):
+        if torrent.status in STATUS_MAP:
+            return STATUS_MAP[torrent.status]
+
+        elif torrent.status == 'stopped':
+            if torrent.progress < 100:
+                return downloads.State.PAUSED
+            else:
+                return downloads.State.DONE
+
+        else:
+            logmsg = "Unknow transmission status '%s"
+            logmsg = logmsg % (torrent.status)
+            self.logger.error(logmsg)
+            return downloads.State.UNKNOWN
 
 
 class ClientError(arroyo.ExtensionError):

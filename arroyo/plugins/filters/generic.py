@@ -35,6 +35,9 @@ class StateFilter(Filter):
     HANDLES = ['state']
 
     def filter(self, name, value, item):
+        if value == 'all':
+            return True
+
         if not item.entity:
             return True
 

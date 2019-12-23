@@ -53,6 +53,8 @@ class SafeConfigFileStore(ConfigFileStorage):
 
 class Settings(KitSettings):
     DEFAULTS = {
+        'cache.enabled': True,
+        'cache.delta': 60*60,
         'downloader': 'transmission',
         'sorter': 'basic',
         'plugin.transmission.host': 'localhost',

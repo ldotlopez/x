@@ -27,6 +27,7 @@ from arroyo import (
 # Don't make state an Enum
 # If state are defined as ints we can compare as __gt__ and __lt__
 class State:
+    UNKNOWN = 0
     INITIALIZING = 1
     QUEUED = 2
     PAUSED = 3
@@ -36,16 +37,16 @@ class State:
     ARCHIVED = 7
 
 
-# STATE_SYMBOLS = {
-#     # State.NONE: ' ',
-#     State.INITIALIZING: '⋯',
-#     State.QUEUED: '⋯',
-#     State.PAUSED: '‖',
-#     State.DOWNLOADING: '↓',
-#     State.SHARING: '⇅',
-#     State.DONE: '✓',
-#     State.ARCHIVED: '▣'
-# }
+STATE_SYMBOLS = {
+    State.UNKNOWN: '?',
+    State.INITIALIZING: '⋯',
+    State.QUEUED: '⋯',
+    State.PAUSED: '‖',
+    State.DOWNLOADING: '↓',
+    State.SHARING: '⇅',
+    State.DONE: '✓',
+    State.ARCHIVED: '▣'
+}
 
 
 class Downloads:
