@@ -18,6 +18,10 @@
 # USA.
 
 
+import logging
+import warnings
+
+
 from arroyo import (
     analyze,
     services
@@ -36,6 +40,13 @@ class Query(dict):
         entity, _, _ = analyze.parse(s)
         params = {k: v for (k, v) in entity.dict().items() if v is not None}
         return cls(**params)
+
+    def __repr__(self):
+        r = '<Query (%s) at %s>'
+        return r % (
+            ','.join(['%s=%s' % (k, v) for (k, v) in self.items()]),
+            hex(id(self))
+        )
 
     def __str__(self):
         """
@@ -107,6 +118,10 @@ class Query(dict):
 
 
 class Engine:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger('arroyo.query-engine')
+
     def get_sorter(self):
         name = services.settings.get('sorter')
         return services.loader.get('sorters.' + name)
@@ -121,7 +136,7 @@ class Engine:
 
         raise MissingFilterError(name)
 
-    def build_filter(self, query):
+    def build_filter_context(self, query):
         filters = []
         missing = []
 
@@ -139,10 +154,25 @@ class Engine:
 
         return filters
 
-    def apply(self, filters, collection, mp=True):
+    def build_filter(self, query):
+        warnings.warn("Deprected method")
+        return self.build_filter_context(query)
+
+    def apply(self, ctx, collection, mp=True):
         ret = collection
-        for (f, key, value) in filters:
+        for (f, key, value) in ctx:
+            prev = len(ret)
             ret = f.apply(key, value, ret)
+            curr = len(ret)
+
+            logmsg = "applied filter '%s' over %s items: %s items left"
+            logmsg = logmsg % (key, prev, curr)
+            self.logger.debug(logmsg)
+
+            if not ret:
+                logmsg = "skipping remaing filters"
+                self.logger.debug(logmsg)
+                break
 
         return ret
 

@@ -145,14 +145,23 @@ class Engine:
         ret = []
 
         for (ctx, buffer) in ctxs_and_buffers:
+            ctxitems = []
+
             for item in ctx.provider.parse(buffer):
                 try:
-                    ret.append(self._build_source(ctx, item))
+                    ctxitems.append(self._build_source(ctx, item))
                 except schema.ValidationError:
                     logmsg = "Got invalid data from provider '%s', skipping."
                     logmsg = logmsg % ctx.provider_name
                     self.logger.warning(logmsg)
                     break
+
+            if not ctxitems:
+                logmsg = "Provider '%s' may be broken. Got 0 items from '%s'."
+                logmsg = logmsg % (ctx.provider_name, ctx.uri)
+                self.logger.warning(logmsg)
+
+            ret.extend(ctxitems)
 
         return ret
 
@@ -228,13 +237,16 @@ def build_contexts_for_query(q):
         try:
             url = provider.get_query_uri(q)
         except Exception as e:
-            print("Invalid query for %s: %s" %
-                  (provider.__class__, e))
+            logmsg = "Invalid query for %s: %s"
+            logmsg = logmsg % (provider.__class__.__name__, e)
+            _logger.info(logmsg)
             return None
 
         if url is None:
-            print("Provider %s returns null instead for raise an exception. "
-                  "fix it" % provider.__class__)
+            logmsg = ("Provider '%s' returns null instead for raise an "
+                      "exception. Fix it.")
+            logmsg = logmsg % provider.__class__.__name__
+            _logger.error(logmsg)
 
         return url
 
@@ -247,3 +259,6 @@ def build_contexts_for_query(q):
             for(p, u) in prov_and_uris]
 
     return ctxs
+
+
+_logger = logging.getLogger('arroyo.scraper')

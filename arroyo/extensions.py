@@ -48,7 +48,6 @@ class Provider:
         yield url
 
     async def fetch(self, sess, uri):
-        print("=> ", uri, file=sys.stderr)
         async with sess.get(uri) as resp:
             return await resp.text()
 
