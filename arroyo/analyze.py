@@ -207,12 +207,26 @@ def parse(name, type_hint=None):
 
 
 def extract_entity(info, type=None):
-    if type is None:
-        type = info.get('type')
+    type_candidates = [type, info.get('type')]
+    type_candidates = [x for x in type_candidates if x]
 
-    entity_cls = schema.get_entity_class(type)
+    if not type_candidates:
+        raise UnknowEntityTypeError(info)
+
+    if len(set(type_candidates)) != 1:
+        logmsg = "type hints doens't match info type: %s"
+        logmsg = logmsg % ', '.join(type_candidates)
+        _logger.warning(logmsg)
+
+    entity_cls = None
+    for tc in type_candidates:
+        try:
+            entity_cls = schema.get_entity_class(tc)
+        except KeyError:
+            pass
+
     if entity_cls is None:
-        raise UnknowEntityTypeError((info, type))
+        raise UnknowEntityTypeError((info, type_candidates))
 
     if entity_cls is schema.Episode:
         # Move some fields
