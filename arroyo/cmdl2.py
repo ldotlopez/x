@@ -35,12 +35,16 @@ from arroyo.kit import (
     storage
 )
 
-import os.path
+
 import argparse
-import appdirs
 import logging
+import os.path
 import sys
 
+
+import appdirs
+import humanfriendly
+import tabulate
 try:
     import colorama
     _has_colorama = True
@@ -130,6 +134,12 @@ class App:
 
         groups = self.filters.sort(results)
         return groups
+
+    def get_downloads(self):
+        g = sorted(self.downloads.get_all_states(),
+                   key=lambda x: x[0].entity or x[0])
+
+        return list(g)
 
 
 class LogFormatter(logging.Formatter):
@@ -224,13 +234,25 @@ def main():
             print(display_group(sources, states))
             print("")
 
+    elif args.command == 'downloads':
+        if args.list:
+            headers = ['state', 'name', 'size', 'progress']
+            data = [
+                (downloads.STATE_SYMBOLS.get(state) or ' ',
+                 src.name,
+                 humanfriendly.format_size(src.size),
+                 '??')
+                for (src, state)
+                in app.get_downloads()
+            ]
+            print(tabulate.tabulate(data, headers=headers))
+
     else:
         parser.print_help()
 
 
 def display_group(sources, states=None):
-    import tabulate
-    import humanfriendly
+
 
     if states is None:
         states = {}

@@ -73,8 +73,8 @@ class _Downloads:
             raise NotFoundError() from e
 
     def all_states(self):
-        return [(schema.Source(**row[self.SOURCE]), row[self.STATE])
-                for row in self.data['downloads'].values()]
+        yield from ((schema.Source(**row[self.SOURCE]), row[self.STATE])
+                    for row in self.data['downloads'].values())
 
     def external_for_source(self, src):
         try:

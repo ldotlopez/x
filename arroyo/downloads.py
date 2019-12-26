@@ -81,17 +81,21 @@ class Downloads:
         self.downloader.archive(external_id)
         services.db.downloads.set_state(src, State.ARCHIVED)
 
-    def get_state(self, src):
+    def get_state(self, source):
         self.sync()
-        return services.db.downloads.get_state(src)
+        return services.db.downloads.get_state(source)
+
+    def get_all_states(self, include_archived=False):
+        self.sync()
+        yield from ((src, state)
+                    for (src, state) in services.db.downloads.all_states()
+                    if state != State.ARCHIVED or include_archived)
 
     def get_active(self):
         self.sync()
-        ret = [src
-               for (src, state) in services.db.downloads.all_states()
-               if state < State.ARCHIVED]
-
-        return ret
+        return [src
+                for (src, state) in services.db.downloads.all_states()
+                if state not in (State.ARCHIVED,)]
 
     def sync(self):
         # 1. Get data from plugin using .dump()
@@ -111,13 +115,27 @@ class Downloads:
         #    plugin
         # 5. If it is: update db state
         # 6. If it is NOT: delete or archive depending of the last known state
+
+        # We can't update the db directly because
+        # Database.downloads.all_states() is a generator (the db cant be
+        # modified while querying).
+        # To workaround this I use a log-like scheme, I keep a list of updates
+        # and deletions to apply once the query it's done
+
+        updates = []
+        deletes = []
+
         for (src, state) in services.db.downloads.all_states():
             if src in downloader_data:
-                services.db.downloads.set_state(src,
-                                                downloader_data[src]['state'])
+                updates.append((src, downloader_data[src]['state']))
 
             else:
                 if state >= State.SHARING:
-                    services.db.downloads.set_state(src, State.ARCHIVED)
+                    updates.append((src, State.ARCHIVED))
                 else:
-                    services.db.downloads.delete(src)
+                    deletes.append(src)
+
+        for (src, state) in updates:
+            services.db.downloads.set_state(src, state)
+        for (src) in deletes:
+            services.db.downloads.delete(src)
