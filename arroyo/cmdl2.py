@@ -255,22 +255,27 @@ def main():
             ]
             print(tabulate.tabulate(data, headers=headers))
 
+        elif args.cancel:
+            table = {hex(zlib.crc32(src.name.encode('utf-8')))[2:]: src
+                     for (src, _) in app.get_downloads()}
+
+            app.cancel_download(table[args.cancel])
+
     else:
         parser.print_help()
 
 
 def display_group(sources, states=None):
-
-
     if states is None:
         states = {}
 
-    headers = ['selected', 'state', 'name', 'size']
+    headers = [' ', 'state', 'name', 'size', 's/l']
     table = [
         ['*' if src == sources[0] else ' ',
          downloads.STATE_SYMBOLS.get(states.get(src) or None) or ' ',
          src.name,
-         humanfriendly.format_size(src.size)]
+         humanfriendly.format_size(src.size),
+         '%s/%s' % (src.seeds or '-', src.leechers or '-')]
         for src in sources
     ]
     return tabulate.tabulate(table, headers=headers)
