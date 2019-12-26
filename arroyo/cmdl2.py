@@ -141,6 +141,9 @@ class App:
 
         return list(g)
 
+    def cancel_download(self, src):
+        self.downlaods.cancel(src)
+
 
 class LogFormatter(logging.Formatter):
     if _has_colorama:
@@ -209,6 +212,9 @@ def main():
         '--list',
         action='store_true',
         help='Show current downloads')
+    search_cmd.add_argument(
+        '--cancel',
+        help='Cancel a download')
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -235,10 +241,12 @@ def main():
             print("")
 
     elif args.command == 'downloads':
+        import zlib
         if args.list:
-            headers = ['state', 'name', 'size', 'progress']
+            headers = ['id', 'state', 'name', 'size', 'progress']
             data = [
-                (downloads.STATE_SYMBOLS.get(state) or ' ',
+                (hex(zlib.crc32(src.name.encode('utf-8')))[2:],
+                 downloads.STATE_SYMBOLS.get(state) or ' ',
                  src.name,
                  humanfriendly.format_size(src.size),
                  '??')
