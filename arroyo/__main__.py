@@ -18,7 +18,7 @@
 # USA.
 
 
-from arroyo import cmdl3 as cmdl
+from arroyo import cmdl
 
 
 if __name__ == '__main__':
