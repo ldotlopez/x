@@ -22,8 +22,10 @@ import logging
 import warnings
 
 
-from arroyo.core import services
-from arroyo import analyze
+from arroyo import (
+    analyze,
+    core
+)
 
 
 class Query(dict):
@@ -121,12 +123,12 @@ class Engine:
         self.logger = logging.getLogger('arroyo.query-engine')
 
     def get_sorter(self):
-        name = services.settings.get('sorter')
-        return services.loader.get('sorters.' + name)
+        name = core.settings.get('sorter')
+        return core.loader.get('sorters.' + name)
 
     def get_filter(self, name):
-        plugins = [services.loader.get(x)
-                   for x in services.loader.list('filters')]
+        plugins = [core.loader.get(x)
+                   for x in core.loader.list('filters')]
 
         for plugin in plugins:
             if plugin.can_handle(name):

@@ -18,10 +18,10 @@
 # USA.
 
 
-from arroyo.core import services
+import arroyo
 from arroyo import (
+    core,
     schema,
-    Filter
 )
 
 
@@ -31,7 +31,7 @@ import re
 import time
 
 
-class StateFilter(Filter):
+class StateFilter(arroyo.Filter):
     HANDLES = ['state']
 
     def filter(self, name, value, item):
@@ -41,13 +41,13 @@ class StateFilter(Filter):
         if not item.entity:
             return True
 
-        if not services.db.downloads.sources_for_entity(item.entity):
+        if not core.db.downloads.sources_for_entity(item.entity):
             return True
 
         return False
 
 
-class SourceAttributeFilter(Filter):
+class SourceAttributeFilter(arroyo.Filter):
     HANDLES = [
         # item.source attrib
         'created', 'created-min', 'created-max',
@@ -83,7 +83,7 @@ class SourceAttributeFilter(Filter):
         return fn(value, sourcevalue)
 
 
-class MetadataAttributeFilter(Filter):
+class MetadataAttributeFilter(arroyo.Filter):
     ENTITY_TYPE = None
     HANDLES = ['codec', 'quality']
 
@@ -110,7 +110,7 @@ class MetadataAttributeFilter(Filter):
         return srcvalue == usrvalue
 
 
-class EntityAttributeFilter(Filter):
+class EntityAttributeFilter(arroyo.Filter):
     ENTITY_TYPE = None
     HANDLES = []
 

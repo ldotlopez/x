@@ -21,15 +21,15 @@ import humanfriendly
 import tabulate
 
 
-from arroyo import extensions
+import arroyo
 from arroyo import (
+    core,
     downloads,
     query
 )
-from arroyo.core import services
 
 
-class Search(extensions.Command):
+class Search(arroyo.Command):
     COMMAND_NAME = 'search'
 
     def configure_command_parser(self, cmd):
@@ -62,7 +62,7 @@ class Search(extensions.Command):
             raise NotImplementedError()
 
         results = app.search(q, provider=args.provider, uri=args.uri)
-        states = dict(services.db.downloads.all_states())
+        states = dict(core.db.downloads.all_states())
 
         for (entity, sources) in results:
             print(str(entity))

@@ -25,13 +25,13 @@ import humanfriendly
 import tabulate
 
 
-from arroyo import extensions
+import arroyo
 from arroyo import (
     downloads
 )
 
 
-class Downloads(extensions.Command):
+class Downloads(arroyo.Command):
     COMMAND_NAME = 'downloads'
 
     def configure_command_parser(self, cmd):

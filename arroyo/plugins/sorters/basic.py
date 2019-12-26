@@ -22,7 +22,6 @@ from arroyo import Sorter
 
 
 import functools
-import itertools
 import sys
 
 

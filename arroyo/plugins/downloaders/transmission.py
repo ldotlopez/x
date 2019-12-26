@@ -29,8 +29,8 @@ import transmissionrpc
 
 
 import arroyo
-from arroyo.core import services
 from arroyo import (
+    core,
     downloads,
 )
 
@@ -62,10 +62,10 @@ class Tr(arroyo.Downloader):
     @property
     def client(self):
         return transmissionrpc.Client(
-            services.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
-            services.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
-            services.settings.get(self.SETTINGS_PREFIX + '.username', None),
-            services.settings.get(self.SETTINGS_PREFIX + '.password', None),
+            core.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
+            core.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
+            core.settings.get(self.SETTINGS_PREFIX + '.username', None),
+            core.settings.get(self.SETTINGS_PREFIX + '.password', None),
         )
 
     @trap_transmission_error

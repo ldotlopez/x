@@ -13,22 +13,19 @@ except ImportError:
 
 from arroyo import (
     core,
-    analyze
-)
-from arroyo.core import (
-    database,
-    settings,
+    analyze,
+    downloads,
+    scraper,
+    query
 )
 from arroyo.kit import (
     cache,
     loader,
     storage
 )
-
-from arroyo import (
-    downloads,
-    scraper,
-    query
+from arroyo.services import (
+    database,
+    settings
 )
 
 
@@ -95,18 +92,18 @@ class App:
         network_cache_path = appdirs.user_cache_dir() + '/arroyo/network'
         os.makedirs(network_cache_path, exist_ok=True)
 
-        core.services.settings = settings.Settings(
+        core.settings = settings.Settings(
             settings.SafeConfigFileStore(settings_path, root=APP_NAME)
         )
-        core.services.db = database.Database(
+        core.db = database.Database(
             storage.JSONStorage(database_path)
         )
-        core.services.loader = loader.ClassLoader(PLUGINS)
+        core.loader = loader.ClassLoader(PLUGINS)
 
-        if core.services.settings.get('cache.enabled'):
-            core.services.cache = cache.DiskCache(
+        if core.settings.get('cache.enabled'):
+            core.cache = cache.DiskCache(
                 basedir=network_cache_path,
-                delta=core.services.settings.get('cache.delta')
+                delta=core.settings.get('cache.delta')
             )
 
         self.scraper = scraper.Engine()
@@ -168,8 +165,8 @@ class App:
         exes = {}
 
         commands = parser.add_subparsers(dest='command', required=True)
-        for name in core.services.loader.list('commands'):
-            plugin = core.services.loader.get(name)
+        for name in core.loader.list('commands'):
+            plugin = core.loader.get(name)
             exes[plugin.COMMAND_NAME] = plugin
 
             cmd = commands.add_parser(plugin.COMMAND_NAME)

@@ -25,12 +25,12 @@ import logging
 import aiohttp
 
 
-from arroyo.kit import cache
-from arroyo.core import services
+import arroyo
 from arroyo import (
-    extensions,
+    core,
     schema
 )
+from arroyo.kit import cache
 
 
 class Context:
@@ -81,7 +81,7 @@ class Engine:
     def fetch(self, *ctxs):
         async def _task(acc, ctx, sess, sem):
             try:
-                content = services.cache.get(ctx.uri)
+                content = core.cache.get(ctx.uri)
             except cache.CacheKeyError:
                 content = None
 
@@ -113,7 +113,7 @@ class Engine:
                     logmsg = logmsg % (ctx.uri, len(content))
                     self.logger.debug(logmsg)
 
-                    services.cache.set(ctx.uri, content)
+                    core.cache.set(ctx.uri, content)
 
                 acc.append((ctx, content))
 
@@ -197,8 +197,8 @@ def build_context(provider=None, uri=None, type=None, language=None):
         raise ValueError(errmsg)
 
     if provider is None:
-        for name in services.loader.list('providers'):
-            cls = services.loader.get_class(name)
+        for name in core.loader.list('providers'):
+            cls = core.loader.get_class(name)
             if cls.can_handle(uri):
                 provider = cls()
                 break
@@ -206,9 +206,9 @@ def build_context(provider=None, uri=None, type=None, language=None):
             raise ProviderMissingError(uri)
 
     elif isinstance(provider, str):
-        provider = services.loader.get('providers.%s' % (provider))
+        provider = core.loader.get('providers.%s' % (provider))
 
-    if not isinstance(provider, extensions.Provider):
+    if not isinstance(provider, arroyo.Provider):
         raise TypeError(provider)
 
     uri = uri or provider.DEFAULT_URI
@@ -250,8 +250,8 @@ def build_contexts_for_query(q):
 
         return url
 
-    providers = [services.loader.get(x)
-                 for x in services.loader.list('providers')]
+    providers = [core.loader.get(x)
+                 for x in core.loader.list('providers')]
     prov_and_uris = [(x, _get_url(x)) for x in providers]
     prov_and_uris = [(p, u) for (p, u) in prov_and_uris if u]
 
