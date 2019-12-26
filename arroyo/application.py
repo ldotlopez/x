@@ -21,11 +21,11 @@ from arroyo import (
 from arroyo.kit import (
     cache,
     loader,
+    settings,
     storage
 )
 from arroyo.services import (
     database,
-    settings
 )
 
 
@@ -45,6 +45,14 @@ LOG_LEVELS = [
     logging.DEBUG
 ]
 
+SETTINGS = {
+    'cache.enabled': True,
+    'cache.delta': 60*60,
+    'downloader': 'transmission',
+    'sorter': 'basic',
+    'plugin.transmission.host': 'localhost',
+    'plugin.transmission.port': '9091',
+}
 
 PLUGINS = {
     'commands.downloads':
@@ -92,12 +100,8 @@ class App:
         network_cache_path = appdirs.user_cache_dir() + '/arroyo/network'
         os.makedirs(network_cache_path, exist_ok=True)
 
-        core.settings = settings.Settings(
-            settings.SafeConfigFileStore(settings_path, root=APP_NAME)
-        )
-        core.db = database.Database(
-            storage.JSONStorage(database_path)
-        )
+        core.settings = Settings(ConfigFileStorage(settings_path, root=APP_NAME))
+        core.db = database.Database(storage.JSONStorage(database_path))
         core.loader = loader.ClassLoader(PLUGINS)
 
         if core.settings.get('cache.enabled'):
@@ -200,6 +204,34 @@ class LogFormatter(logging.Formatter):
             s = color + s + colorama.Style.RESET_ALL
 
         return s
+
+
+class Settings(settings.Settings):
+    def get(self, key, default=settings.UNDEF):
+        if default == settings.UNDEF:
+            default = SETTINGS.get(key) or settings.UNDEF
+
+        return super().get(key, default=default)
+
+
+class ConfigFileStorage(storage.ConfigFileStorage):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._logger = logging.getLogger('arroyo.config-file-storage')
+
+    def read(self):
+        try:
+            return super().read()
+        except storage.LocationNotFoundError:
+            logmsg = "Location '%s' not found" % self.location
+            self._logger.warning(logmsg)
+            return {}
+
+    def write(self, data):
+        raise NotImplementedError()
+
+    def close(self):
+        raise NotImplementedError()
 
 
 def build_argparse():
