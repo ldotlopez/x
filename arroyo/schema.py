@@ -57,8 +57,20 @@ class Episode(pydantic.BaseModel):
         dig.update(s.encode('utf-8'))
         return dig.hexdigest()
 
+    def __eq__(self, x):
+        return (isinstance(x, self.__class__)
+                and self.series.lower() == x.series.lower()
+                and self.year == x.year
+                and self.season == x.season
+                and self.number == x.number
+                and (self.country or '').lower() == (x.country or '').lower())
+
     def __hash__(self):
-        return hash(self.id)
+        return hash((self.series.lower(),
+                     self.year,
+                     self.season,
+                     self.number,
+                     (self.country or '').lower()))
 
     def __repr__(self):
         return f'<Episode id={self.id}>'
@@ -80,8 +92,13 @@ class Movie(pydantic.BaseModel):
         dig.update(s.encode('utf-8'))
         return dig.hexdigest()
 
+    def __eq__(self, x):
+        return (isinstance(x, self.__class__)
+                and self.title.lower() == x.title.lower()
+                and self.year == x.year)
+
     def __hash__(self):
-        return hash(self.id)
+        return hash((self.title.lower(), self.year))
 
     def __repr__(self):
         return f'<Movie id={self.id}>'

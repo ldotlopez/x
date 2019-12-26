@@ -179,18 +179,24 @@ class Engine:
     def sort(self, collection):
         groups = {}
 
-        # Group by entity or by source itself
+        # There is some hack here...
+        # Entity hash function is case-insentive so `entity not in groups`
+        # works as c-i but... adding key to groups (`groups[key]`) is c-s.
+        # I get some duplicates here. i.ex. with series with different
+        # capitalizations: Dark vs DARK vs dark.
+        # The hack: use the result from hash as key and add the real key as the
+        # first element. Later, before return, the entity is unpacked.
         for source in collection:
-            key = source.entity or source
+            key = hash(source.entity) or hash(source)
             if key not in groups:
-                groups[key] = []
+                groups[key] = [source.entity or source]
 
             groups[key].append(source)
 
         sorter = self.get_sorter()
         ret = [
-            (key, sorter.sort(collection))
-            for (key, collection) in groups.items()
+            (x.pop(0), sorter.sort(x))
+            for (x) in groups.values()
         ]
         return ret
 
