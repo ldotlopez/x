@@ -18,7 +18,7 @@
 # USA.
 
 
-from arroyo import (
+from arroyo.core import (
     database,
     services
 )

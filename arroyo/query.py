@@ -22,10 +22,8 @@ import logging
 import warnings
 
 
-from arroyo import (
-    analyze,
-    services
-)
+from arroyo.core import services
+from arroyo import analyze
 
 
 class Query(dict):

@@ -18,9 +18,9 @@
 # USA.
 
 
+from arroyo.core import services
 from arroyo import (
     schema,
-    services,
     Filter
 )
 

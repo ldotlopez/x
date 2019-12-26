@@ -29,9 +29,9 @@ import transmissionrpc
 
 
 import arroyo
+from arroyo.core import services
 from arroyo import (
     downloads,
-    services
 )
 
 

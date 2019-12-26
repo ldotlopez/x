@@ -27,6 +27,17 @@ import typing
 import bs4
 
 
+class Command:
+    COMMAND_NAME: str
+
+    def configure_command(self, cmd):
+        pass
+
+    @abc.abstractmethod
+    def run(self, ctx, args):
+        raise NotImplementedError()
+
+
 class Provider:
     DEFAULT_URI: str
     URI_GLOBS: typing.List[str] = []

@@ -26,10 +26,10 @@ import aiohttp
 
 
 from arroyo.kit import cache
+from arroyo.core import services
 from arroyo import (
     extensions,
-    schema,
-    services
+    schema
 )
 
 
