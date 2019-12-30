@@ -54,17 +54,6 @@ class Downloads(arroyo.Command):
                 [src for (src, state) in app.get_downloads()])
             uilib.display_data(data, labels=labels)
 
-            # data = [
-            #     (hex(zlib.crc32(src.name.encode('utf-8')))[2:],
-            #      downloads.STATE_SYMBOLS.get(state) or ' ',
-            #      src.name,
-            #      humanfriendly.format_size(src.size),
-            #      '??')
-            #     for (src, state)
-            #     in app.get_downloads()
-            # ]
-            # print(tabulate.tabulate(data, headers=headers))
-
         elif args.cancel:
             data = uilib.build_data(
                     ['crc32', 'raw_source'],

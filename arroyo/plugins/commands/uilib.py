@@ -43,7 +43,7 @@ def build_data(fields, srcollection):
         return humanfriendly.format_size(src.size)
 
     def _share_fn(src):
-        '%s/%s' % (src.seeds or '-', src.leechers or '-')
+        return '%s/%s' % (src.seeds or '-', src.leechers or '-')
 
     def _progress_fn(src):
         return '...'

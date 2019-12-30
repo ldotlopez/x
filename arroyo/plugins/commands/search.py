@@ -69,6 +69,9 @@ class Search(arroyo.Command):
         for (entity, sources) in results:
             data = uilib.build_data(columns, sources)
             uilib.display_data(data, labels)
+            if not args.download:
+                continue
+
             if not args.auto:
                 userchoice = select_data(len(data))
                 selected = sources[userchoice]
