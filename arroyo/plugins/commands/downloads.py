@@ -29,6 +29,7 @@ import arroyo
 from arroyo import (
     downloads
 )
+from arroyo.plugins.commands import uilib
 
 
 class Downloads(arroyo.Command):
@@ -45,20 +46,33 @@ class Downloads(arroyo.Command):
 
     def run(self, app, args):
         if args.list:
-            headers = ['id', 'state', 'name', 'size', 'progress']
-            data = [
-                (hex(zlib.crc32(src.name.encode('utf-8')))[2:],
-                 downloads.STATE_SYMBOLS.get(state) or ' ',
-                 src.name,
-                 humanfriendly.format_size(src.size),
-                 '??')
-                for (src, state)
-                in app.get_downloads()
-            ]
-            print(tabulate.tabulate(data, headers=headers))
+            labels = ['id', 'state', 'name', 'size', 'progress']
+            columns = ['crc32', 'state', 'name', 'size', 'progress']
+
+            data = uilib.build_data(
+                columns,
+                [src for (src, state) in app.get_downloads()])
+            uilib.display_data(data, labels=labels)
+
+            # data = [
+            #     (hex(zlib.crc32(src.name.encode('utf-8')))[2:],
+            #      downloads.STATE_SYMBOLS.get(state) or ' ',
+            #      src.name,
+            #      humanfriendly.format_size(src.size),
+            #      '??')
+            #     for (src, state)
+            #     in app.get_downloads()
+            # ]
+            # print(tabulate.tabulate(data, headers=headers))
 
         elif args.cancel:
-            table = {hex(zlib.crc32(src.name.encode('utf-8')))[2:]: src
-                     for (src, _) in app.get_downloads()}
+            data = uilib.build_data(
+                    ['crc32', 'raw_source'],
+                    [src for (src, state) in app.get_downloads()])
+            data = {x[0]: x[1] for x in data}
 
-            app.cancel_download(table[args.cancel])
+            if args.cancel not in data:
+                print("Error: Invalid ID")
+                return
+
+            app.cancel(data[args.cancel])

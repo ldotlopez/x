@@ -17,16 +17,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
-import humanfriendly
-import tabulate
-
 
 import arroyo
 from arroyo import (
-    core,
-    downloads,
     query
 )
+from arroyo.plugins.commands import uilib
 
 
 class Search(arroyo.Command):
@@ -49,6 +45,10 @@ class Search(arroyo.Command):
             action='store_true',
             help='Add selected items to downloads')
         cmd.add_argument(
+            '--auto',
+            action='store_true',
+            help='Automatic selection of downloads')
+        cmd.add_argument(
             dest='querystring',
             nargs='?')
 
@@ -61,26 +61,38 @@ class Search(arroyo.Command):
         else:
             raise NotImplementedError()
 
-        results = app.search(q, provider=args.provider, uri=args.uri)
-        states = dict(core.db.downloads.all_states())
+        results = app.query(q, provider=args.provider, uri=args.uri)
+
+        labels = [' ', ' ', 'state', 'name', 'size', 's/l']
+        columns = ['selected', 'count', 'state', 'name', 'size', 'share']
 
         for (entity, sources) in results:
-            print(str(entity))
-            print(display_group(sources, states))
-            print("")
+            data = uilib.build_data(columns, sources)
+            uilib.display_data(data, labels)
+            if not args.auto:
+                userchoice = select_data(len(data))
+                selected = sources[userchoice]
+                print("Ok, selected: %s" % selected.name)
+            else:
+                selected = sources[0]
+
+            try:
+                app.download(selected)
+            except arroyo.ExtensionError as e:
+                print("Error: %s" % e)
 
 
-def display_group(sources, states=None):
-    if states is None:
-        states = {}
+def select_data(n_items):
+    while True:
+        sel = input("Selection? (1-%d) " % n_items)
+        try:
+            sel = int(sel)
+        except ValueError:
+            print("error: type a number plese")
+            continue
 
-    headers = [' ', 'state', 'name', 'size', 's/l']
-    table = [
-        ['*' if src == sources[0] else ' ',
-         downloads.STATE_SYMBOLS.get(states.get(src) or None) or ' ',
-         src.name,
-         humanfriendly.format_size(src.size),
-         '%s/%s' % (src.seeds or '-', src.leechers or '-')]
-        for src in sources
-    ]
-    return tabulate.tabulate(table, headers=headers)
+        if sel < 1 or sel > n_items:
+            print("error: type a number between 1 and %d please" % n_items)
+            continue
+
+        return sel - 1

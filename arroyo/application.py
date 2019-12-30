@@ -114,7 +114,7 @@ class App:
         self.filters = query.Engine()
         self.downloads = downloads.Downloads()
 
-    def search(self, q, provider=None, uri=None):
+    def query(self, q, provider=None, uri=None):
         # Build filters for query
         try:
             filterctx = self.filters.build_filter_context(q)
@@ -153,14 +153,17 @@ class App:
         groups = self.filters.sort(results)
         return groups
 
+    def download(self, source):
+        self.downloads.add(source)
+
     def get_downloads(self):
         g = sorted(self.downloads.get_all_states(),
                    key=lambda x: x[0].entity or x[0])
 
         return list(g)
 
-    def cancel_download(self, src):
-        self.downlaods.cancel(src)
+    def cancel(self, source):
+        self.downloads.cancel(source)
 
     def run_command_line(self, argv, parser=None):
         if not parser:
