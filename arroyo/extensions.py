@@ -21,10 +21,13 @@
 import abc
 import fnmatch
 import re
-import sys
 import typing
 
+
 import bs4
+
+
+from arroyo import schema
 
 
 class Command:
@@ -96,27 +99,49 @@ class Sorter:
 
 class Downloader:
     @abc.abstractmethod
-    def add(self, source):
+    def add(self, source: schema.Source) -> str:
+        """
+        Add source to downloader from a schema.Source object (Usualy using
+        source.uri property)
+        Must return an ID. The most convenient is to reuse the internal ID from
+        the downloads.
+
+        In case of error a ExtensionError should be raised
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def cancel(self, identifier):
+    def cancel(self, identifier: str) -> None:
+        """
+        Delete download from downloader and delete the associated data.
+
+        In case of error a ExtensionError should be raised
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def archive(self, identifier):
+    def archive(self, identifier: str):
+        """
+        Delete download from downloader WITHOUT delete the associated data.
+
+        In case of error a ExtensionError should be raised.
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def remove(self, identifier, delete_data):
-        raise NotImplementedError()
+    def dump(self) -> typing.List[typing.Dict[str, typing.Any]]:
+        """
+        Dump internal state of the downloader (including unknown downloads
+        to arroyo is ok).
 
-    @abc.abstractmethod
-    def list(self):
-        raise NotImplementedError()
+        Each item must follow this schema:
+        {'id': <internal ID> (see Downloader.add method),
+         'state': <state of the download> (see downloads.State)
+         'progress': <progress of the download> float, [0..1]
+        }
 
-    @abc.abstractmethod
-    def dump(self):
+        In case of error a ExtensionError should be raised.
+        """
         raise NotImplementedError()
 
 
