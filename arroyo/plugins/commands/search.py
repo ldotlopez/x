@@ -18,8 +18,12 @@
 # USA.
 
 
+import sys
+
+
 import arroyo
 from arroyo import (
+    core,
     query
 )
 from arroyo.plugins.commands import uilib
@@ -41,6 +45,9 @@ class Search(arroyo.Command):
             action='append',
             default=[])
         cmd.add_argument(
+            '--from-config',
+            action='store_true')
+        cmd.add_argument(
             '--download',
             action='store_true',
             help='Add selected items to downloads')
@@ -55,34 +62,68 @@ class Search(arroyo.Command):
     def run(self, app, args):
         if args.queryparams:
             queryparams = dict([x.split('=', 1) for x in args.queryparams])
-            q = query.Query(**queryparams)
+            qs = [query.Query(**queryparams)]
+
         elif args.querystring:
-            q = query.Query.fromstring(args.querystring)
+            qs = [query.Query.fromstring(args.querystring)]
+
+        elif args.from_config:
+            qs = queries_from_config(core.settings)
+
         else:
             raise NotImplementedError()
 
-        results = app.query(q, provider=args.provider, uri=args.uri)
-
-        labels = [' ', ' ', 'state', 'name', 'size', 's/l']
-        columns = ['selected', 'count', 'state', 'name', 'size', 'share']
-
-        for (entity, sources) in results:
-            data = uilib.build_data(columns, sources)
-            uilib.display_data(data, labels)
-            if not args.download:
+        for q in qs:
+            try:
+                results = app.query(q, provider=args.provider, uri=args.uri)
+            except query.MissingFiltersError as e:
+                msg = "Unknow filters: %s"
+                msg = msg % ', '.join(e.args[0])
+                print(msg, file=sys.stderr)
                 continue
 
-            if not args.auto:
-                userchoice = select_data(len(data))
-                selected = sources[userchoice]
-                print("Ok, selected: %s" % selected.name)
-            else:
-                selected = sources[0]
+            labels = [' ', ' ', 'state', 'name', 'size', 's/l']
+            columns = ['selected', 'count', 'state', 'name', 'size', 'share']
 
-            try:
-                app.download(selected)
-            except arroyo.ExtensionError as e:
-                print("Error: %s" % e)
+            for (entity, sources) in results:
+                data = uilib.build_data(columns, sources)
+                uilib.display_data(data, labels)
+                if not args.download:
+                    continue
+
+                if not args.auto:
+                    userchoice = select_data(len(data))
+                    selected = sources[userchoice]
+                    print("Ok, selected: %s" % selected.name)
+                else:
+                    selected = sources[0]
+
+                try:
+                    app.download(selected)
+                except arroyo.ExtensionError as e:
+                    print("Error: %s" % e)
+
+
+def queries_from_config(settings):
+    DEFAULTS = 'arroyo.query.defaults.global'
+    TYPE_DEFAULTS = 'arroyo.query.defaults.%s'
+    QUERY = 'query.%s'
+
+    defaults = settings.get(DEFAULTS, {})
+    type_defaults = {}
+
+    for name in settings.children('query'):
+        params = settings.get(QUERY % name)
+        query_type = params.get('type', 'source')
+        if query_type not in type_defaults:
+            type_defaults[query_type] = settings.get(TYPE_DEFAULTS % query_type, {})
+
+        q = {}
+        q.update(defaults)
+        q.update(type_defaults[query_type])
+        q.update(params)
+
+        yield query.Query(**q)
 
 
 def select_data(n_items):

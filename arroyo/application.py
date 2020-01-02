@@ -100,7 +100,8 @@ class App:
         network_cache_path = appdirs.user_cache_dir() + '/arroyo/network'
         os.makedirs(network_cache_path, exist_ok=True)
 
-        core.settings = Settings(ConfigFileStorage(settings_path, root=APP_NAME))
+        core.settings = Settings(ConfigFileStorage(settings_path,
+                                                   root=APP_NAME))
         core.db = database.Database(storage.JSONStorage(database_path))
         core.loader = loader.ClassLoader(PLUGINS)
 
@@ -115,15 +116,7 @@ class App:
         self.downloads = downloads.Downloads()
 
     def query(self, q, provider=None, uri=None):
-        # Build filters for query
-        try:
-            filterctx = self.filters.build_filter_context(q)
-        except query.MissingFiltersError as e:
-            missing = e.args[0]
-            msg = "Unknow filters: %s"
-            msg = msg % ', '.join(missing)
-            print(msg)
-            return
+        filterctx = self.filters.build_filter_context(q)
 
         # Build scraper contexts
         if provider or uri:
