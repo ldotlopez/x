@@ -20,6 +20,7 @@
 
 import arroyo
 from arroyo import (
+    analyze,
     core,
     schema,
 )
@@ -85,12 +86,17 @@ class SourceAttributeFilter(arroyo.Filter):
 
 class MetadataAttributeFilter(arroyo.Filter):
     ENTITY_TYPE = None
-    HANDLES = ['codec', 'quality']
+    HANDLES = [
+        'codec',
+        'quality',
+        'source'
+    ]
 
     def filter(self, name, value, source):
         m = {
-            'quality': 'core.video.screen-size',
-            'codec': 'core.video.codec'
+            'codec': analyze.Tags.VIDEO_CODEC,
+            'quality': analyze.Tags.VIDEO_SCREEN_SIZE,
+            'source': analyze.Tags.RELEASE_SOURCE
         }
         mkey = m.get(name) or name
         if not source.metadata or mkey not in source.metadata:
