@@ -19,52 +19,76 @@
 
 
 import re
+from collections import abc
 
 
 UNDEF = object()
+SEPARATOR = '.'
 
 
 class Settings:
-    def __init__(self, storage):
+    def __init__(self, storage, separator=SEPARATOR):
         self._storage = storage
+        self._separator = separator
         self.data = self._storage.read()
 
     def get(self, key, default=UNDEF):
-        validatekey(key)
+        validatekey(key, separator=self._separator)
         try:
-            return self.data[key]
+            d, key = _get_subdict(self.data, key,
+                        separator=self._separator, create=False)
+            return d[key]
+
         except KeyError as e:
             if default is UNDEF:
-                raise e
+                raise KeyError(key) from e
             else:
                 return default
 
     def set(self, key, value):
-        validatekey(key)
-        if self.is_namespace(key):
-            raise ValueError()
-
-        self.data[key] = value
+        validatekey(key, separator=self._separator)
+        d, key = _get_subdict(self.data, key, separator=self._separator, create=True)
+        d[key] = value
         self._sync()
 
     def _sync(self):
         self._storage.write(self.data)
 
-    def is_namespace(self, key):
-        nstest = key + '.'
-        for x in self.data:
-            if x.startswith(nstest):
-                return True
+    def children(self, key):
+        validatekey(key, separator=self._separator)
+        d, k = _get_subdict(self.data, key, separator=self._separator, create=False)
 
-        return False
+        if not isinstance(d[k], abc.Mapping):
+            raise NotNamespaceError(key)
+
+        return list(d[k].keys())
 
 
-def validatekey(key: str) -> None:
-    parts = key.split('.')
+class NotNamespaceError(Exception):
+    pass
+
+
+class InvalidKeyError(Exception):
+    pass
+
+
+def validatekey(key: str, separator=SEPARATOR) -> None:
+    parts = key.split(separator)
 
     if not all(parts):
-        raise ValueError(key)
+        raise InvalidKeyError(key)
 
     if not all([re.search(r'^[a-z0-9_]+$', p)
                 for p in parts]):
-        raise ValueError(key)
+        raise InvalidKeyError(key)
+
+
+def _get_subdict(d, key, separator=SEPARATOR, create=False):
+    if SEPARATOR not in key:
+        return d, key
+
+    k, k2 = key.split(SEPARATOR, 1)
+    if create and k not in d:
+        d[k] = {}
+
+    return _get_subdict(d[k], k2, create=create)
