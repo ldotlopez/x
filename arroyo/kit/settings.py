@@ -36,7 +36,7 @@ class Settings:
         validatekey(key, separator=self._separator)
         try:
             d, key = _get_subdict(self.data, key,
-                        separator=self._separator, create=False)
+                                  separator=self._separator, create=False)
             return d[key]
 
         except KeyError as e:
@@ -47,7 +47,8 @@ class Settings:
 
     def set(self, key, value):
         validatekey(key, separator=self._separator)
-        d, key = _get_subdict(self.data, key, separator=self._separator, create=True)
+        d, key = _get_subdict(self.data, key,
+                              separator=self._separator, create=True)
         d[key] = value
         self._sync()
 
@@ -56,7 +57,14 @@ class Settings:
 
     def children(self, key):
         validatekey(key, separator=self._separator)
-        d, k = _get_subdict(self.data, key, separator=self._separator, create=False)
+        try:
+            d, k = _get_subdict(self.data, key,
+                                separator=self._separator, create=False)
+        except KeyError as e:
+            raise InvalidKeyError(key) from e
+
+        if k not in d:
+            raise InvalidKeyError(key)
 
         if not isinstance(d[k], abc.Mapping):
             raise NotNamespaceError(key)
@@ -64,11 +72,15 @@ class Settings:
         return list(d[k].keys())
 
 
-class NotNamespaceError(Exception):
+class SettingsError(Exception):
     pass
 
 
-class InvalidKeyError(Exception):
+class NotNamespaceError(SettingsError):
+    pass
+
+
+class InvalidKeyError(SettingsError):
     pass
 
 

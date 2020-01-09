@@ -35,6 +35,20 @@ class TestSettings(unittest.TestCase):
         self.s.set('foo', 1)
         self.assertEqual(self.s.get('foo'), 1)
 
+    def test_get_with_default(self):
+        self.assertEqual(self.s.get('foo', 1), 1)
+
+    def test_get_without_default(self):
+        with self.assertRaises(KeyError):
+            self.s.get('foo')
+
+    def test_get_on_namespace(self):
+        self.s.set('foo.a', 1)
+        self.s.set('foo.b', 2)
+        self.s.set('foo.c', 3)
+
+        self.assertEqual(self.s.get('foo'), dict(a=1, b=2, c=3))
+
     def test_invalid_key(self):
         with self.assertRaises(InvalidKeyError):
             self.s.get('.a')
@@ -65,6 +79,10 @@ class TestSettings(unittest.TestCase):
         self.s.set('query.name1.foo', 'bar')
         with self.assertRaises(NotNamespaceError):
             self.s.children('query.name1.foo')
+
+    def test_children_of_missing_key(self):
+        with self.assertRaises(InvalidKeyError):
+            self.s.children('foo')
 
 
 if __name__ == '__main__':
