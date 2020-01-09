@@ -3,9 +3,7 @@ import unittest
 
 import time
 
-from arroyo.loader import Loader
 from arroyo.query import Engine as QueryEngine
-from arroyo.services import LOADER
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,
@@ -14,10 +12,9 @@ from arroyo.plugins.filters.generic import (
 from arroyo.plugins.sorters.basic import (
     Basic as BasicSorter
 )
+
 from testlib import (
     build_item,
-    patch_service,
-    unpatch_service
 )
 
 
@@ -46,13 +43,12 @@ class TestGenericFilter(unittest.TestCase):
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         self.assertTrue(f.filter('name-like', r'Series [AB] S01E01', i))
-        self.assertFalse(f.filter('name-like', r'Series \d+ S01E01', i))
+        self.assertFalse(f.filter('name-like', r'Series [CD] S01E01', i))
 
     def test_in_func(self):
         f = SourceAttributeFilter()
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
-        # Test containers
         self.assertTrue(f.filter('provider-in', 'prov1, prov2', i))
 
     def test_max_func(self):
@@ -85,6 +81,13 @@ class TestGenericFilter(unittest.TestCase):
         self.assertTrue(f.filter('age-max', 200, i))
         self.assertFalse(f.filter('age-max', 50, i))
 
+    def test_since(self):
+        f = SourceAttributeFilter()
+        i = build_item('Foo', created=1577833200)  # 2020-01-01
+
+        self.assertTrue(f.filter('since', '2019', i))
+        self.assertFalse(f.filter('since', '2021', i))
+
 
 class TestEntityAttributeFilter(unittest.TestCase):
     def test_basic_attribute_match(self):
@@ -111,9 +114,8 @@ class TestEntityAttributeFilter(unittest.TestCase):
         m1 = build_item('Some movie (1998).avi', type='movie')
         m2 = build_item('Some movie.avi', type='movie')
 
-        self.assertEqual(
-            f.apply('movie-year', '1998', [m1, m2]),
-            [m1])
+        self.assertTrue(f.filter('movie-year', '1998', m1))
+        self.assertFalse(f.filter('movie-year', '1998', m2))
 
 
 class TestSorter(unittest.TestCase):
@@ -146,23 +148,6 @@ class TestSorter(unittest.TestCase):
         r = s.sort([i1, i2, i3])
         self.assertTrue(r == [i1, i3, i2])
 
-    def test_mixed_entities(self):
-        engine = QueryEngine()
-
-        m1 = build_item('movie', type='movie', seeds=1)
-        e1 = build_item('series s01e01', type='movie', seeds=2)
-        m2 = build_item('movie', type='movie', seeds=2)
-        e2 = build_item('series s01e01', type='movie', seeds=1)
-
-        ret = engine.sort([m1, e1, m2, e2])
-        self.assertEqual(
-            ret,
-            [(m1.entity, [m2, m1]),
-             (e1.entity, [e1, e2])]
-        )
-
 
 if __name__ == '__main__':
-    patch_service(LOADER, Loader())
     unittest.main()
-    unpatch_service(LOADER)

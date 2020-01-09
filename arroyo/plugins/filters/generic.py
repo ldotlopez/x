@@ -26,10 +26,14 @@ from arroyo import (
 )
 
 
+import datetime
 import fnmatch
 import functools
 import re
 import time
+
+
+import humanfriendly
 
 
 class StateFilter(arroyo.Filter):
@@ -61,23 +65,42 @@ class SourceAttributeFilter(arroyo.Filter):
 
         # other names
         'age', 'age-min', 'age-max',
+        'since',
         'type', 'type-in',
     ]
 
     def filter(self, name, value, source):
-        basename, fn = eval_filter_name(name)
+        sourcevalue = None
 
-        if basename == 'type':
+        if name == 'type' or name.startswith('type-'):
             try:
                 sourcevalue = source.entity.type
             except AttributeError:
                 return False
 
-        elif basename == 'age':
-            now = int(time.time())
-            sourcevalue = max(now - (source.created or 0), 0)
+        elif name == 'age' or name.startswith('age-'):
+            if not source.created:
+                return False
 
-        else:
+            now = int(time.time())
+            value = now - value
+            name = {
+                'age': 'created',
+                'age-min': 'created-max',
+                'age-max': 'created-min'
+            }[name]
+
+        elif name == 'since':
+            if not source.created:
+                return False
+
+            dt = humanfriendly.parse_date(value)
+            ts = datetime.datetime(*dt).timestamp()
+            value = ts
+            name = 'created-min'
+
+        basename, fn = eval_filter_name(name)
+        if sourcevalue is None:
             sourcevalue = getattr(source, basename)
 
         value = convert_type(value, sourcevalue)
@@ -158,6 +181,9 @@ class MovieAttributeFilter(EntityAttributeFilter):
 
 
 def convert_type(value, target):
+    if target is None:
+        return value
+
     return type(target)(value)
 
 
@@ -213,4 +239,5 @@ def cmp_like(filtervalue, sourcevalue):
 
 
 def cmp_in(options, sourcevalue):
-    return False
+    options = [x.strip() for x in options.split(',')]
+    return sourcevalue in options
