@@ -50,6 +50,14 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(self.s.get('foo'), dict(a=1, b=2, c=3))
 
     def test_invalid_key(self):
+        self.assertEqual(self.s.get('a-b', None), None)
+
+        with self.assertRaises(InvalidKeyError):
+            self.s.get('a-')
+
+        with self.assertRaises(InvalidKeyError):
+            self.s.get('-a')
+
         with self.assertRaises(InvalidKeyError):
             self.s.get('.a')
 
@@ -61,9 +69,6 @@ class TestSettings(unittest.TestCase):
 
         with self.assertRaises(InvalidKeyError):
             self.s.get('a..b')
-
-        with self.assertRaises(InvalidKeyError):
-            self.s.get('a-b')
 
         with self.assertRaises(InvalidKeyError):
             self.s.get('aB')

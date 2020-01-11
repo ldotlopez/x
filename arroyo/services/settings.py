@@ -90,8 +90,11 @@ def validatekey(key: str, separator=SEPARATOR) -> None:
     if not all(parts):
         raise InvalidKeyError(key)
 
-    if not all([re.search(r'^[a-z0-9_]+$', p)
+    if not all([re.search(r'^[a-z0-9\-]+$', p)
                 for p in parts]):
+        raise InvalidKeyError(key)
+
+    if key[0] == '-' or key[-1] == '-':
         raise InvalidKeyError(key)
 
 
