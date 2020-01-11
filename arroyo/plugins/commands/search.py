@@ -99,7 +99,7 @@ class Search(extensions.Command):
                     userchoice = select_data(len(data))
                     if userchoice == -1:
                         print("Skiping %s\n" % entity)
-                    continue
+                        continue
 
                     selected = sources[userchoice]
                     print("Ok, selected: %s\n" % selected.name)
