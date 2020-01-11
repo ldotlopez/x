@@ -97,15 +97,19 @@ class Search(extensions.Command):
 
                 if not args.auto:
                     userchoice = select_data(len(data))
+                    if userchoice == -1:
+                        print("Skiping %s\n" % entity)
+                    continue
+
                     selected = sources[userchoice]
-                    print("Ok, selected: %s" % selected.name)
+                    print("Ok, selected: %s\n" % selected.name)
                 else:
                     selected = sources[0]
 
                 try:
                     app.download(selected)
                 except extensions.ExtensionError as e:
-                    print("Error: %s" % e)
+                    print("Error: %s\n" % e)
 
 
 def queries_from_config(s):
@@ -139,14 +143,14 @@ def queries_from_config(s):
 
 def select_data(n_items):
     while True:
-        sel = input("Selection? (1-%d) " % n_items)
+        sel = input("Selection? (1-%d, 0 to skip) " % n_items)
         try:
             sel = int(sel)
         except ValueError:
             print("error: type a number plese")
             continue
 
-        if sel < 1 or sel > n_items:
+        if sel < 0 or sel > n_items:
             print("error: type a number between 1 and %d please" % n_items)
             continue
 
