@@ -33,10 +33,12 @@ class Query(dict):
 
     @classmethod
     def fromstring(cls, s):
+        # Keep in sync with MetadataAttributeFilter.HANDLES
+        # from plugins/filters/generic.py
         metadata_pairs = [
             ('codec', analyze.Tags.VIDEO_CODEC),
             ('quality', analyze.Tags.VIDEO_SCREEN_SIZE),
-
+            ('source', analyze.Tags.RELEASE_SOURCE)
         ]
 
         entity, metadata, parsed = analyze.parse(s)
