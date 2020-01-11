@@ -21,14 +21,12 @@
 import sys
 
 
-from arroyo.kit import settings
-
-
 import arroyo
 from arroyo import (
     core,
     query
 )
+from arroyo.services import settings
 from arroyo.plugins.commands import uilib
 
 

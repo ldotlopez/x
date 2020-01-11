@@ -19,14 +19,12 @@ from arroyo import (
     scraper,
     query
 )
-from arroyo.kit import (
-    settings,
-)
 from arroyo.services import (
     cache,
     database,
     loader,
-    storage,
+    settings,
+    storage
 )
 
 
