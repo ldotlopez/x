@@ -20,11 +20,11 @@ from arroyo import (
     query
 )
 from arroyo.kit import (
-    cache,
     settings,
     storage
 )
 from arroyo.services import (
+    cache,
     database,
     loader,
 )

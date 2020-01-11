@@ -30,7 +30,7 @@ from arroyo import (
     core,
     schema
 )
-from arroyo.kit import cache
+from arroyo.services import cache
 
 
 class Context:
