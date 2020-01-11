@@ -18,8 +18,6 @@
 # USA.
 
 
-"""Cache services"""
-
 import abc
 import hashlib
 import os
@@ -72,7 +70,7 @@ class CacheOSError(OSError):
 
 class BaseCache:
     """
-    Abstract base class for all appkit caches
+    Abstract base class for all caches
     """
     def __init__(self, delta=0, *args, **kwargs):
         try:

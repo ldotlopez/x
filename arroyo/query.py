@@ -18,14 +18,7 @@
 # USA.
 
 
-import logging
-import warnings
-
-
-from arroyo import (
-    analyze,
-    core
-)
+from arroyo import analyze
 
 
 class Query(dict):
@@ -47,12 +40,6 @@ class Query(dict):
             ','.join(['%s=%s' % (k, v) for (k, v) in self.items()]),
             hex(id(self))
         )
-
-    def __str__(self):
-        """
-        Prevent usage of old APIs
-        """
-        raise SystemError()
 
     def str(self):
         def _get_base_string(key='name'):
@@ -118,17 +105,17 @@ class Query(dict):
 
 
 class Engine:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.logger = logging.getLogger('arroyo.query-engine')
+    def __init__(self, srvs, logger=None):
+        self.srvs = srvs
+        self.logger = logger or self.srvs.logger.getChild('query.Engine')
 
     def get_sorter(self):
-        name = core.settings.get('sorter')
-        return core.loader.get('sorters.' + name)
+        name = self.srvs.settings.get('sorter')
+        return self.srvs.loader.get('sorters.' + name, self.srvs)
 
     def get_filter(self, name):
-        plugins = [core.loader.get(x)
-                   for x in core.loader.list('filters')]
+        plugins = [self.srvs.loader.get(x, self.srvs)
+                   for x in self.srvs.loader.list('filters')]
 
         for plugin in plugins:
             if plugin.can_handle(name):
@@ -154,10 +141,6 @@ class Engine:
 
         return filters
 
-    def build_filter(self, query):
-        warnings.warn("Deprected method")
-        return self.build_filter_context(query)
-
     def apply(self, ctx, collection, mp=True):
         ret = collection
         for (f, key, value) in ctx:
@@ -167,11 +150,11 @@ class Engine:
 
             logmsg = "applied filter '%s' over %s items: %s items left"
             logmsg = logmsg % (key, prev, curr)
-            self.logger.debug(logmsg)
+            self.srvs.logger.debug(logmsg)
 
             if not ret:
                 logmsg = "skipping remaing filters"
-                self.logger.debug(logmsg)
+                self.srvs.logger.debug(logmsg)
                 break
 
         return ret

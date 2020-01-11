@@ -30,11 +30,16 @@ import bs4
 from arroyo import schema
 
 
+class Extension:
+    def __init__(self, srvs):
+        self.srvs = srvs
+
+
 class ExtensionError(Exception):
     pass
 
 
-class Command:
+class Command(Extension):
     COMMAND_NAME: str
 
     def configure_command(self, cmd):
@@ -49,7 +54,7 @@ class CommandUsageError(ExtensionError):
     pass
 
 
-class Provider:
+class Provider(Extension):
     DEFAULT_URI: str
     URI_GLOBS: typing.List[str] = []
     URI_REGEXPS: typing.List[str] = []
@@ -83,7 +88,7 @@ class Provider:
         return None
 
 
-class Filter:
+class Filter(Extension):
     HANDLES: typing.List[str] = []
 
     @classmethod
@@ -99,13 +104,13 @@ class Filter:
                      if self.filter(key, value, item)])
 
 
-class Sorter:
+class Sorter(Extension):
     @abc.abstractmethod
     def sort(self, collection):
         raise NotImplementedError()
 
 
-class Downloader:
+class Downloader(Extension):
     @abc.abstractmethod
     def add(self, source: schema.Source) -> str:
         """

@@ -1,18 +1,39 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2015 Luis López <luis@cuarentaydos.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+# USA.
+
+
 import argparse
 import logging
 import os
 
 
 import appdirs
+
+
 try:
     import colorama
     _has_colorama = True
 except ImportError:
     _has_colorama = False
 
-
 from arroyo import (
-    core,
+    defaults,
     extensions,
     analyze,
     downloads,
@@ -20,6 +41,7 @@ from arroyo import (
     query
 )
 from arroyo.services import (
+    Services,
     cache,
     database,
     loader,
@@ -28,102 +50,53 @@ from arroyo.services import (
 )
 
 
-APP_NAME = 'arroyo'
-
-DEFAULT_SETTING = "%s/%s/settings.ini" % (appdirs.user_config_dir(), APP_NAME)
-DEFAULT_DB = "%s/%s/db.json" % (appdirs.user_data_dir(), APP_NAME)
-DEFAULT_LOGLEVEL = 2
-
-
-LOG_FORMAT = "[%(levelname)s] [%(name)s] %(message)s"
-LOG_LEVELS = [
-    logging.CRITICAL,
-    logging.ERROR,
-    logging.WARNING,
-    logging.INFO,
-    logging.DEBUG
-]
-
-SETTINGS = {
-    'cache.enabled': True,
-    'cache.delta': 60*60,
-    'downloader': 'transmission',
-    'sorter': 'basic',
-    'plugin.transmission.host': 'localhost',
-    'plugin.transmission.port': '9091',
-}
-
-PLUGINS = {
-    'commands.dev':
-        'arroyo.plugins.commands.dev.Command',
-    'commands.downloads':
-        'arroyo.plugins.commands.downloads.Downloads',
-    'commands.search':
-        'arroyo.plugins.commands.search.Search',
-
-    'filters.state':
-        'arroyo.plugins.filters.generic.StateFilter',
-    'filters.source':
-        'arroyo.plugins.filters.generic.SourceAttributeFilter',
-    'filters.episode':
-        'arroyo.plugins.filters.generic.EpisodeAttributeFilter',
-    'filters.movie':
-        'arroyo.plugins.filters.generic.MovieAttributeFilter',
-    'filters.metadata':
-        'arroyo.plugins.filters.generic.MetadataAttributeFilter',
-
-    'providers.eztv':
-        'arroyo.plugins.providers.eztv.EzTV',
-    'providers.epublibre':
-        'arroyo.plugins.providers.epublibre.EPubLibre',
-    'providers.torrentapi':
-        'arroyo.plugins.providers.torrentapi.TorrentAPI',
-    'providers.thepiratebay':
-        'arroyo.plugins.providers.thepiratebay.ThePirateBay',
-
-    'sorters.basic':
-        'arroyo.plugins.sorters.basic.Basic',
-
-    'downloaders.transmission':
-        'arroyo.plugins.downloaders.transmission.Tr'
-}
-
-
 class App:
-
     def __init__(self, settings_path: str, database_path: str,
                  log_level: int = logging.WARNING):
-        setupLogging(level=log_level, format=LOG_FORMAT)
+        # Setup logging
+        handler = logging.StreamHandler()
+        handler.setFormatter(LogFormatter(defaults.LOG_FORMAT))
 
+        logger = logging.getLogger(defaults.APP_NAME)
+        logger.setLevel(log_level)
+        logger.addHandler(handler)
+
+        # Setup filepaths
         touch(database_path)
         touch(settings_path)
 
         network_cache_path = appdirs.user_cache_dir() + '/arroyo/network'
         os.makedirs(network_cache_path, exist_ok=True)
 
-        core.settings = Settings(ConfigFileStorage(settings_path,
-                                                   root=APP_NAME))
-        core.db = database.Database(storage.JSONStorage(database_path))
-        core.loader = loader.ClassLoader(PLUGINS)
+        # Setup core
+        self.srvs = Services(
+            logger=logger,
+            db=database.Database(storage.JSONStorage(database_path)),
+            settings=Settings(ConfigFileStorage(settings_path,
+                                                root=defaults.APP_NAME)),
+            loader=loader.ClassLoader(defaults.PLUGINS)
+        )
 
-        if core.settings.get('cache.enabled'):
-            core.cache = cache.DiskCache(
+        if self.srvs.settings.get('cache.enabled'):
+            self.srvs.cache = cache.DiskCache(
                 basedir=network_cache_path,
-                delta=core.settings.get('cache.delta')
+                delta=self.srvs.settings.get('cache.delta')
             )
 
-        self.scraper = scraper.Engine()
-        self.filters = query.Engine()
-        self.downloads = downloads.Downloads()
+        # Setup engines
+        self.scraper = scraper.Engine(self.srvs)
+        self.filters = query.Engine(self.srvs)
+        self.downloads = downloads.Downloads(self.srvs)
 
     def query(self, q, provider=None, uri=None):
         filterctx = self.filters.build_filter_context(q)
 
         # Build scraper contexts
         if provider or uri:
-            scrapectxs = [scraper.build_context(provider=provider, uri=uri)]
+            scrapectxs = [self.scraper.build_context(provider=provider,
+                                                     uri=uri)]
         else:
-            scrapectxs = scraper.build_contexts_for_query(q)
+            scrapectxs = self.scraper.build_contexts_for_query(q)
 
         results = self.scraper.process(*scrapectxs)
         results = analyze.analyze(*results, mp=False)
@@ -167,8 +140,8 @@ class App:
 
         commands = parser.add_subparsers(dest='command', required=True)
         subcommands = {}
-        for name in core.loader.list('commands'):
-            plugin = core.loader.get(name)
+        for name in self.srvs.loader.list('commands'):
+            plugin = self.srvs.loader.get(name, self.srvs)
             exes[plugin.COMMAND_NAME] = plugin
 
             subcommands[plugin.COMMAND_NAME] = commands.add_parser(plugin.COMMAND_NAME)
@@ -210,9 +183,10 @@ class LogFormatter(logging.Formatter):
 class Settings(settings.Settings):
     def get(self, key, default=settings.UNDEF):
         if default == settings.UNDEF:
-            default = SETTINGS.get(key) or settings.UNDEF
+            default = defaults.SETTINGS.get(key) or settings.UNDEF
 
-        return super().get(key, default=default)
+        ret = super().get(key, default=default)
+        return ret
 
 
 class ConfigFileStorage(storage.ConfigFileStorage):
@@ -240,11 +214,11 @@ def build_argparse():
     parser.add_argument(
         '--db',
         type=str,
-        default=DEFAULT_DB)
+        default=defaults.DB_PATH)
     parser.add_argument(
         '--settings',
         type=str,
-        default=DEFAULT_SETTING)
+        default=defaults.SETTINGS_PATH)
     parser.add_argument(
         '-q', '--quiet',
         default=0,
@@ -267,11 +241,3 @@ def touch(filepath, contents=None, mode='wb', encoding='utf-8'):
     if contents:
         with open(filepath, mode=mode, encoding=encoding) as fh:
             fh.write(contents)
-
-
-def setupLogging(level, format="%(message)s"):
-    handler = logging.StreamHandler()
-    handler.setFormatter(LogFormatter(format))
-    logger = logging.getLogger(APP_NAME)
-    logger.addHandler(handler)
-    logger.setLevel(level)

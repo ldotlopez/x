@@ -19,15 +19,13 @@
 
 
 import asyncio
-import logging
 
 
 import aiohttp
 
 
-import arroyo
 from arroyo import (
-    core,
+    extensions,
     schema
 )
 from arroyo.services import cache
@@ -69,8 +67,9 @@ class Engine:
     CLIENT_TIMEOUT = 15
     CLIENT_MAX_PARALEL_REQUESTS = 5
 
-    def __init__(self):
-        self.logger = logging.getLogger('arroyo.scraper.engine')
+    def __init__(self, srvs, logger=None):
+        self.srvs = srvs
+        self.logger = logger or self.srvs.logger.getChild('scraper.Engine')
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -81,7 +80,7 @@ class Engine:
     def fetch(self, *ctxs):
         async def _task(acc, ctx, sess, sem):
             try:
-                content = core.cache.get(ctx.uri)
+                content = self.srvs.cache.get(ctx.uri)
             except cache.CacheKeyError:
                 content = None
 
@@ -113,7 +112,7 @@ class Engine:
                     logmsg = logmsg % (ctx.uri, len(content))
                     self.logger.debug(logmsg)
 
-                    core.cache.set(ctx.uri, content)
+                    self.srvs.cache.set(ctx.uri, content)
 
                 acc.append((ctx, content))
 
@@ -186,79 +185,74 @@ class Engine:
 
         return schema.Source(**item)
 
+    def build_context(self, provider=None, uri=None, type=None, language=None):
+        if not provider and not uri:
+            errmsg = "Either provider or uri must be specified"
+            raise ValueError(errmsg)
+
+        if provider is None:
+            for name in self.srvs.loader.list('providers'):
+                cls = self.srvs.loader.get_class(name)
+                if cls.can_handle(uri):
+                    provider = cls()
+                    break
+            else:
+                raise ProviderMissingError(uri)
+
+        elif isinstance(provider, str):
+            provider = self.srvs.loader.get('providers.%s' % (provider),
+                                            self.srvs)
+
+        if not isinstance(provider, extensions.Provider):
+            raise TypeError(provider)
+
+        uri = uri or provider.DEFAULT_URI
+
+        return Context(provider, uri, type=type, language=language)
+
+    def build_n_contexts(self, n, *args, **kwargs):
+        def _expand(ctx, n):
+            g = ctx.provider.paginate(ctx.uri)
+            for _ in range(n):
+                try:
+                    uri = next(g)
+                except StopIteration:
+                    break
+
+                yield Context(provider=ctx.provider, uri=uri,
+                              type=ctx.type, language=ctx.language)
+
+        ctx0 = self.build_context(*args, **kwargs)
+        return list(_expand(ctx0, n))
+
+    def build_contexts_for_query(self, q):
+        def _get_url(provider):
+            try:
+                url = provider.get_query_uri(q)
+            except Exception as e:
+                logmsg = "Invalid query for %s: %s"
+                logmsg = logmsg % (provider.__class__.__name__, e)
+                self.logger.info(logmsg)
+                return None
+
+            if url is None:
+                logmsg = ("Provider '%s' returns null instead for raise an "
+                          "exception. Fix it.")
+                logmsg = logmsg % provider.__class__.__name__
+                self.logger.error(logmsg)
+
+            return url
+
+        providers = [self.srvs.loader.get(x, self.srvs)
+                     for x in self.srvs.loader.list('providers')]
+        prov_and_uris = [(x, _get_url(x)) for x in providers]
+        prov_and_uris = [(p, u) for (p, u) in prov_and_uris if u]
+
+        ctxs = [self.build_context(provider=p, uri=u)
+                for(p, u) in prov_and_uris]
+
+        return ctxs
+
 
 class ProviderMissingError(Exception):
     pass
-
-
-def build_context(provider=None, uri=None, type=None, language=None):
-    if not provider and not uri:
-        errmsg = "Either provider or uri must be specified"
-        raise ValueError(errmsg)
-
-    if provider is None:
-        for name in core.loader.list('providers'):
-            cls = core.loader.get_class(name)
-            if cls.can_handle(uri):
-                provider = cls()
-                break
-        else:
-            raise ProviderMissingError(uri)
-
-    elif isinstance(provider, str):
-        provider = core.loader.get('providers.%s' % (provider))
-
-    if not isinstance(provider, arroyo.Provider):
-        raise TypeError(provider)
-
-    uri = uri or provider.DEFAULT_URI
-
-    return Context(provider, uri, type=type, language=language)
-
-
-def build_n_contexts(n, *args, **kwargs):
-    def _expand(ctx, n):
-        g = ctx.provider.paginate(ctx.uri)
-        for _ in range(n):
-            try:
-                uri = next(g)
-            except StopIteration:
-                break
-
-            yield Context(provider=ctx.provider, uri=uri,
-                          type=ctx.type, language=ctx.language)
-
-    ctx0 = build_context(*args, **kwargs)
-    return list(_expand(ctx0, n))
-
-
-def build_contexts_for_query(q):
-    def _get_url(provider):
-        try:
-            url = provider.get_query_uri(q)
-        except Exception as e:
-            logmsg = "Invalid query for %s: %s"
-            logmsg = logmsg % (provider.__class__.__name__, e)
-            _logger.info(logmsg)
-            return None
-
-        if url is None:
-            logmsg = ("Provider '%s' returns null instead for raise an "
-                      "exception. Fix it.")
-            logmsg = logmsg % provider.__class__.__name__
-            _logger.error(logmsg)
-
-        return url
-
-    providers = [core.loader.get(x)
-                 for x in core.loader.list('providers')]
-    prov_and_uris = [(x, _get_url(x)) for x in providers]
-    prov_and_uris = [(p, u) for (p, u) in prov_and_uris if u]
-
-    ctxs = [build_context(provider=p, uri=u)
-            for(p, u) in prov_and_uris]
-
-    return ctxs
-
-
-_logger = logging.getLogger('arroyo.scraper')

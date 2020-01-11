@@ -18,27 +18,20 @@
 # USA.
 
 
-import enum
 import re
 import time
 from datetime import datetime
 from urllib import parse
 
 
-import arroyo
+from arroyo import extensions
 from arroyo.plugins import providers
 
 
 import humanfriendly
 
 
-class LinkCount(enum.Enum):
-    NONE = 0
-    ONE = 1
-    MULTIPLE = 2
-
-
-class EzTV(arroyo.Provider):
+class EzTV(extensions.Provider):
     BASE_URI = 'https://eztv.io'
     DEFAULT_URI = BASE_URI + '/page_0'
     URI_REGEXPS = [

@@ -18,23 +18,31 @@
 # USA.
 
 
-from arroyo.services import services as core
-from arroyo.extensions import (
-    Command,
-    Downloader,
-    Filter,
-    Sorter,
-    Provider,
-    ExtensionError
+from arroyo.schema import (
+    Source,
+    Episode,
+    Movie
+)
+from arroyo.downloads import (
+    Downloads as DownloadsEngine
+)
+from arroyo.query import (
+    Engine as QueryEngine,
+    Query
+)
+from arroyo.scraper import (
+    Context as ScrapeContext,
+    Engine as ScraperEngine
 )
 
 
 __all__ = [
-    'core',
-    'Command',
-    'Downloader',
-    'Filter',
-    'Sorter',
-    'Provider',
-    'ExtensionError'
+    'Source',
+    'Episode',
+    'Movie',
+    'ScraperEngine',
+    'QueryEngine',
+    'DownloadsEngine',
+    'ScrapeContext',
+    'Query'
 ]

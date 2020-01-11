@@ -18,8 +18,6 @@
 # USA.
 
 
-import arroyo
-
 import re
 import sys
 import time
@@ -30,11 +28,14 @@ from urllib import parse
 import humanfriendly
 
 
+from arroyo import extensions
+
+
 class _CategoryUnknowError(Exception):
     pass
 
 
-class ThePirateBay(arroyo.Provider):
+class ThePirateBay(extensions.Provider):
     # URL structure:
     # https://thepiratebay.cr/search.php?q={q}&page={page}&orderby=99
     # order_by=3 uploaded

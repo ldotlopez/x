@@ -21,11 +21,11 @@
 from urllib import parse
 
 
-import arroyo
+from arroyo import extensions
 from arroyo.plugins import providers
 
 
-class EPubLibre(arroyo.Provider):
+class EPubLibre(extensions.Provider):
     DEFAULT_URI = (
         'https://epublibre.org/catalogo/index/0/nuevo/novedades/sin/todos/'
     )

@@ -18,7 +18,6 @@
 # USA.
 
 
-from arroyo import core
 from arroyo.services import database
 
 
@@ -48,14 +47,18 @@ STATE_SYMBOLS = {
 
 
 class Downloads:
+    def __init__(self, srvs, logger=None):
+        self.srvs = srvs
+        self.logger = logger or self.srvs.logger.getChild('downloads.Engine')
+
     @property
     def downloader(self):
-        name = core.settings.get('downloader')
-        return core.loader.get('downloaders.' + name)
+        name = self.srvs.settings.get('downloader')
+        return self.srvs.loader.get('downloaders.' + name, self.srvs)
 
     def add(self, src):
         try:
-            state = core.db.downloads.get_state(src)
+            state = self.srvs.db.downloads.get_state(src)
         except database.NotFoundError:
             state = None
 
@@ -65,34 +68,34 @@ class Downloads:
 
         id_ = self.downloader.add(src.uri)
         if state is None:
-            core.db.downloads.add(src, id_, State.INITIALIZING, src.entity)
+            self.srvs.db.downloads.add(src, id_, State.INITIALIZING, src.entity)
         else:
-            core.db.downloads.set_state(src, State.INITIALIZING)
+            self.srvs.db.downloads.set_state(src, State.INITIALIZING)
 
     def cancel(self, src):
-        external_id = core.db.downloads.external_for_source(src)
+        external_id = self.srvs.db.downloads.external_for_source(src)
         self.downloader.cancel(external_id)
-        core.db.downloads.delete(src)
+        self.srvs.db.downloads.delete(src)
 
     def archive(self, src):
-        external_id = core.db.downloads.external_for_source(src)
+        external_id = self.srvs.db.downloads.external_for_source(src)
         self.downloader.archive(external_id)
-        core.db.downloads.set_state(src, State.ARCHIVED)
+        self.srvs.db.downloads.set_state(src, State.ARCHIVED)
 
     def get_state(self, source):
         self.sync()
-        return core.db.downloads.get_state(source)
+        return self.srvs.db.downloads.get_state(source)
 
     def get_all_states(self, include_archived=False):
         self.sync()
         yield from ((src, state)
-                    for (src, state) in core.db.downloads.all_states()
+                    for (src, state) in self.srvs.db.downloads.all_states()
                     if state != State.ARCHIVED or include_archived)
 
     def get_active(self):
         self.sync()
         return [src
-                for (src, state) in core.db.downloads.all_states()
+                for (src, state) in self.srvs.db.downloads.all_states()
                 if state not in (State.ARCHIVED,)]
 
     def sync(self):
@@ -104,7 +107,7 @@ class Downloads:
         for x in self.downloader.dump():
             external_id = x['id']
             try:
-                src = core.db.downloads.source_for_external(external_id)
+                src = self.srvs.db.downloads.source_for_external(external_id)
                 downloader_data[src] = x
             except database.NotFoundError:
                 pass
@@ -123,7 +126,7 @@ class Downloads:
         updates = []
         deletes = []
 
-        for (src, state) in core.db.downloads.all_states():
+        for (src, state) in self.srvs.db.downloads.all_states():
             if src in downloader_data:
                 updates.append((src, downloader_data[src]['state']))
 
@@ -134,6 +137,6 @@ class Downloads:
                     deletes.append(src)
 
         for (src, state) in updates:
-            core.db.downloads.set_state(src, state)
+            self.srvs.db.downloads.set_state(src, state)
         for (src) in deletes:
-            core.db.downloads.delete(src)
+            self.srvs.db.downloads.delete(src)

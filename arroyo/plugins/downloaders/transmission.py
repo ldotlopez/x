@@ -28,10 +28,9 @@ import functools
 import transmissionrpc
 
 
-import arroyo
 from arroyo import (
-    core,
-    downloads,
+    extensions,
+    downloads
 )
 
 
@@ -56,16 +55,16 @@ def trap_transmission_error(fn):
     return _wrap
 
 
-class Tr(arroyo.Downloader):
+class Tr(extensions.Downloader):
     SETTINGS_PREFIX = "plugin.downloader.transmission"
 
     @property
     def client(self):
         return transmissionrpc.Client(
-            core.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
-            core.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
-            core.settings.get(self.SETTINGS_PREFIX + '.username', None),
-            core.settings.get(self.SETTINGS_PREFIX + '.password', None),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + '.username', None),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + '.password', None),
         )
 
     @trap_transmission_error
@@ -114,5 +113,5 @@ class Tr(arroyo.Downloader):
             return downloads.State.UNKNOWN
 
 
-class ClientError(arroyo.ExtensionError):
+class ClientError(extensions.ExtensionError):
     pass

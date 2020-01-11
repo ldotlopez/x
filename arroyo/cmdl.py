@@ -18,17 +18,31 @@
 # USA.
 
 
+import logging
 import sys
-from arroyo import application
+
+
+from arroyo import (
+    application,
+    defaults
+)
+
+LOG_LEVELS = [
+    logging.CRITICAL,
+    logging.ERROR,
+    logging.WARNING,
+    logging.INFO,
+    logging.DEBUG
+]
 
 
 def main():
     parser = application.build_argparse()
     args, remain = parser.parse_known_args()
 
-    loglevel = application.DEFAULT_LOGLEVEL - args.quiet + args.verbose
-    loglevel = max(0, min(loglevel, len(application.LOG_LEVELS) - 1))
-    loglevel = application.LOG_LEVELS[loglevel]
+    loglevel = defaults.DEFAULT_LOGLEVEL - args.quiet + args.verbose
+    loglevel = max(0, min(loglevel, len(LOG_LEVELS) - 1))
+    loglevel = LOG_LEVELS[loglevel]
 
     app = application.App(log_level=loglevel, settings_path=args.settings,
                           database_path=args.db)

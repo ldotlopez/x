@@ -20,22 +20,39 @@
 
 import logging
 
-from . import cache
+from .database import Database
+from .cache import NullCache
+from .loader import ClassLoader
+from .settings import Settings
+from .storage import MemoryStorage
 
 
-class _Services:
-    def __init__(self):
-        self._cache = cache.NullCache()
-        self._loader = None
-        self._settings = None
-        self._db = None
-        self._logger = logging.getLogger('arroyo.services')
+class Services:
+    def __init__(self,
+                 logger=logging.root,
+                 db=None,
+                 cache=None,
+                 loader=None,
+                 settings=None):
+        self._logger = logger
+        self._db = db or Database(storage=MemoryStorage())
+        self._cache = cache or NullCache()
+        self._loader = loader or ClassLoader()
+        self._settings = settings or Settings(storage=MemoryStorage())
 
     def _setter(self, attr, value):
         logmsg = "Setting service %s to %s"
         logmsg = logmsg % (attr, value)
         self._logger.debug(logmsg)
         setattr(self, '_' + attr, value)
+
+    @property
+    def logger(self):
+        return self._logger
+
+    @logger.setter
+    def logger(self, x):
+        self._setter('logger', x)
 
     @property
     def cache(self):
@@ -68,6 +85,3 @@ class _Services:
     @db.setter
     def db(self, x):
         self._setter('db', x)
-
-
-services = _Services()

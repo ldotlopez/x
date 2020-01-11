@@ -22,17 +22,15 @@ import unittest
 import time
 from unittest import mock
 
-from arroyo import core
-from arroyo.services.storage import MemoryStorage
-from arroyo.services.loader import ClassLoader
-from arroyo.services.database import (
-    Database,
-    NotFoundError
-)
-from arroyo.services.settings import Settings
+
+from arroyo.services import Services
 from arroyo.downloads import (
     Downloads,
     State,
+)
+from arroyo.services.loader import ClassLoader
+from arroyo.services.database import (
+    NotFoundError
 )
 
 
@@ -46,16 +44,11 @@ class DownloaderTestMixin:
     SLOWDOWN = 0.0
 
     def setUp(self):
-        database = Database(storage=MemoryStorage())
-        loader = ClassLoader(dict([self.DOWNLOADER_SPEC]))
-        settings = Settings(storage=MemoryStorage())
-        settings.set('downloader', self.DOWNLOADER_SPEC[0].split('.')[-1])
+        self.srvs = Services(loader=ClassLoader(dict([self.DOWNLOADER_SPEC])))
+        self.srvs.settings.set('downloader',
+                               self.DOWNLOADER_SPEC[0].split('.')[-1])
 
-        core.settings = settings
-        core.loader = loader
-        core.db = database
-
-        self.downloads = Downloads()
+        self.downloads = Downloads(self.srvs)
 
     def wait(self):
         if self.SLOWDOWN:
@@ -154,7 +147,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': core.db.downloads.external_for_source(src1),
+            {'id': self.srvs.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
             {'id': 'external-added-id',
              'state': State.DOWNLOADING}
@@ -174,7 +167,7 @@ class DownloaderTestMixin:
         self.wait()
 
         fake_dump = [
-            {'id': core.db.downloads.external_for_source(src1),
+            {'id': self.srvs.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING},
         ]
         with mock.patch.object(self.downloads.downloader.__class__, 'dump',
@@ -196,11 +189,11 @@ class DownloaderTestMixin:
         self.wait()
 
         # Manually update state of src2
-        core.db.downloads.set_state(src2, State.SHARING)
+        self.srvs.db.downloads.set_state(src2, State.SHARING)
 
         # Mock plugin list to not list src2
         fake_dump = [
-            {'id': core.db.downloads.external_for_source(src1),
+            {'id': self.srvs.db.downloads.external_for_source(src1),
              'state': State.DOWNLOADING}
         ]
 
@@ -224,7 +217,7 @@ class DownloaderTestMixin:
         )
 
         self.assertEqual(
-            core.db.downloads.sources_for_entity(s1.entity),
+            self.srvs.db.downloads.sources_for_entity(s1.entity),
             [s1, s2])
 
 

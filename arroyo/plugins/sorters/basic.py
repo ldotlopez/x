@@ -18,14 +18,14 @@
 # USA.
 
 
-from arroyo import Sorter
-
-
 import functools
 import sys
 
 
-class Basic(Sorter):
+from arroyo import extensions
+
+
+class Basic(extensions.Sorter):
     def sort(self, collection):
         return list(sorted(
             collection,

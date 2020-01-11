@@ -18,21 +18,11 @@
 # USA.
 
 
-import zlib
-
-
-import humanfriendly
-import tabulate
-
-
-import arroyo
-from arroyo import (
-    downloads
-)
+from arroyo import extensions
 from arroyo.plugins.commands import uilib
 
 
-class Downloads(arroyo.Command):
+class Downloads(extensions.Command):
     COMMAND_NAME = 'downloads'
 
     def configure_command_parser(self, cmd):
@@ -49,13 +39,16 @@ class Downloads(arroyo.Command):
             labels = ['id', 'state', 'name', 'size', 'progress']
             columns = ['crc32', 'state', 'name', 'size', 'progress']
 
-            data = uilib.build_data(
+            data = uilib.build_dataset(
+                self.srvs.db,
                 columns,
                 [src for (src, state) in app.get_downloads()])
+
             uilib.display_data(data, labels=labels)
 
         elif args.cancel:
-            data = uilib.build_data(
+            data = uilib.build_dataset(
+                    self.srvs.db,
                     ['crc32', 'raw_source'],
                     [src for (src, state) in app.get_downloads()])
             data = {x[0]: x[1] for x in data}

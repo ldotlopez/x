@@ -21,6 +21,7 @@
 import unittest
 
 
+from arroyo.services import Services
 from arroyo.query import Query
 from arroyo.plugins.providers import IncompatibleQueryError
 
@@ -36,8 +37,14 @@ class TestProviderMixin:
     TEST_HANDLED_URLS_NEGATIVE = []
     TEST_QUERY_URLS = []
 
+    def _get_provider_cls(self):
+        return self.PROVIDER_CLASS
+
+    def _get_provider(self):
+        return self._get_provider_cls()(Services())
+
     def test_default_uri(self):
-        cls = self.PROVIDER_CLASS
+        cls = self._get_provider_cls()
         default_uri = getattr(cls, 'DEFAULT_URI', None)
 
         self.assertTrue(isinstance(default_uri, str) and
@@ -48,7 +55,7 @@ class TestProviderMixin:
                         msg="provider can't handle its own default uri")
 
     def test_handlers(self):
-        cls = self.PROVIDER_CLASS
+        cls = self._get_provider_cls()
         globs = getattr(cls, 'URI_GLOBS')
         regexps = getattr(cls, 'URI_REGEXPS')
 
@@ -58,8 +65,8 @@ class TestProviderMixin:
 
     def test_paginate(self):
         # FIXME: Not tested
-        cls = self.PROVIDER_CLASS
-        g = cls().paginate(cls.DEFAULT_URI)
+        provider = self._get_provider()
+        g = provider.paginate(provider.DEFAULT_URI)
 
         uris = set()
         count = 0
@@ -76,7 +83,7 @@ class TestProviderMixin:
                         msg="paginate produces duplicates")
 
     def test_url_handler(self):
-        cls = self.PROVIDER_CLASS
+        cls = self._get_provider_cls()
         tests = ([(url, True) for url in self.TEST_HANDLED_URLS] +
                  [(url, False) for url in self.TEST_HANDLED_URLS_NEGATIVE])
 
@@ -85,7 +92,7 @@ class TestProviderMixin:
             self.assertTrue(can_handle == expected)
 
     def test_query(self):
-        provider = self.PROVIDER_CLASS()
+        provider = self._get_provider()
         for (query, url_or_exc) in self.TEST_QUERY_URLS:
             if isinstance(query, str):
                 query = Query.fromstring(query)

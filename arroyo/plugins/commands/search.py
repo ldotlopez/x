@@ -21,16 +21,15 @@
 import sys
 
 
-import arroyo
 from arroyo import (
-    core,
-    query
+    query,
+    extensions
 )
 from arroyo.services import settings
 from arroyo.plugins.commands import uilib
 
 
-class Search(arroyo.Command):
+class Search(extensions.Command):
     COMMAND_NAME = 'search'
 
     def configure_command_parser(self, cmd):
@@ -69,7 +68,7 @@ class Search(arroyo.Command):
             qs = [query.Query.fromstring(args.querystring)]
 
         elif args.from_config:
-            qs = queries_from_config(core.settings)
+            qs = queries_from_config(app.srvs.settings)
 
         else:
             raise NotImplementedError()
@@ -83,11 +82,15 @@ class Search(arroyo.Command):
                 print(msg, file=sys.stderr)
                 continue
 
+            if not results:
+                print("No results", file=sys.stderr)
+                continue
+
             labels = [' ', ' ', 'state', 'name', 'size', 's/l']
             columns = ['selected', 'count', 'state', 'name', 'size', 'share']
 
             for (entity, sources) in results:
-                data = uilib.build_data(columns, sources)
+                data = uilib.build_dataset(self.srvs.db, columns, sources)
                 uilib.display_data(data, labels)
                 if not args.download:
                     continue
@@ -101,7 +104,7 @@ class Search(arroyo.Command):
 
                 try:
                     app.download(selected)
-                except arroyo.ExtensionError as e:
+                except extensions.ExtensionError as e:
                     print("Error: %s" % e)
 
 

@@ -20,8 +20,9 @@
 
 import logging
 import multiprocessing
+
+
 import guessit
-import pydantic
 
 
 from arroyo import schema
@@ -152,10 +153,10 @@ def parse(name, type_hint=None):
 
     try:
         entity = extract_entity(parsed, type_hint or parsed.get('type'))
-    except pydantic.ValidationError as e:
+    except schema.ValidationError as e:
         entity = None
-        logmsg = "Unable to parse '%s'"
-        logmsg = logmsg % name
+        logmsg = "Unable to parse '%s': %s"
+        logmsg = logmsg % (name, e)
         _logger.warning(logmsg)
 
     metadata = extract_items(parsed, METADATA_RULES)
@@ -287,4 +288,4 @@ class ParseError(NormalizationError):
     pass
 
 
-_logger = logging.getLogger('arroyo.analyze')
+_logger = logging.getLogger('analyze')

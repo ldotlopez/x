@@ -3,7 +3,7 @@ import unittest
 
 import time
 
-from arroyo.query import Engine as QueryEngine
+from arroyo.services import Services
 from arroyo.plugins.filters.generic import (
     SourceAttributeFilter,
     EpisodeAttributeFilter,
@@ -20,7 +20,7 @@ from testlib import (
 
 class TestGenericFilter(unittest.TestCase):
     def test_eq_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         # Test strings
@@ -32,39 +32,39 @@ class TestGenericFilter(unittest.TestCase):
         self.assertFalse(f.filter('size', 200, i))
 
     def test_glob_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         self.assertTrue(f.filter('name-glob', 'Series * S01E01', i))
         self.assertFalse(f.filter('name-glob', 'Foo *', i))
 
     def test_like_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         self.assertTrue(f.filter('name-like', r'Series [AB] S01E01', i))
         self.assertFalse(f.filter('name-like', r'Series [CD] S01E01', i))
 
     def test_in_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         self.assertTrue(f.filter('provider-in', 'prov1, prov2', i))
 
     def test_max_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
         self.assertTrue(f.filter('size-max', 100, i))
         self.assertFalse(f.filter('size-max', 99, i))
 
     def test_min_func(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
         self.assertTrue(f.filter('size-min', 100, i))
         self.assertFalse(f.filter('size-min', 101, i))
 
     def test_type(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', size=100, provider='prov1')
 
         self.assertTrue(f.filter('type', 'episode', i))
@@ -72,7 +72,7 @@ class TestGenericFilter(unittest.TestCase):
 
     def test_age(self):
         now = int(time.time())
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Series A S01E01', created=now-100)
 
         self.assertTrue(f.filter('age-min', 50, i))
@@ -82,7 +82,7 @@ class TestGenericFilter(unittest.TestCase):
         self.assertFalse(f.filter('age-max', 50, i))
 
     def test_since(self):
-        f = SourceAttributeFilter()
+        f = SourceAttributeFilter(Services())
         i = build_item('Foo', created=1577833200)  # 2020-01-01
 
         self.assertTrue(f.filter('since', '2019', i))
@@ -91,26 +91,26 @@ class TestGenericFilter(unittest.TestCase):
 
 class TestEntityAttributeFilter(unittest.TestCase):
     def test_basic_attribute_match(self):
-        f = EpisodeAttributeFilter()
+        f = EpisodeAttributeFilter(Services())
         i = build_item('Series A S02E03')
 
         self.assertTrue(f.filter('series', 'Series A', i))
         self.assertFalse(f.filter('series', 'Series B', i))
 
     def test_alias_filter(self):
-        f = EpisodeAttributeFilter()
+        f = EpisodeAttributeFilter(Services())
         i = build_item('Series A (2017) S02E03')
 
         self.assertTrue(f.filter('series-year', '2017', i))
 
     def test_alias_filter_with_modifier(self):
-        f = MovieAttributeFilter()
+        f = MovieAttributeFilter(Services())
         i = build_item("My.Friend.Flicka.1943.1080p.AMZN.WEBRip.DDP2.0.x264")
 
         self.assertTrue(f.filter('movie-year-max', '1950', i))
 
     def test_filter_none(self):
-        f = MovieAttributeFilter()
+        f = MovieAttributeFilter(Services())
         m1 = build_item('Some movie (1998).avi', type='movie')
         m2 = build_item('Some movie.avi', type='movie')
 
@@ -120,7 +120,7 @@ class TestEntityAttributeFilter(unittest.TestCase):
 
 class TestSorter(unittest.TestCase):
     def test_proper(self):
-        s = BasicSorter()
+        s = BasicSorter(Services())
 
         i1 = build_item('series x s01e01.mp4')
         i2 = build_item('series x s01e01.proper.mp4')
@@ -129,7 +129,7 @@ class TestSorter(unittest.TestCase):
         self.assertTrue(r[0] == i2)
 
     def test_by_seeds(self):
-        s = BasicSorter()
+        s = BasicSorter(Services())
 
         i1 = build_item('the.movie', seeds=1000)
         i2 = build_item('the.movie', seeds=100)
@@ -139,7 +139,7 @@ class TestSorter(unittest.TestCase):
         self.assertTrue(r == [i1, i3, i2])
 
     def test_by_ratio(self):
-        s = BasicSorter()
+        s = BasicSorter(Services())
 
         i1 = build_item('the.movie', seeds=100, leechers=5)
         i2 = build_item('the.movie', seeds=100, leechers=200)

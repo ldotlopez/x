@@ -19,7 +19,7 @@
 
 
 import unittest
-from arroyo.kit.settings import (
+from arroyo.services.settings import (
     Settings,
     InvalidKeyError,
     NotNamespaceError

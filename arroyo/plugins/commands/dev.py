@@ -17,19 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 
-"""
-Porting code from:
-https://github.com/ldotlopez/x/blob/639e274b23c1598a0bb4acfcc09f905f7f6ccba0/arroyo/cmdl.py
-"""
 
 import argparse
 import json
 import sys
 
 
-from arroyo import extensions
 from arroyo import (
     analyze,
+    extensions,
     downloads,
     query,
     schema,
@@ -175,25 +171,25 @@ class Command(extensions.Command):
 
     def run(self, app, args):
         if args.devcmd == 'fetch':
-            self.run_fetch(args)
+            self.run_fetch(app, args)
 
         elif args.devcmd == 'parse':
-            self.run_parse(args)
+            self.run_parse(app, args)
 
         elif args.devcmd == 'scrape':
-            self.run_scrape(args)
+            self.run_scrape(app, args)
 
         elif args.devcmd == 'analyze':
-            self.run_analyze(args)
+            self.run_analyze(app, args)
 
         elif args.devcmd == 'query':
-            self.run_query(args)
+            self.run_query(app, args)
 
         elif args.devcmd == 'query2':
-            self.run_query2(args)
+            self.run_query2(app, args)
 
         elif args.devcmd == 'download':
-            self.run_download(args)
+            self.run_download(app, args)
 
         elif not args.devcmd:
             raise extensions.CommandUsageError()
@@ -201,19 +197,20 @@ class Command(extensions.Command):
         else:
             raise NotImplementedError()
 
-    def run_fetch(self, args):
+    def run_fetch(self, app, args):
         if not args.provider and not args.uri:
             raise extensions.CommandUsageError()
 
-        engine = scraper.Engine()
-        ctx = scraper.build_context(args.provider, args.uri)
+        engine = scraper.Engine(app.srvs)
+        ctx = engine.build_context(args.provider, args.uri)
         result = engine.fetch_one(ctx)
         args.output.write(result)
 
-    def run_parse(self, args):
+    def run_parse(self, app, args):
         engine = scraper.Engine()
-        ctx = scraper.build_context(args.provider,
-                                    type=args.type, language=args.language)
+        ctx = engine.build_context(provider=args.provider,
+                                   type=args.type,
+                                   language=args.language)
         buffer = args.input.read()
 
         results = list(engine.parse_one(ctx, buffer))
@@ -221,20 +218,23 @@ class Command(extensions.Command):
 
         args.output.write(output)
 
-    def run_scrape(self, args):
+    def run_scrape(self, app, args):
         if not args.provider and not args.uri:
             raise extensions.CommandUsageError()
 
-        ctxs = scraper.build_n_contexts(
-            args.iterations, args.provider, args.uri,
-            type=args.type, language=args.language)
-        engine = scraper.Engine()
+        engine = scraper.Engine(app.srvs)
+        ctxs = engine.build_n_contexts(args.iterations,
+                                       args.provider,
+                                       args.uri,
+                                       type=args.type,
+                                       language=args.language,
+                                       srvs=app.srvs)
         results = engine.process(*ctxs)
 
         output = json.dumps([x.dict() for x in results], indent=2)
         args.output.write(output)
 
-    def run_analyze(self, args):
+    def run_analyze(self, app, args):
         raw = json.loads(args.input.read())
         if isinstance(raw, dict):
             raw = [raw]
@@ -247,7 +247,7 @@ class Command(extensions.Command):
                             default=_json_encode_hook)
         args.output.write(output)
 
-    def do_query(self, args):
+    def do_query(self, app, args):
         def _parse_queryparams(pairs):
             for pair in pairs:
                 key, value = pair.split('=', 1)
@@ -289,7 +289,7 @@ class Command(extensions.Command):
                             default=_json_encode_hook)
         args.output.write(output)
 
-    def do_query2(self, args):
+    def do_query2(self, app, args):
         def _parse_queryparams(pairs):
             for pair in pairs:
                 key, value = pair.split('=', 1)
@@ -322,8 +322,8 @@ class Command(extensions.Command):
             raise extensions.CommandUsageError()
 
         # Build scrape ctxs and process them
-        ctxs = scraper.build_contexts_for_query(q)
         scrape_engine = scraper.Engine()
+        ctxs = scrape_engine.build_contexts_for_query(q)
         sources = scrape_engine.process(*ctxs)
         sources = analyze.analyze(*sources)
 
@@ -338,7 +338,7 @@ class Command(extensions.Command):
                             default=_json_encode_hook)
         args.output.write(output)
 
-    def run_download(self, args):
+    def run_download(self, app, args):
         dls = downloads.Downloads()
         if args.list:
             print(repr(dls.get_active()))

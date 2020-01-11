@@ -49,11 +49,13 @@ from urllib import parse
 import aiohttp
 
 
-import arroyo
-from arroyo import schema
+from arroyo import (
+    extensions,
+    schema
+)
 
 
-class TorrentAPI(arroyo.Provider):
+class TorrentAPI(extensions.Provider):
     # URL structure:
     # https://torrentapi.org/apidocs_v2.txt
     # https://torrentapi.org/pubapi_v2.php?get_token=get_token

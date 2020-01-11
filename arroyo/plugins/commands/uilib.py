@@ -1,24 +1,21 @@
 import sys
 import zlib
 
-import humanfriendly
 import tabulate
 
 
-from arroyo import (
-    core,
-    downloads
-)
+import humanfriendly
+from arroyo import downloads
 
 
 def display_data(data, labels):
     print(tabulate.tabulate(data, headers=labels))
 
 
-def build_data(fields, srcollection):
+def build_dataset(db, fields, srcollection):
     if 'state' in fields:
         # FIXME: query app, not db
-        states = dict(core.db.downloads.all_states())
+        states = dict(db.downloads.all_states())
     if 'count' in fields:
         count_g = (x for x in range(sys.maxsize))
 
