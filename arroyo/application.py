@@ -21,12 +21,12 @@ from arroyo import (
 )
 from arroyo.kit import (
     settings,
-    storage
 )
 from arroyo.services import (
     cache,
     database,
     loader,
+    storage,
 )
 
 

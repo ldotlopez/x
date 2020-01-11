@@ -24,7 +24,7 @@ from arroyo.kit.settings import (
     InvalidKeyError,
     NotNamespaceError
 )
-from arroyo.kit.storage import MemoryStorage
+from arroyo.services.storage import MemoryStorage
 
 
 class TestSettings(unittest.TestCase):

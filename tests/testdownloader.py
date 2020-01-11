@@ -23,7 +23,7 @@ import time
 from unittest import mock
 
 from arroyo import services
-from arroyo.kit.storage import MemoryStorage
+from arroyo.services.storage import MemoryStorage
 from arroyo.database import (
     Database,
     NotFoundError
