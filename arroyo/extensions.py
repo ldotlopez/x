@@ -30,6 +30,10 @@ import bs4
 from arroyo import schema
 
 
+class ExtensionError(Exception):
+    pass
+
+
 class Command:
     COMMAND_NAME: str
 
@@ -39,6 +43,10 @@ class Command:
     @abc.abstractmethod
     def run(self, ctx, args):
         raise NotImplementedError()
+
+
+class CommandUsageError(ExtensionError):
+    pass
 
 
 class Provider:
@@ -143,7 +151,3 @@ class Downloader:
         In case of error a ExtensionError should be raised.
         """
         raise NotImplementedError()
-
-
-class ExtensionError(Exception):
-    pass

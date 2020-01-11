@@ -13,6 +13,7 @@ except ImportError:
 
 from arroyo import (
     core,
+    extensions,
     analyze,
     downloads,
     scraper,
@@ -20,12 +21,12 @@ from arroyo import (
 )
 from arroyo.kit import (
     cache,
-    loader,
     settings,
     storage
 )
 from arroyo.services import (
     database,
+    loader,
 )
 
 
@@ -55,6 +56,8 @@ SETTINGS = {
 }
 
 PLUGINS = {
+    'commands.dev':
+        'arroyo.plugins.commands.dev.Command',
     'commands.downloads':
         'arroyo.plugins.commands.downloads.Downloads',
     'commands.search':
@@ -165,19 +168,23 @@ class App:
         exes = {}
 
         commands = parser.add_subparsers(dest='command', required=True)
+        subcommands = {}
         for name in core.loader.list('commands'):
             plugin = core.loader.get(name)
             exes[plugin.COMMAND_NAME] = plugin
 
-            cmd = commands.add_parser(plugin.COMMAND_NAME)
-            plugin.configure_command_parser(cmd)
+            subcommands[plugin.COMMAND_NAME] = commands.add_parser(plugin.COMMAND_NAME)
+            plugin.configure_command_parser(subcommands[plugin.COMMAND_NAME])
 
         args = parser.parse_args(argv)
         if args.help:
             parser.print_help()
             return
 
-        return exes[args.command].run(self, args)
+        try:
+            return exes[args.command].run(self, args)
+        except extensions.CommandUsageError:
+            subcommands[args.command].print_help()
 
 
 class LogFormatter(logging.Formatter):

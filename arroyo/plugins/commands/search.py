@@ -21,6 +21,9 @@
 import sys
 
 
+from arroyo.kit import settings
+
+
 import arroyo
 from arroyo import (
     core,
@@ -104,19 +107,26 @@ class Search(arroyo.Command):
                     print("Error: %s" % e)
 
 
-def queries_from_config(settings):
+def queries_from_config(s):
     DEFAULTS = 'arroyo.query.defaults.global'
     TYPE_DEFAULTS = 'arroyo.query.defaults.%s'
     QUERY = 'query.%s'
 
-    defaults = settings.get(DEFAULTS, {})
+    defaults = s.get(DEFAULTS, {})
     type_defaults = {}
 
-    for name in settings.children('query'):
-        params = settings.get(QUERY % name)
+    try:
+        children = s.children('query')
+    except (settings.NotNamespaceError,):
+        # Convert to log
+        print("No queries")
+        return []
+
+    for name in children:
+        params = s.get(QUERY % name)
         query_type = params.get('type', 'source')
         if query_type not in type_defaults:
-            type_defaults[query_type] = settings.get(TYPE_DEFAULTS % query_type, {})
+            type_defaults[query_type] = s.get(TYPE_DEFAULTS % query_type, {})
 
         q = {}
         q.update(defaults)
