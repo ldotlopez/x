@@ -151,6 +151,12 @@ def parse(name, type_hint=None):
         msg = msg.format(name=name)
         raise NormalizationError(msg)
 
+    # Documentals
+    if (parsed.get('type') == 'episode'
+            and 'episode' in parsed
+            and 'season' not in parsed):
+        parsed['season'] = 0
+
     try:
         entity = extract_entity(parsed, type_hint or parsed.get('type'))
     except schema.ValidationError as e:

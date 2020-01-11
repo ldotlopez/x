@@ -43,9 +43,10 @@ class Query(dict):
 
         entity, metadata, parsed = analyze.parse(s)
 
-        params = {k: v for
-                  (k, v) in entity.dict().items()
-                  if v is not None}
+        if not entity:
+            raise InvalidQueryParameters()
+
+        params = {k: v for (k, v) in entity.dict().items() if v is not None}
 
         if 'year' in params:
             if isinstance(entity, schema.Episode):
@@ -91,20 +92,14 @@ class Query(dict):
             if not ret:
                 return _source_base_string()
 
-            try:
+            if 'series_year' in self:
                 ret += " ({})".format(self['series_year'])
-            except KeyError:
-                pass
 
-            try:
+            if self.get('season') not in (0, None):
                 ret += " S" + str(self['season']).zfill(2)
-            except KeyError:
-                return ret
 
-            try:
-                ret += "E" + str(self['number']).zfill(2)
-            except KeyError:
-                pass
+                if 'number' in self:
+                    ret += "E" + str(self['number']).zfill(2)
 
             return ret
 
@@ -220,4 +215,8 @@ class MissingFilterError(Exception):
 
 
 class MissingFiltersError(MissingFilterError):
+    pass
+
+
+class InvalidQueryParameters(Exception):
     pass
