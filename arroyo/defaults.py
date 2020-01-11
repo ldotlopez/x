@@ -31,15 +31,26 @@ DEFAULT_LOGLEVEL = 2
 LOG_FORMAT = "[%(levelname)s] [%(name)s] %(message)s"
 
 
+KEY_SCRAPER_MAX_PARALEL_REQUESTS = 'fetch.max-paralel-requests'
+KEY_SCRAPER_TIMEOUT = 'fetch.timeout'
+KEY_SCRAPER_UA = 'fetch.user-agent'
+
+
 SETTINGS = {
-    'cache.enabled': True,
-    'cache.delta': 60*60,
     'downloader': 'transmission',
     'sorter': 'basic',
+
+    'cache.enabled': True,
+    'cache.delta': 60*60,
+
+    KEY_SCRAPER_UA: ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
+                     'Gecko/20100101 Firefox/69.0'),
+    KEY_SCRAPER_TIMEOUT: 15,
+    KEY_SCRAPER_MAX_PARALEL_REQUESTS: 5,
+
     'plugin.transmission.host': 'localhost',
     'plugin.transmission.port': '9091',
 }
-
 
 PLUGINS = {
     'commands.dev':

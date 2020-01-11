@@ -25,6 +25,7 @@ import aiohttp
 
 
 from arroyo import (
+    defaults,
     extensions,
     schema
 )
@@ -61,15 +62,28 @@ class Context:
 
 
 class Engine:
-    # Move to settings
-    CLIENT_USER_AGENT = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) '
-                         'Gecko/20100101 Firefox/69.0')
-    CLIENT_TIMEOUT = 15
-    CLIENT_MAX_PARALEL_REQUESTS = 5
-
     def __init__(self, srvs, logger=None):
         self.srvs = srvs
         self.logger = logger or self.srvs.logger.getChild('scraper.Engine')
+
+    def setting(self, key):
+        ret = self.srvs.settings.get(key)
+
+        if key in (defaults.KEY_SCRAPER_TIMEOUT,
+                   defaults.KEY_SCRAPER_MAX_PARALEL_REQUESTS):
+            try:
+                ret = int(ret)
+            except ValueError:
+                logmsg = "Expected int for '%s': %s"
+                logmsg = logmsg % (key, ret)
+                self.logger.error(logmsg)
+
+                return defaults.SETTINGS[key]
+
+        else:
+            ret = str(ret)
+
+        return ret
 
     def process(self, *ctxs):
         ctxs_and_buffers = self.fetch(*ctxs)
@@ -117,16 +131,20 @@ class Engine:
                 acc.append((ctx, content))
 
         async def _wrapper(ctxs):
+            ua = self.setting(defaults.KEY_SCRAPER_UA)
+            timeout = self.setting(defaults.KEY_SCRAPER_TIMEOUT)
+            max_p_requests = self.setting(defaults.KEY_SCRAPER_MAX_PARALEL_REQUESTS)
+
             sess_opts = {
                 'cookie_jar': aiohttp.CookieJar(),
                 'headers': {
-                    'User-Agent': self.CLIENT_USER_AGENT
+                    'User-Agent': ua
                 },
-                'timeout': aiohttp.ClientTimeout(total=self.CLIENT_TIMEOUT)
+                'timeout': aiohttp.ClientTimeout(total=timeout)
             }
 
             ret = []
-            sem = asyncio.Semaphore(self.CLIENT_MAX_PARALEL_REQUESTS)
+            sem = asyncio.Semaphore(max_p_requests)
 
             async with aiohttp.ClientSession(**sess_opts) as sess:
                 tasks = [_task(ret, ctx, sess, sem) for ctx in ctxs]

@@ -227,8 +227,7 @@ class Command(extensions.Command):
                                        args.provider,
                                        args.uri,
                                        type=args.type,
-                                       language=args.language,
-                                       srvs=app.srvs)
+                                       language=args.language)
         results = engine.process(*ctxs)
 
         output = json.dumps([x.dict() for x in results], indent=2)
