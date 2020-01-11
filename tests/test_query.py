@@ -21,21 +21,27 @@
 import unittest
 
 
-from arroyo.analyze import analyze
-from arroyo.schema import Movie
+from arroyo.query import Query
 
 
-from testlib import build_source
+TESTS = [
+    ('foo.s01e02', dict(type='episode', series='foo', season=1, number=2)),
+    ('foo.s01e02.720p', dict(type='episode', series='foo', season=1, number=2, quality='720p')),
+    ('foo.s01e02.720p x265', dict(type='episode', series='foo', season=1, number=2, quality='720p', codec='H.265')),
+    ('foo 2019 4k', dict(type='movie', title='foo', movie_year=2019, quality='2160p')),
+]
 
 
-class TestAnalyze(unittest.TestCase):
-    def test_source_with_invalid_type_hint(self):
-        src = build_source('foo')  # build_source doesnt do parse
-        src.hints = {'type': 'other'}
+class QueryTest(unittest.TestCase):
+    def test_fromstring(self):
+        for (s, expected) in TESTS:
+            expected['state'] = expected.pop('state', 'none')
 
-        asrc = analyze(src, mp=False)[0]
-
-        self.assertTrue(isinstance(asrc.entity, Movie))
+            q = Query.fromstring(s)
+            expected = Query(**expected)
+            self.assertEqual(
+                sorted(dict(q).items()),
+                sorted(dict(expected).items()))
 
 
 if __name__ == '__main__':

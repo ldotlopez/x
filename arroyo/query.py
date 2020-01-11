@@ -18,7 +18,10 @@
 # USA.
 
 
-from arroyo import analyze
+from arroyo import (
+    analyze,
+    schema
+)
 
 
 class Query(dict):
@@ -30,8 +33,31 @@ class Query(dict):
 
     @classmethod
     def fromstring(cls, s):
-        entity, _, _ = analyze.parse(s)
-        params = {k: v for (k, v) in entity.dict().items() if v is not None}
+        metadata_pairs = [
+            ('codec', analyze.Tags.VIDEO_CODEC),
+            ('quality', analyze.Tags.VIDEO_SCREEN_SIZE),
+
+        ]
+
+        entity, metadata, parsed = analyze.parse(s)
+
+        params = {k: v for
+                  (k, v) in entity.dict().items()
+                  if v is not None}
+
+        if 'year' in params:
+            if isinstance(entity, schema.Episode):
+                params['series_year'] = params.pop('year', None)
+
+            if isinstance(entity, schema.Movie):
+                params['movie_year'] = params.pop('year', None)
+
+        params.update({
+            name: metadata[tag]
+            for (name, tag) in metadata_pairs
+            if tag in metadata
+        })
+
         return cls(**params)
 
     def __repr__(self):
@@ -127,14 +153,17 @@ class Engine:
         filters = []
         missing = []
 
-        for (key, value) in query.items():
+        for (name, value) in query.items():
+            # Normalize filter name.
+            name = name.replace('_', '-')
+
             try:
-                f = self.get_filter(key)
+                f = self.get_filter(name)
             except MissingFilterError:
-                missing.append(key)
+                missing.append(name)
                 continue
 
-            filters.append((f, key, value))
+            filters.append((f, name, value))
 
         if missing:
             raise MissingFiltersError(missing)
