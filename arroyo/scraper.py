@@ -114,8 +114,13 @@ class Engine:
                 except asyncio.TimeoutError:
                     logmsg = "Timeout for '%s'"
                     logmsg = logmsg % ctx.uri
-                    self.logger.warning(logmsg)
-                    content = ''
+                    self.logger.error(logmsg)
+                    return
+                except aiohttp.ClientConnectionError as e:
+                    logmsg = "Client error for '%s': %s'"
+                    logmsg = logmsg % (ctx.uri, e)
+                    self.logger.error(logmsg)
+                    return
 
                 logmsg = "URI '%s' fetched, %s bytes"
                 logmsg = logmsg % (ctx.uri, len(content))
