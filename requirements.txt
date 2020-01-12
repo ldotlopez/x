@@ -1,11 +1,14 @@
+aiohttp==3.6.2
+appdirs==1.4.3
 babelfish==0.5.5
 beautifulsoup4==4.8.1
 bs4==0.0.1
 guessit==3.1.0
-pkg-resources==0.0.0
+humanfriendly==4.18
 pydantic==1.1.1
 python-dateutil==2.8.1
 rebulk==2.0.0
 six==1.13.0
 soupsieve==1.9.5
+tabulate==0.8.6
 typing-extensions==3.7.4.1
