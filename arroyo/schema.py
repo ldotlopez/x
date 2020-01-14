@@ -65,6 +65,18 @@ class Episode(pydantic.BaseModel):
                 and self.number == x.number
                 and (self.country or '').lower() == (x.country or '').lower())
 
+    def __lt__(self, x):
+        if not isinstance(x, self.__class__):
+            return super().__lt__(x)
+
+        for attr in ['series', 'year', 'season', 'number']:
+            this = getattr(self, attr)
+            other = getattr(x, attr)
+            if this != other:
+                return this < other
+
+        return False
+
     def __hash__(self):
         return hash((self.series.lower(),
                      self.year,
@@ -96,6 +108,18 @@ class Movie(pydantic.BaseModel):
         return (isinstance(x, self.__class__)
                 and self.title.lower() == x.title.lower()
                 and self.year == x.year)
+
+    def __lt__(self, x):
+        if not isinstance(x, self.__class__):
+            return super().__lt__(x)
+
+        for attr in ['title', 'year']:
+            this = getattr(self, attr)
+            other = getattr(x, attr)
+            if this != other:
+                return this < other
+
+        return False
 
     def __hash__(self):
         return hash((self.title.lower(), self.year))
