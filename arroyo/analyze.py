@@ -137,7 +137,7 @@ def parse(name, type_hint=None):
         release_distributors.add(dist)
 
     try:
-        parsed = guessit.guessit(name, options={type: type_hint})
+        parsed = guessit.guessit(name, options={'type': type_hint})
     except guessit.api.GuessitException as e:
         raise ParseError() from e
 
