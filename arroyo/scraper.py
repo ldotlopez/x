@@ -167,23 +167,31 @@ class Engine:
         ret = []
 
         for (ctx, buffer) in ctxs_and_buffers:
-            ctxitems = []
 
-            for item in ctx.provider.parse(buffer):
+            try:
+                items = ctx.provider.parse(buffer)
+            except (ValueError, IndexError, AttributeError) as e:
+                # Catch some common exceptions from parsers
+                logmsg = ("Provider '%s' failed to parse %d bytes. "
+                          "Maybe parsing is broken (%s)")
+                logmsg = logmsg % (ctx.provider_name, e)
+                self.logger.error(logmsg)
+                continue
+
+            if not items:
+                logmsg = "Provider '%s' may be broken. Got 0 items from '%s'."
+                logmsg = logmsg % (ctx.provider_name, ctx.uri)
+                self.logger.warning(logmsg)
+                continue
+
+            for item in items:
                 try:
-                    ctxitems.append(self._build_source(ctx, item))
+                    ret.append(self._build_source(ctx, item))
                 except schema.ValidationError:
                     logmsg = "Got invalid data from provider '%s', skipping."
                     logmsg = logmsg % ctx.provider_name
                     self.logger.warning(logmsg)
                     break
-
-            if not ctxitems:
-                logmsg = "Provider '%s' may be broken. Got 0 items from '%s'."
-                logmsg = logmsg % (ctx.provider_name, ctx.uri)
-                self.logger.warning(logmsg)
-
-            ret.extend(ctxitems)
 
         return ret
 
