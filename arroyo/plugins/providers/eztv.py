@@ -23,12 +23,8 @@ import time
 from datetime import datetime
 from urllib import parse
 
-
-from arroyo import extensions
-from arroyo.plugins import providers
-
-
 import humanfriendly
+from arroyo import extensions
 
 
 class EzTV(extensions.Provider):
@@ -71,13 +67,13 @@ class EzTV(extensions.Provider):
         # eztv only has series
         if query.get('type') != 'episode':
             excmsg = "query is not for an episode"
-            raise providers.IncompatibleQueryError(excmsg)
+            raise extensions.IncompatibleQueryError(excmsg)
 
         try:
             series = query['series']
         except KeyError:
             excmsg = "query doesn't have a series parameter"
-            raise providers.IncompatibleQueryError(excmsg)
+            raise extensions.IncompatibleQueryError(excmsg)
 
         q = series.strip().replace(' ', '-')
 

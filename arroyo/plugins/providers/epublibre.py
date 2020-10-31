@@ -20,9 +20,7 @@
 
 from urllib import parse
 
-
 from arroyo import extensions
-from arroyo.plugins import providers
 
 
 class EPubLibre(extensions.Provider):
@@ -36,7 +34,7 @@ class EPubLibre(extensions.Provider):
     def get_query_uri(self, query):
         if query.get('type') != 'ebook':
             excmsg = "query is not for an ebook"
-            raise providers.IncompatibleQueryError(excmsg)
+            raise extensions.IncompatibleQueryError(excmsg)
 
         author = query.get('ebook_author')
         title = query.get('ebook_title')
@@ -44,7 +42,7 @@ class EPubLibre(extensions.Provider):
 
         if not author and not title and not name:
             excmsg = "ebook_title or ebook_author or name is required"
-            raise providers.IncompatibleQueryError(excmsg)
+            raise extensions.IncompatibleQueryError(excmsg)
 
         if author or title:
             querystr = "%s %s" % (author or '', title or '')
