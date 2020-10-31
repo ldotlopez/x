@@ -23,34 +23,29 @@ from arroyo.plugins.commands import uilib
 
 
 class Downloads(extensions.Command):
-    COMMAND_NAME = 'downloads'
+    COMMAND_NAME = "downloads"
 
     def configure_command_parser(self, cmd):
-        cmd.add_argument(
-            '--list',
-            action='store_true',
-            help='Show current downloads')
-        cmd.add_argument(
-            '--cancel',
-            help='Cancel a download')
+        cmd.add_argument("--list", action="store_true", help="Show current downloads")
+        cmd.add_argument("--cancel", help="Cancel a download")
 
     def run(self, app, args):
         if args.list:
-            labels = ['id', 'state', 'name', 'size', 'progress']
-            columns = ['crc32', 'state', 'name', 'size', 'progress']
+            labels = ["id", "state", "name", "size", "progress"]
+            columns = ["crc32", "state", "name", "size", "progress"]
 
             data = uilib.build_dataset(
-                self.srvs.db,
-                columns,
-                [src for (src, state) in app.get_downloads()])
+                self.srvs.db, columns, [src for (src, state) in app.get_downloads()]
+            )
 
             uilib.display_data(data, labels=labels)
 
         elif args.cancel:
             data = uilib.build_dataset(
-                    self.srvs.db,
-                    ['crc32', 'raw_source'],
-                    [src for (src, state) in app.get_downloads()])
+                self.srvs.db,
+                ["crc32", "raw_source"],
+                [src for (src, state) in app.get_downloads()],
+            )
             data = {x[0]: x[1] for x in data}
 
             if args.cancel not in data:
@@ -58,3 +53,6 @@ class Downloads(extensions.Command):
                 return
 
             app.cancel(data[args.cancel])
+
+        else:
+            raise extensions.CommandUsageError()

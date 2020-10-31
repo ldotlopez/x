@@ -28,18 +28,15 @@ import functools
 import transmissionrpc
 
 
-from arroyo import (
-    extensions,
-    downloads
-)
+from arroyo import extensions, downloads
 
 
 STATUS_MAP = {
-    'checking': downloads.State.INITIALIZING,
-    'check pending': downloads.State.INITIALIZING,
-    'download pending': downloads.State.QUEUED,
-    'downloading': downloads.State.DOWNLOADING,
-    'seeding': downloads.State.SHARING,
+    "checking": downloads.State.INITIALIZING,
+    "check pending": downloads.State.INITIALIZING,
+    "download pending": downloads.State.QUEUED,
+    "downloading": downloads.State.DOWNLOADING,
+    "seeding": downloads.State.SHARING,
     # other states need more logic
 }
 
@@ -61,10 +58,10 @@ class Tr(extensions.Downloader):
     @property
     def client(self):
         return transmissionrpc.Client(
-            self.srvs.settings.get(self.SETTINGS_PREFIX + '.host', 'localhost'),
-            self.srvs.settings.get(self.SETTINGS_PREFIX + '.port', 9091),
-            self.srvs.settings.get(self.SETTINGS_PREFIX + '.username', None),
-            self.srvs.settings.get(self.SETTINGS_PREFIX + '.password', None),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + ".host", "localhost"),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + ".port", 9091),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + ".username", None),
+            self.srvs.settings.get(self.SETTINGS_PREFIX + ".password", None),
         )
 
     @trap_transmission_error
@@ -91,16 +88,20 @@ class Tr(extensions.Downloader):
 
     @trap_transmission_error
     def dump(self):
-        return [{'id': x.hashString,
-                 'state': self.state_for_torrent(x),
-                 'progress': x.progress / 100}
-                for x in self.client.get_torrents()]
+        return [
+            {
+                "id": x.hashString,
+                "state": self.state_for_torrent(x),
+                "progress": x.progress / 100,
+            }
+            for x in self.client.get_torrents()
+        ]
 
     def state_for_torrent(self, torrent):
         if torrent.status in STATUS_MAP:
             return STATUS_MAP[torrent.status]
 
-        elif torrent.status == 'stopped':
+        elif torrent.status == "stopped":
             if torrent.progress < 100:
                 return downloads.State.PAUSED
             else:

@@ -49,10 +49,7 @@ from urllib import parse
 import aiohttp
 
 
-from arroyo import (
-    extensions,
-    schema
-)
+from arroyo import extensions, schema
 
 
 class TorrentAPI(extensions.Provider):
@@ -60,19 +57,17 @@ class TorrentAPI(extensions.Provider):
     # https://torrentapi.org/apidocs_v2.txt
     # https://torrentapi.org/pubapi_v2.php?get_token=get_token
 
-    APP_ID = 'arroyo'
-    BASE_URI = 'http://torrentapi.org/pubapi_v2.php?app_id=' + APP_ID
-    DEFAULT_URI = BASE_URI + '&mode=list'
-    SEARCH_URI = BASE_URI + '&mode=search'
-    TOKEN_URI = BASE_URI + '&get_token=get_token'
+    APP_ID = "arroyo"
+    BASE_URI = "http://torrentapi.org/pubapi_v2.php?app_id=" + APP_ID
+    DEFAULT_URI = BASE_URI + "&mode=list"
+    SEARCH_URI = BASE_URI + "&mode=search"
+    TOKEN_URI = BASE_URI + "&get_token=get_token"
 
-    URI_REGEXPS = [
-        r'^http(s)?://([^.]+.)?torrentapi\.org/pubapi_v2.php\?'
-    ]
+    URI_REGEXPS = [r"^http(s)?://([^.]+.)?torrentapi\.org/pubapi_v2.php\?"]
 
     CATEGORY_MAP = {
-        schema.get_entity_name(schema.Episode): 'tv',
-        schema.get_entity_name(schema.Movie): 'movies'
+        schema.get_entity_name(schema.Episode): "tv",
+        schema.get_entity_name(schema.Movie): "movies",
     }
 
     def __init__(self, *args, **kwargs):
@@ -87,18 +82,13 @@ class TorrentAPI(extensions.Provider):
         await self.refresh_token()
         await asyncio.sleep(0.5)
         uri = alter_query_params(
-            uri,
-            dict(
-                format='json_extended',
-                limit=100,
-                sort='last',
-                token=self.token)
+            uri, dict(format="json_extended", limit=100, sort="last", token=self.token)
         )
         return await super().fetch(fetcher, uri)
 
     async def refresh_token(self):
         # Refresh token if it's older than 15M
-        if time.time() - self.token_ts >= 15*60:
+        if time.time() - self.token_ts >= 15 * 60:
             conn = aiohttp.TCPConnector(verify_ssl=False)
             client = aiohttp.ClientSession(connector=conn)
             resp = await client.get(self.TOKEN_URI)
@@ -107,7 +97,7 @@ class TorrentAPI(extensions.Provider):
             await client.close()
 
             # FIXME: Handle json.JSONDecodeError
-            self.token = json.loads(buff.decode('utf-8'))['token']
+            self.token = json.loads(buff.decode("utf-8"))["token"]
 
             self.token_ts = time.time()
             self.token_last_use = None
@@ -126,13 +116,13 @@ class TorrentAPI(extensions.Provider):
     def parse(self, buff):
         def convert_data(e):
             return {
-                'name': e.get('title') or e.get('filename'),
-                'uri': e['download'],
-                'created': self.parse_created(e.get('pubdate', None)),
-                'seeds': e.get('seeders', None),
-                'leechers': e.get('leechers', None),
-                'size': e.get('size', None),
-                'type': self.parse_category(e['category'])
+                "name": e.get("title") or e.get("filename"),
+                "uri": e["download"],
+                "created": self.parse_created(e.get("pubdate", None)),
+                "seeds": e.get("seeders", None),
+                "leechers": e.get("leechers", None),
+                "size": e.get("size", None),
+                "type": self.parse_category(e["category"]),
             }
 
         try:
@@ -144,7 +134,7 @@ class TorrentAPI(extensions.Provider):
             return []
 
         try:
-            psrcs = data['torrent_results']
+            psrcs = data["torrent_results"]
 
         except KeyError:
             msg = "Invalid response, missing torrent_results key"
@@ -159,12 +149,10 @@ class TorrentAPI(extensions.Provider):
         if not querystr:
             return None
 
-        q = {
-            'search_string': querystr
-        }
+        q = {"search_string": querystr}
 
         try:
-            q['category'] = self.CATEGORY_MAP[query['type']]
+            q["category"] = self.CATEGORY_MAP[query["type"]]
         except KeyError:
             pass
 
@@ -175,11 +163,11 @@ class TorrentAPI(extensions.Provider):
         if not category:
             return None
 
-        if 'movie' in category.lower():
-            return 'movie'
+        if "movie" in category.lower():
+            return "movie"
 
-        elif 'episodes' in category.lower():
-            return 'episode'
+        elif "episodes" in category.lower():
+            return "episode"
 
         return None
 
@@ -188,20 +176,26 @@ class TorrentAPI(extensions.Provider):
         if not created:
             return None
 
-        dt = datetime.datetime.strptime(created[0:19], '%Y-%m-%d %H:%M:%S')
+        dt = datetime.datetime.strptime(created[0:19], "%Y-%m-%d %H:%M:%S")
         ts = int(dt.timestamp())
         return ts
 
 
 def alter_query_params(uri, newparams, **urlencode_kwargs):
-    urlencode_kwargs['doseq'] = urlencode_kwargs.get('doseq', True)
+    urlencode_kwargs["doseq"] = urlencode_kwargs.get("doseq", True)
 
     parsed = parse.urlparse(uri)
     params = parse.parse_qs(parsed.query)
     params.update(newparams)
     params = {k: v for (k, v) in params.items() if v is not None}
 
-    return parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path or '/',
-                             parsed.params,
-                             parse.urlencode(params, **urlencode_kwargs),
-                             parsed.fragment))
+    return parse.urlunparse(
+        (
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path or "/",
+            parsed.params,
+            parse.urlencode(params, **urlencode_kwargs),
+            parsed.fragment,
+        )
+    )

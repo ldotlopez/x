@@ -28,20 +28,18 @@ from arroyo import extensions
 
 
 class EzTV(extensions.Provider):
-    BASE_URI = 'https://eztv.io'
-    DEFAULT_URI = BASE_URI + '/page_0'
-    URI_REGEXPS = [
-        r'^http(s)?://([^.]\.)?eztv\.[^.]{2,3}/'
-    ]
+    BASE_URI = "https://eztv.io"
+    DEFAULT_URI = BASE_URI + "/page_0"
+    URI_REGEXPS = [r"^http(s)?://([^.]\.)?eztv\.[^.]{2,3}/"]
 
     def paginate(self, uri):
         parsed = parse.urlparse(uri)
-        pathcomponents = parsed.path.split('/')
+        pathcomponents = parsed.path.split("/")
         pathcomponents = list(filter(lambda x: x, pathcomponents))
 
         # https://eztv.ag/ -> page_0 if not pathcomponents:
         if not pathcomponents:
-            pathcomponents = ['page_0']
+            pathcomponents = ["page_0"]
 
         # https://eztv.ag/shows/546/black-mirror/
         if len(pathcomponents) != 1:
@@ -49,7 +47,7 @@ class EzTV(extensions.Provider):
             return
 
         # Anything non standard
-        m = re.findall(r'^page_(\d+)$', pathcomponents[0])
+        m = re.findall(r"^page_(\d+)$", pathcomponents[0])
         if not m:
             yield uri
             return
@@ -57,29 +55,26 @@ class EzTV(extensions.Provider):
         # https://eztv.ag/page_0
         page = int(m[0])
         while True:
-            yield '{scheme}://{netloc}/page_{page}'.format(
-                scheme=parsed.scheme,
-                netloc=parsed.netloc,
-                page=page)
+            yield "{scheme}://{netloc}/page_{page}".format(
+                scheme=parsed.scheme, netloc=parsed.netloc, page=page
+            )
             page += 1
 
     def get_query_uri(self, query):
         # eztv only has series
-        if query.get('type') != 'episode':
+        if query.get("type") != "episode":
             excmsg = "query is not for an episode"
             raise extensions.IncompatibleQueryError(excmsg)
 
         try:
-            series = query['series']
+            series = query["series"]
         except KeyError:
             excmsg = "query doesn't have a series parameter"
             raise extensions.IncompatibleQueryError(excmsg)
 
-        q = series.strip().replace(' ', '-')
+        q = series.strip().replace(" ", "-")
 
-        return '{base}/search/{q}'.format(
-            base=self.BASE_URI,
-            q=parse.quote_plus(q))
+        return "{base}/search/{q}".format(base=self.BASE_URI, q=parse.quote_plus(q))
 
     def parse(self, buffer):
         soup = self.parse_as_soup(buffer)
@@ -90,11 +85,12 @@ class EzTV(extensions.Provider):
 
     def parse_page(self, soup):
         # Get links with magnets
-        magnets = [x for x in soup.select('a')
-                   if x.attrs.get('href', '').startswith('magnet')]
+        magnets = [
+            x for x in soup.select("a") if x.attrs.get("href", "").startswith("magnet")
+        ]
 
         # Go up until we get 'tr's
-        rows = [x.findParent('tr') for x in magnets]
+        rows = [x.findParent("tr") for x in magnets]
 
         return rows
 
@@ -112,71 +108,67 @@ class EzTV(extensions.Provider):
             timestamp = None
 
         return {
-            'name': name,
-            'uri': magnet,
-            'size': size,
-            'timestamp': timestamp,
-            'language': 'eng-us',
-            'type': 'episode'
+            "name": name,
+            "uri": magnet,
+            "size": size,
+            "timestamp": timestamp,
+            "language": "eng-us",
+            "type": "episode",
         }
 
     def parse_name_and_uri(self, node):
-        magnet = [x for x in node.select('a')
-                  if x.attrs.get('href').startswith('magnet:?')][0]
-        parsed = parse.urlparse(magnet.attrs['href'])
-        name = parse.parse_qs(parsed.query)['dn'][0]
+        magnet = [
+            x for x in node.select("a") if x.attrs.get("href").startswith("magnet:?")
+        ][0]
+        parsed = parse.urlparse(magnet.attrs["href"])
+        name = parse.parse_qs(parsed.query)["dn"][0]
 
-        return (name, magnet.attrs['href'])
+        return (name, magnet.attrs["href"])
 
     def parse_size(self, node):
         s = str(node)
 
-        m = re.search(
-            r'(\d+(\.\d+)?\s+[TGMK]B)',
-            s,
-            re.IGNORECASE)
+        m = re.search(r"(\d+(\.\d+)?\s+[TGMK]B)", s, re.IGNORECASE)
         if not m:
-            raise ValueError('No size value found')
+            raise ValueError("No size value found")
 
         try:
             return humanfriendly.parse_size(m.group(0))
         except humanfriendly.InvalidSize as e:
-            raise ValueError('Invalid size') from e
+            raise ValueError("Invalid size") from e
 
     def parse_timestamp(cls, node):
         def _do_diff(diff):
             return int(time.mktime(datetime.now().timetuple())) - diff
 
         _table_mults = {
-            's': 1,
-            'm': 60,
-            'h': 60*60,
-            'd': 60*60*24,
-            'w': 60*60*24*7,
-            'mo': 60*60*24*30,
-            'y': 60*60*24*365,
+            "s": 1,
+            "m": 60,
+            "h": 60 * 60,
+            "d": 60 * 60 * 24,
+            "w": 60 * 60 * 24 * 7,
+            "mo": 60 * 60 * 24 * 30,
+            "y": 60 * 60 * 24 * 365,
         }
 
         s = str(node)
 
         # Search for minutes, hours, days
-        m = re.search(r'(\d+)([mhd]) (\d+)([smhd])', s)
+        m = re.search(r"(\d+)([mhd]) (\d+)([smhd])", s)
         if m:
             amount1 = int(m.group(1))
             qual1 = m.group(2)
             amount2 = int(m.group(3))
             qual2 = m.group(4)
-            diff = (
-                amount1 * _table_mults[qual1] +
-                amount2 * _table_mults[qual2])
+            diff = amount1 * _table_mults[qual1] + amount2 * _table_mults[qual2]
 
             return _do_diff(diff)
 
         # Search for weeks, months, years
-        m = re.search(r'(\d+) (w|mo|y)', s)
+        m = re.search(r"(\d+) (w|mo|y)", s)
         if m:
             diff = int(m.group(1)) * _table_mults[m.group(2)]
             return _do_diff(diff)
 
         # :shrug:
-        raise ValueError('No created value found')
+        raise ValueError("No created value found")

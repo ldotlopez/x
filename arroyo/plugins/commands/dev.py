@@ -34,161 +34,116 @@ from arroyo import (
 
 
 class Command(extensions.Command):
-    COMMAND_NAME = 'dev'
+    COMMAND_NAME = "dev"
 
     def configure_command_parser(self, cmd):
-        subcmds = cmd.add_subparsers(dest='devcmd')
+        subcmds = cmd.add_subparsers(dest="devcmd")
 
         #
         # Fetch command (fetch+parse)
         #
-        fetch_cmd = subcmds.add_parser('fetch')
+        fetch_cmd = subcmds.add_parser("fetch")
+        fetch_cmd.add_argument("--provider", help="Force some provider")
+        fetch_cmd.add_argument("--uri", help="URI to parse")
         fetch_cmd.add_argument(
-            '--provider',
-            help='Force some provider')
-        fetch_cmd.add_argument(
-            '--uri',
-            help='URI to parse')
-        fetch_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
 
         #
         # Parse command
         #
-        parse_cmd = subcmds.add_parser('parse')
+        parse_cmd = subcmds.add_parser("parse")
+        parse_cmd.add_argument("--provider", required=True)
         parse_cmd.add_argument(
-            '--provider',
-            required=True)
+            "--input", type=argparse.FileType("r"), default=sys.stdin
+        )
         parse_cmd.add_argument(
-            '--input',
-            type=argparse.FileType('r'),
-            default=sys.stdin)
-        parse_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
-        parse_cmd.add_argument(
-            '--type',
-            help='Force type')
-        parse_cmd.add_argument(
-            '--language',
-            help='Force language')
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
+        parse_cmd.add_argument("--type", help="Force type")
+        parse_cmd.add_argument("--language", help="Force language")
 
         #
         # Scrape command (fetch+parse)
         #
-        scrape_cmd = subcmds.add_parser('scrape')
+        scrape_cmd = subcmds.add_parser("scrape")
+        scrape_cmd.add_argument("--provider", required=True)
+        scrape_cmd.add_argument("--uri", help="URI to parse"),
+        scrape_cmd.add_argument("--iterations", default=1, type=int)
         scrape_cmd.add_argument(
-            '--provider',
-            required=True)
-        scrape_cmd.add_argument(
-            '--uri',
-            help='URI to parse'),
-        scrape_cmd.add_argument(
-            '--iterations',
-            default=1,
-            type=int)
-        scrape_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
-        scrape_cmd.add_argument(
-            '--type',
-            help='Force type')
-        scrape_cmd.add_argument(
-            '--language',
-            help='Force language')
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
+        scrape_cmd.add_argument("--type", help="Force type")
+        scrape_cmd.add_argument("--language", help="Force language")
 
         #
         # analyze
         #
-        analyze_cmd = subcmds.add_parser('analyze')
+        analyze_cmd = subcmds.add_parser("analyze")
         analyze_cmd.add_argument(
-            '--input',
-            type=argparse.FileType('r'),
-            default=sys.stdin)
+            "--input", type=argparse.FileType("r"), default=sys.stdin
+        )
         analyze_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
 
         #
         # query
         #
-        query_cmd = subcmds.add_parser('query')
+        query_cmd = subcmds.add_parser("query")
         query_cmd.add_argument(
-            '--input',
-            type=argparse.FileType('r'),
-            default=sys.stdin)
+            "--input", type=argparse.FileType("r"), default=sys.stdin
+        )
         query_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
         query_cmd.add_argument(
-            '--filter',
-            dest='queryparams',
-            action='append',
-            default=[])
-        query_cmd.add_argument(
-            dest='querystring',
-            nargs='?')
+            "--filter", dest="queryparams", action="append", default=[]
+        )
+        query_cmd.add_argument(dest="querystring", nargs="?")
 
         #
         # query2
         #
-        query_cmd = subcmds.add_parser('query2')
+        query_cmd = subcmds.add_parser("query2")
         query_cmd.add_argument(
-            '--output',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
+            "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
         query_cmd.add_argument(
-            '--filter',
-            dest='queryparams',
-            action='append',
-            default=[])
-        query_cmd.add_argument(
-            dest='querystring',
-            nargs='?')
+            "--filter", dest="queryparams", action="append", default=[]
+        )
+        query_cmd.add_argument(dest="querystring", nargs="?")
 
         #
         # download
         #
-        download_cmd = subcmds.add_parser('download')
+        download_cmd = subcmds.add_parser("download")
         download_cmd.add_argument(
-            '--input',
-            type=argparse.FileType('r'),
-            default=sys.stdin)
-        download_cmd.add_argument(
-            '--add',
-            action='store_true'
+            "--input", type=argparse.FileType("r"), default=sys.stdin
         )
-        download_cmd.add_argument(
-            '--list',
-            action='store_true'
-        )
+        download_cmd.add_argument("--add", action="store_true")
+        download_cmd.add_argument("--list", action="store_true")
 
     def run(self, app, args):
-        if args.devcmd == 'fetch':
+        if args.devcmd == "fetch":
             self.run_fetch(app, args)
 
-        elif args.devcmd == 'parse':
+        elif args.devcmd == "parse":
             self.run_parse(app, args)
 
-        elif args.devcmd == 'scrape':
+        elif args.devcmd == "scrape":
             self.run_scrape(app, args)
 
-        elif args.devcmd == 'analyze':
+        elif args.devcmd == "analyze":
             self.run_analyze(app, args)
 
-        elif args.devcmd == 'query':
+        elif args.devcmd == "query":
             self.run_query(app, args)
 
-        elif args.devcmd == 'query2':
+        elif args.devcmd == "query2":
             self.run_query2(app, args)
 
-        elif args.devcmd == 'download':
+        elif args.devcmd == "download":
             self.run_download(app, args)
 
         elif not args.devcmd:
@@ -208,9 +163,9 @@ class Command(extensions.Command):
 
     def run_parse(self, app, args):
         engine = scraper.Engine()
-        ctx = engine.build_context(provider=args.provider,
-                                   type=args.type,
-                                   language=args.language)
+        ctx = engine.build_context(
+            provider=args.provider, type=args.type, language=args.language
+        )
         buffer = args.input.read()
 
         results = list(engine.parse_one(ctx, buffer))
@@ -223,11 +178,13 @@ class Command(extensions.Command):
             raise extensions.CommandUsageError()
 
         engine = scraper.Engine(app.srvs)
-        ctxs = engine.build_n_contexts(args.iterations,
-                                       args.provider,
-                                       args.uri,
-                                       type=args.type,
-                                       language=args.language)
+        ctxs = engine.build_n_contexts(
+            args.iterations,
+            args.provider,
+            args.uri,
+            type=args.type,
+            language=args.language,
+        )
         results = engine.process(*ctxs)
 
         output = json.dumps([x.dict() for x in results], indent=2)
@@ -241,15 +198,15 @@ class Command(extensions.Command):
         raw = [schema.Source(**x) for x in raw]
         proc = analyze.analyze(*raw, mp=False)
 
-        output = json.dumps([x.dict() for x in proc],
-                            indent=2,
-                            default=_json_encode_hook)
+        output = json.dumps(
+            [x.dict() for x in proc], indent=2, default=_json_encode_hook
+        )
         args.output.write(output)
 
     def do_query(self, app, args):
         def _parse_queryparams(pairs):
             for pair in pairs:
-                key, value = pair.split('=', 1)
+                key, value = pair.split("=", 1)
                 if not key or not value:
                     raise ValueError(pair)
 
@@ -273,7 +230,7 @@ class Command(extensions.Command):
             ctx = engine.build_filter(q)
         except query.MissingFiltersError as e:
             errmsg = "Unknow filters: %s"
-            errmsg = errmsg % ', '.join(e.args[0])
+            errmsg = errmsg % ", ".join(e.args[0])
             print(errmsg, file=sys.stderr)
             raise extensions.CommandUsageError()
 
@@ -282,16 +239,17 @@ class Command(extensions.Command):
         results = engine.apply(ctx, data)
         results = engine.sort(results)
 
-        results = [[entity.dict(), [src.dict() for src in sources]]
-                   for (entity, sources) in results]
-        output = json.dumps(results, indent=2,
-                            default=_json_encode_hook)
+        results = [
+            [entity.dict(), [src.dict() for src in sources]]
+            for (entity, sources) in results
+        ]
+        output = json.dumps(results, indent=2, default=_json_encode_hook)
         args.output.write(output)
 
     def do_query2(self, app, args):
         def _parse_queryparams(pairs):
             for pair in pairs:
-                key, value = pair.split('=', 1)
+                key, value = pair.split("=", 1)
                 if not key or not value:
                     raise ValueError(pair)
 
@@ -316,7 +274,7 @@ class Command(extensions.Command):
             filters = query_engine.build_filter(q)
         except query.MissingFiltersError as e:
             errmsg = "Unknow filters: %s"
-            errmsg = errmsg % ', '.join(e.args[0])
+            errmsg = errmsg % ", ".join(e.args[0])
             print(errmsg, file=sys.stderr)
             raise extensions.CommandUsageError()
 
@@ -331,10 +289,11 @@ class Command(extensions.Command):
         results = query_engine.sort(results)
 
         # Output
-        results = [[entity.dict(), [src.dict() for src in sources]]
-                   for (entity, sources) in results]
-        output = json.dumps(results, indent=2,
-                            default=_json_encode_hook)
+        results = [
+            [entity.dict(), [src.dict() for src in sources]]
+            for (entity, sources) in results
+        ]
+        output = json.dumps(results, indent=2, default=_json_encode_hook)
         args.output.write(output)
 
     def run_download(self, app, args):
@@ -345,16 +304,15 @@ class Command(extensions.Command):
         elif args.add:
             data = json.loads(args.input.read())
             data = [
-                (schema.Entity(**key),
-                 [schema.Source(**src) for src in collection])
-                for (key, collection) in data]
+                (schema.Entity(**key), [schema.Source(**src) for src in collection])
+                for (key, collection) in data
+            ]
 
             for (key, collection) in data:
                 try:
                     dls.add(collection[0])
                 except extensions.ExtensionError as e:
-                    print("Add '%s' failed. Extension error: %r" %
-                          (collection[0], e))
+                    print("Add '%s' failed. Extension error: %r" % (collection[0], e))
 
         else:
             raise extensions.CommandUsageError()

@@ -27,17 +27,16 @@ from arroyo import extensions
 
 class Basic(extensions.Sorter):
     def sort(self, collection):
-        return list(sorted(
-            collection,
-            key=functools.cmp_to_key(self.cmp_source_health)
-        ))
+        return list(
+            sorted(collection, key=functools.cmp_to_key(self.cmp_source_health))
+        )
 
     def cmp_source_health(self, a, b):
         def is_proper(source):
-            return source.metadata.get('core.release.proper', False)
+            return source.metadata.get("core.release.proper", False)
 
         def has_release_group(source):
-            return source.metadata.get('core.release.group', None) is not None
+            return source.metadata.get("core.release.group", None) is not None
 
         def seeds_are_relevant(source):
             return (source.seeds or 0) > 10

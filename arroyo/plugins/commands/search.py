@@ -21,47 +21,32 @@
 import sys
 
 
-from arroyo import (
-    query,
-    extensions
-)
+from arroyo import query, extensions
 from arroyo.services import settings
 from arroyo.plugins.commands import uilib
 
 
 class Search(extensions.Command):
-    COMMAND_NAME = 'search'
+    COMMAND_NAME = "search"
 
     def configure_command_parser(self, cmd):
+        cmd.add_argument("--provider", help="Force some provider")
+        cmd.add_argument("--uri", help="URI to parse")
         cmd.add_argument(
-            '--provider',
-            help='Force some provider')
+            "-f", "--filter", dest="queryparams", action="append", default=[]
+        )
+        cmd.add_argument("--from-config", action="store_true")
         cmd.add_argument(
-            '--uri',
-            help='URI to parse')
+            "--download", action="store_true", help="Add selected items to downloads"
+        )
         cmd.add_argument(
-            '-f', '--filter',
-            dest='queryparams',
-            action='append',
-            default=[])
-        cmd.add_argument(
-            '--from-config',
-            action='store_true')
-        cmd.add_argument(
-            '--download',
-            action='store_true',
-            help='Add selected items to downloads')
-        cmd.add_argument(
-            '--auto',
-            action='store_true',
-            help='Automatic selection of downloads')
-        cmd.add_argument(
-            dest='querystring',
-            nargs='?')
+            "--auto", action="store_true", help="Automatic selection of downloads"
+        )
+        cmd.add_argument(dest="querystring", nargs="?")
 
     def run(self, app, args):
         if args.queryparams:
-            queryparams = dict([x.split('=', 1) for x in args.queryparams])
+            queryparams = dict([x.split("=", 1) for x in args.queryparams])
             qs = [query.Query(**queryparams)]
 
         elif args.querystring:
@@ -78,7 +63,7 @@ class Search(extensions.Command):
                 results = app.query(q, provider=args.provider, uri=args.uri)
             except query.MissingFiltersError as e:
                 msg = "Unknow filters: %s"
-                msg = msg % ', '.join(e.args[0])
+                msg = msg % ", ".join(e.args[0])
                 print(msg, file=sys.stderr)
                 continue
 
@@ -86,8 +71,8 @@ class Search(extensions.Command):
                 print("No results", file=sys.stderr)
                 continue
 
-            labels = [' ', ' ', 'state', 'name', 'size', 's/l']
-            columns = ['selected', 'count', 'state', 'name', 'size', 'share']
+            labels = [" ", " ", "state", "name", "size", "s/l"]
+            columns = ["selected", "count", "state", "name", "size", "share"]
 
             for (entity, sources) in results:
                 data = uilib.build_dataset(self.srvs.db, columns, sources)
@@ -113,15 +98,15 @@ class Search(extensions.Command):
 
 
 def queries_from_config(s):
-    DEFAULTS = 'arroyo.query.defaults.global'
-    TYPE_DEFAULTS = 'arroyo.query.defaults.%s'
-    QUERY = 'query.%s'
+    DEFAULTS = "arroyo.query.defaults.global"
+    TYPE_DEFAULTS = "arroyo.query.defaults.%s"
+    QUERY = "query.%s"
 
     defaults = s.get(DEFAULTS, {})
     type_defaults = {}
 
     try:
-        children = s.children('query')
+        children = s.children("query")
     except (settings.NotNamespaceError,):
         # Convert to log
         print("No queries")
@@ -129,7 +114,7 @@ def queries_from_config(s):
 
     for name in children:
         params = s.get(QUERY % name)
-        query_type = params.get('type', 'source')
+        query_type = params.get("type", "source")
         if query_type not in type_defaults:
             type_defaults[query_type] = s.get(TYPE_DEFAULTS % query_type, {})
 
