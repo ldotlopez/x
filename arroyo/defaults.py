@@ -20,11 +20,10 @@
 
 import appdirs
 
-
 APP_NAME = 'arroyo'
 
 SETTINGS_PATH = "%s/%s/settings.ini" % (appdirs.user_config_dir(), APP_NAME)
-DB_PATH = "%s/%s/db.json" % (appdirs.user_data_dir(), APP_NAME)
+DB_PATH = "%s/%s/arroyo.db" % (appdirs.user_data_dir(), APP_NAME)
 DEFAULT_LOGLEVEL = 2
 
 

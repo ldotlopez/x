@@ -35,6 +35,12 @@ Base.metadata.naming_convention = {
 }
 
 
+def Database(uri):
+    engine = sa.create_engine(uri)
+    Base.metadata.create_all(engine)
+    return orm.sessionmaker()(bind=engine)
+
+
 @functools.lru_cache(maxsize=8)
 def _ensure_model_class(x):
 

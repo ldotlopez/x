@@ -65,22 +65,23 @@ class App:
         touch(database_path)
         touch(settings_path)
 
-        network_cache_path = appdirs.user_cache_dir() + '/arroyo/network'
+        network_cache_path = appdirs.user_cache_dir() + "/arroyo/network"
         os.makedirs(network_cache_path, exist_ok=True)
 
         # Setup core
         self.srvs = Services(
             logger=logger,
-            db=database.Database(storage.JSONStorage(database_path)),
-            settings=Settings(ConfigFileStorage(settings_path,
-                                                root=defaults.APP_NAME)),
-            loader=loader.ClassLoader(defaults.PLUGINS)
+            db=database.Database("sqlite:///" + database_path),
+            settings=Settings(
+                ConfigFileStorage(settings_path, root=defaults.APP_NAME)
+            ),
+            loader=loader.ClassLoader(defaults.PLUGINS),
         )
 
-        if self.srvs.settings.get('cache.enabled'):
+        if self.srvs.settings.get("cache.enabled"):
             self.srvs.cache = cache.DiskCache(
                 basedir=network_cache_path,
-                delta=self.srvs.settings.get('cache.delta')
+                delta=self.srvs.settings.get("cache.delta"),
             )
 
         # Setup engines
