@@ -22,37 +22,26 @@ import argparse
 import logging
 import os
 
-
 import appdirs
-
+from arroyo import analyze, defaults, downloads, extensions, query, scraper
+from arroyo.services import (Services, cache, database, loader, settings,
+                             storage)
 
 try:
     import colorama
+
     _has_colorama = True
 except ImportError:
     _has_colorama = False
 
-from arroyo import (
-    defaults,
-    extensions,
-    analyze,
-    downloads,
-    scraper,
-    query
-)
-from arroyo.services import (
-    Services,
-    cache,
-    database,
-    loader,
-    settings,
-    storage
-)
-
 
 class App:
-    def __init__(self, settings_path: str, database_path: str,
-                 log_level: int = logging.WARNING):
+    def __init__(
+        self,
+        settings_path: str,
+        database_path: str,
+        log_level: int = logging.WARNING,
+    ):
         # Setup logging
         handler = logging.StreamHandler()
         handler.setFormatter(LogFormatter(defaults.LOG_FORMAT))
@@ -94,8 +83,9 @@ class App:
 
         # Build scraper contexts
         if provider or uri:
-            scrapectxs = [self.scraper.build_context(provider=provider,
-                                                     uri=uri)]
+            scrapectxs = [
+                self.scraper.build_context(provider=provider, uri=uri)
+            ]
         else:
             scrapectxs = self.scraper.build_contexts_for_query(q)
 
@@ -125,8 +115,9 @@ class App:
         self.downloads.add(source)
 
     def get_downloads(self):
-        g = sorted(self.downloads.get_all_states(),
-                   key=lambda x: x[0].entity or x[0])
+        g = sorted(
+            self.downloads.get_all_states(), key=lambda x: x[0].entity or x[0]
+        )
 
         return list(g)
 
@@ -139,13 +130,15 @@ class App:
 
         exes = {}
 
-        commands = parser.add_subparsers(dest='command', required=True)
+        commands = parser.add_subparsers(dest="command", required=True)
         subcommands = {}
-        for name in self.srvs.loader.list('commands'):
+        for name in self.srvs.loader.list("commands"):
             plugin = self.srvs.loader.get(name, self.srvs)
             exes[plugin.COMMAND_NAME] = plugin
 
-            subcommands[plugin.COMMAND_NAME] = commands.add_parser(plugin.COMMAND_NAME)
+            subcommands[plugin.COMMAND_NAME] = commands.add_parser(
+                plugin.COMMAND_NAME
+            )
             plugin.configure_command_parser(subcommands[plugin.COMMAND_NAME])
 
         args = parser.parse_args(argv)
@@ -191,51 +184,34 @@ class Settings(settings.Settings):
 
 
 class ConfigFileStorage(storage.ConfigFileStorage):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._logger = logging.getLogger('arroyo.config-file-storage')
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self._logger = logging.getLogger('arroyo.config-file-storage')
 
-    def read(self):
-        try:
-            return super().read()
-        except storage.LocationNotFoundError:
-            logmsg = "Location '%s' not found" % self.location
-            self._logger.warning(logmsg)
-            return {}
+    # def read(self):
+    #     try:
+    #         return super().read()
+    #     except storage.LocationNotFoundError:
+    #         logmsg = "Location '%s' not found" % self.location
+    #         self._logger.warning(logmsg)
+    #         return {}
 
     def write(self, data):
-        raise NotImplementedError()
-
-    def close(self):
-        raise NotImplementedError()
+        super().write(data)
 
 
 def build_argparse():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument(
-        '--db',
-        type=str,
-        default=defaults.DB_PATH)
-    parser.add_argument(
-        '--settings',
-        type=str,
-        default=defaults.SETTINGS_PATH)
-    parser.add_argument(
-        '-q', '--quiet',
-        default=0,
-        action='count')
-    parser.add_argument(
-        '-v', '--verbose',
-        default=0,
-        action='count')
-    parser.add_argument(
-        '-h', '--help',
-        action='store_true')
+    parser.add_argument("--db", type=str, default=defaults.DB_PATH)
+    parser.add_argument("--settings", type=str, default=defaults.SETTINGS_PATH)
+    parser.add_argument("-q", "--quiet", default=0, action="count")
+    parser.add_argument("-v", "--verbose", default=0, action="count")
+    parser.add_argument("-h", "--help", action="store_true")
 
     return parser
 
 
-def touch(filepath, contents=None, mode='wb', encoding='utf-8'):
+def touch(filepath, contents=None, mode="wb", encoding="utf-8"):
     filepath = os.path.realpath(filepath)
     dirname = os.path.dirname(filepath)
     os.makedirs(dirname, exist_ok=True)
