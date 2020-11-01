@@ -111,4 +111,6 @@ dmypy.json
 
 # Local
 env/
+tools/
+tmp/
 *.sublime-workspace
