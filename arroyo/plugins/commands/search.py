@@ -37,10 +37,14 @@ class Search(extensions.Command):
         )
         cmd.add_argument("--from-config", action="store_true")
         cmd.add_argument(
-            "--download", action="store_true", help="Add selected items to downloads"
+            "--download",
+            action="store_true",
+            help="Add selected items to downloads",
         )
         cmd.add_argument(
-            "--auto", action="store_true", help="Automatic selection of downloads"
+            "--auto",
+            action="store_true",
+            help="Automatic selection of downloads",
         )
         cmd.add_argument(dest="querystring", nargs="?")
 
