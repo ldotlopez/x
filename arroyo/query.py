@@ -32,6 +32,11 @@ class Query(dict):
         super().__init__(**kwargs)
 
     @classmethod
+    def fromargs(cls, it):
+        params = dict([x.split("=", 1) for x in it])
+        return cls(**params)
+
+    @classmethod
     def fromstring(cls, s):
         # Keep in sync with MetadataAttributeFilter.HANDLES
         # from plugins/filters/generic.py

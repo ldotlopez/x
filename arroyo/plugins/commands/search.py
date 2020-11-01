@@ -46,8 +46,7 @@ class Search(extensions.Command):
 
     def run(self, app, args):
         if args.queryparams:
-            queryparams = dict([x.split("=", 1) for x in args.queryparams])
-            qs = [query.Query(**queryparams)]
+            qs = [query.Query.fromargs(args.queryparams)]
 
         elif args.querystring:
             qs = [query.Query.fromstring(args.querystring)]

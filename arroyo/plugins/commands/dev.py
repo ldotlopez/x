@@ -22,14 +22,14 @@ import argparse
 import json
 import sys
 
-
 from arroyo import (
     analyze,
-    extensions,
     downloads,
+    extensions,
     query,
     schema,
     scraper,
+    services,
 )
 
 
@@ -42,23 +42,31 @@ class Command(extensions.Command):
         #
         # Fetch command (fetch+parse)
         #
-        fetch_cmd = subcmds.add_parser("fetch")
+        fetch_cmd = subcmds.add_parser(
+            "fetch", help="Dump URI contents to output"
+        )
         fetch_cmd.add_argument("--provider", help="Force some provider")
         fetch_cmd.add_argument("--uri", help="URI to parse")
         fetch_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
         )
 
         #
         # Parse command
         #
-        parse_cmd = subcmds.add_parser("parse")
+        parse_cmd = subcmds.add_parser(
+            "parse",
+            help=(
+                "Parse input buffer and dump as JSON structured data to"
+                "output"
+            ),
+        )
         parse_cmd.add_argument("--provider", required=True)
         parse_cmd.add_argument(
-            "--input", type=argparse.FileType("r"), default=sys.stdin
+            "-i", "--input", type=argparse.FileType("r"), default=sys.stdin
         )
         parse_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
         )
         parse_cmd.add_argument("--type", help="Force type")
         parse_cmd.add_argument("--language", help="Force language")
@@ -66,12 +74,14 @@ class Command(extensions.Command):
         #
         # Scrape command (fetch+parse)
         #
-        scrape_cmd = subcmds.add_parser("scrape")
+        scrape_cmd = subcmds.add_parser(
+            "scrape", help="fetch+parse with some bells and whistles"
+        )
         scrape_cmd.add_argument("--provider", required=True)
         scrape_cmd.add_argument("--uri", help="URI to parse"),
         scrape_cmd.add_argument("--iterations", default=1, type=int)
         scrape_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
         )
         scrape_cmd.add_argument("--type", help="Force type")
         scrape_cmd.add_argument("--language", help="Force language")
@@ -79,23 +89,40 @@ class Command(extensions.Command):
         #
         # analyze
         #
-        analyze_cmd = subcmds.add_parser("analyze")
-        analyze_cmd.add_argument(
-            "--input", type=argparse.FileType("r"), default=sys.stdin
+        analyze_cmd = subcmds.add_parser(
+            "analyze", help="Build entities from sources"
         )
         analyze_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-i", "--input", type=argparse.FileType("r"), default=sys.stdin
         )
+        analyze_cmd.add_argument(
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
+
+        #
+        # filter
+        #
+        filter_cmd = subcmds.add_parser("filter", help="Filter analyzed data")
+        filter_cmd.add_argument(
+            "-i", "--input", type=argparse.FileType("r"), default=sys.stdin
+        )
+        filter_cmd.add_argument(
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
+        )
+        filter_cmd.add_argument(
+            "-f", "--filter", dest="queryparams", action="append", default=[]
+        )
+        filter_cmd.add_argument(dest="querystring", nargs="?")
 
         #
         # query
         #
         query_cmd = subcmds.add_parser("query")
         query_cmd.add_argument(
-            "--input", type=argparse.FileType("r"), default=sys.stdin
+            "-i", "--input", type=argparse.FileType("r"), default=sys.stdin
         )
         query_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
         )
         query_cmd.add_argument(
             "--filter", dest="queryparams", action="append", default=[]
@@ -107,10 +134,10 @@ class Command(extensions.Command):
         #
         query_cmd = subcmds.add_parser("query2")
         query_cmd.add_argument(
-            "--output", type=argparse.FileType("w"), default=sys.stdout
+            "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
         )
         query_cmd.add_argument(
-            "--filter", dest="queryparams", action="append", default=[]
+            "-f", "--filter", dest="queryparams", action="append", default=[]
         )
         query_cmd.add_argument(dest="querystring", nargs="?")
 
@@ -119,7 +146,7 @@ class Command(extensions.Command):
         #
         download_cmd = subcmds.add_parser("download")
         download_cmd.add_argument(
-            "--input", type=argparse.FileType("r"), default=sys.stdin
+            "-i", "--input", type=argparse.FileType("r"), default=sys.stdin
         )
         download_cmd.add_argument("--add", action="store_true")
         download_cmd.add_argument("--list", action="store_true")
@@ -136,6 +163,9 @@ class Command(extensions.Command):
 
         elif args.devcmd == "analyze":
             self.run_analyze(app, args)
+
+        elif args.devcmd == "filter":
+            self.run_filter(app, args)
 
         elif args.devcmd == "query":
             self.run_query(app, args)
@@ -162,7 +192,7 @@ class Command(extensions.Command):
         args.output.write(result)
 
     def run_parse(self, app, args):
-        engine = scraper.Engine()
+        engine = scraper.Engine(app.srvs)
         ctx = engine.build_context(
             provider=args.provider, type=args.type, language=args.language
         )
@@ -200,6 +230,22 @@ class Command(extensions.Command):
 
         output = json.dumps(
             [x.dict() for x in proc], indent=2, default=_json_encode_hook
+        )
+        args.output.write(output)
+
+    def run_filter(self, app, args):
+        analyzed = [schema.Source(**x) for x in json.loads(args.input.read())]
+        if args.querystring:
+            q = query.Query.fromstring(args.querystring)
+        elif args.queryparams:
+            q = query.Query.fromargs(args.queryparams)
+        else:
+            raise NotImplementedError()
+
+        qe = query.Engine(app.srvs)
+        res = qe.apply(qe.build_filter_context(q), analyzed)
+        output = json.dumps(
+            [x.dict() for x in res], indent=2, default=_json_encode_hook
         )
         args.output.write(output)
 
@@ -304,7 +350,10 @@ class Command(extensions.Command):
         elif args.add:
             data = json.loads(args.input.read())
             data = [
-                (schema.Entity(**key), [schema.Source(**src) for src in collection])
+                (
+                    schema.Entity(**key),
+                    [schema.Source(**src) for src in collection],
+                )
                 for (key, collection) in data
             ]
 
@@ -312,7 +361,10 @@ class Command(extensions.Command):
                 try:
                     dls.add(collection[0])
                 except extensions.ExtensionError as e:
-                    print("Add '%s' failed. Extension error: %r" % (collection[0], e))
+                    print(
+                        "Add '%s' failed. Extension error: %r"
+                        % (collection[0], e)
+                    )
 
         else:
             raise extensions.CommandUsageError()
