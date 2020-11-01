@@ -20,8 +20,8 @@
 
 import logging
 
-from .database import Database
 from .cache import NullCache
+from .database import Database
 from .loader import ClassLoader
 from .settings import Settings
 from .storage import MemoryStorage
@@ -35,7 +35,7 @@ class Services:
                  loader=None,
                  settings=None):
         self._logger = logger
-        self._db = db or Database(storage=MemoryStorage())
+        self._db = db or Database("sqlite:///:memory:")
         self._cache = cache or NullCache()
         self._loader = loader or ClassLoader()
         self._settings = settings or Settings(storage=MemoryStorage())
