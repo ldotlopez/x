@@ -1,7 +1,8 @@
 import unittest
 
 import sqlalchemy as sa
-from arroyo.services.database import Base, Download, Episode, Movie, Source
+from arroyo import schema as sch
+from arroyo.services import database as db
 from sqlalchemy import orm
 
 
@@ -11,7 +12,7 @@ class RawDatabaseTest(unittest.TestCase):
         # self.engine = sa.create_engine(
         #     "sqlite:////home/luis/src/x/tests/a.db", echo=True
         # )
-        Base.metadata.create_all(self.engine)
+        db.Base.metadata.create_all(self.engine)
         self.sess = orm.sessionmaker()(bind=self.engine)
 
     def tearDown(self):
@@ -27,31 +28,31 @@ class RawDatabaseTest(unittest.TestCase):
             self.sess.commit()
 
     # def test_source_data_field(self):
-    #     s1 = Source(id="x", data={"name": "foo"})
-    #     s2 = Source(id="y", data={"name": "bar"})
+    #     s1 = db.Source(id="x", data={"name": "foo"})
+    #     s2 = db.Source(id="y", data={"name": "bar"})
     #     self.sess.add_all([s1, s2])
     #     self.sess.commit()
 
     #     self.assertEqual(
-    #         self.sess.query(Source).filter(
-    #             Source.data["name"] == "foo"
+    #         self.sess.query(db.Source).filter(
+    #             db.Source.data["name"] == "foo"
     #         ).one(),
     #         s1
     #     )
 
     def test_source_uniqueness(self):
-        self._test_uniqueness(Source, id="x")
+        self._test_uniqueness(db.Source, id="x")
 
     def test_episode_uniqueness(self):
-        self._test_uniqueness(Episode, series="x", season=1, number=1)
+        self._test_uniqueness(db.Episode, series="x", season=1, number=1)
 
     def test_movie_uniqueness(self):
-        self._test_uniqueness(Movie, title="x")
+        self._test_uniqueness(db.Movie, title="x")
 
     def test_source_download_relationship(self):
         # Check one-to-one relationship
-        src = Source(id="x")
-        dl = Download(source=src, foreign_id="mock:1", state="none")
+        src = db.Source(id="x")
+        dl = db.Download(source=src, foreign_id="mock:1", state="none")
         self.sess.add_all([src, dl])
         self.sess.commit()
         self.assertEqual(src.download, dl)
@@ -61,24 +62,24 @@ class RawDatabaseTest(unittest.TestCase):
         self.sess.delete(dl)
         self.sess.commit()
         self.assertEqual(
-            self.sess.query(Source).filter(Source.id == "x").one(), src
+            self.sess.query(db.Source).filter(db.Source.id == "x").one(), src
         )
 
         # Delete source DOES delete download
-        src.dl = Download(source=src, foreign_id="mock:1", state="none")
+        src.dl = db.Download(source=src, foreign_id="mock:1", state="none")
         self.sess.commit()
         self.sess.delete(src)
         self.assertEqual(
-            self.sess.query(Download)
-            .filter(Download.foreign_id == "mock:1")
+            self.sess.query(db.Download)
+            .filter(db.Download.foreign_id == "mock:1")
             .count(),
             0,
         )
 
     def test_source_episode_relationship(self):
-        e = Episode(series="foo", season=1, number=2)
-        s1 = Source(id="x", entity=e)
-        s2 = Source(id="y", entity=e)
+        e = db.Episode(series="foo", season=1, number=2)
+        s1 = db.Source(id="x", entity=e)
+        s2 = db.Source(id="y", entity=e)
         self.sess.add_all([e, s1, s2])
         self.sess.commit()
 
@@ -89,12 +90,12 @@ class RawDatabaseTest(unittest.TestCase):
 
         self.sess.delete(s1)
         self.sess.delete(s2)
-        self.assertEqual(self.sess.query(Episode).one(), e)
+        self.assertEqual(self.sess.query(db.Episode).one(), e)
 
     def test_source_movie_relationship(self):
-        e = Movie(title="foo")
-        s1 = Source(id="x", entity=e)
-        s2 = Source(id="y", entity=e)
+        e = db.Movie(title="foo")
+        s1 = db.Source(id="x", entity=e)
+        s2 = db.Source(id="y", entity=e)
         self.sess.add_all([e, s1, s2])
         self.sess.commit()
 
@@ -105,7 +106,28 @@ class RawDatabaseTest(unittest.TestCase):
 
         self.sess.delete(s1)
         self.sess.delete(s2)
-        self.assertEqual(self.sess.query(Movie).one(), e)
+        self.assertEqual(self.sess.query(db.Movie).one(), e)
+
+
+class DatabaseAPITest(unittest.TestCase):
+    def setUp(self):
+        self.db = db.Database("sqlite:///:memory:")
+
+    def tearDown(self):
+        del self.db
+
+    # def test_query_update_entity(self):
+    #     e = sch.Episode(series="x", season=1, number=1)
+    #     self.assertEqual(self.db.query_entity(e), None)
+
+    #     self.db.update_entity(e, state="skipped")
+    #     self.assertEqual(self.db.query_entity(e), {"state": "skipped"})
+    def test_get_set_entity(self):
+        e = sch.Episode(series='x', season=1, number=1)
+        self.assertEqual(self.db.get_entity_state(e), None)
+
+        self.db.set_entity_state(e, 'skipped')
+        self.assertEqual(self.db.get_entity_state(e), 'skipped')
 
 
 if __name__ == "__main__":
