@@ -23,10 +23,7 @@ import fnmatch
 import re
 import typing
 
-
 import bs4
-
-
 from arroyo import schema
 
 
@@ -86,6 +83,10 @@ class Provider(Extension):
 
     def get_query_uri(self, query):
         return None
+
+
+class IncompatibleQueryError(Exception):
+    pass
 
 
 class Filter(Extension):
