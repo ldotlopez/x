@@ -22,10 +22,8 @@ import hashlib
 import typing
 from urllib import parse
 
-
 import pydantic
 import typing_extensions
-
 
 # Shorcut
 ValidationError = pydantic.ValidationError
@@ -36,10 +34,12 @@ ValidationError = pydantic.ValidationError
 #
 
 class Episode(pydantic.BaseModel):
-    type: typing_extensions.Literal['episode']
+    type = 'episode'
     series: str
     year: typing.Optional[int]
     season: int
+    # FIXME: guessit returns episodeList attribute if more than one episode is
+    # detected, take care of this
     number: int
     country: typing.Optional[str]
 
@@ -89,7 +89,7 @@ class Episode(pydantic.BaseModel):
 
 
 class Movie(pydantic.BaseModel):
-    type: typing_extensions.Literal['movie']
+    type = 'movie'
     title: str
     year: typing.Optional[int]
 
