@@ -23,7 +23,7 @@ import typing
 from urllib import parse
 
 import pydantic
-import typing_extensions
+
 
 # Shorcut
 ValidationError = pydantic.ValidationError
@@ -33,8 +33,9 @@ ValidationError = pydantic.ValidationError
 # Entity definitions
 #
 
+
 class Episode(pydantic.BaseModel):
-    type = 'episode'
+    type = "episode"
     series: str
     year: typing.Optional[int]
     season: int
@@ -46,30 +47,34 @@ class Episode(pydantic.BaseModel):
     @property
     def id(self):
         dig = hashlib.sha1()
-        s = '\0'.join([
-            self.type,
-            self.series,
-            str(self.year or ''),
-            str(self.season),
-            str(self.number),
-            self.country or '',
-        ])
-        dig.update(s.encode('utf-8'))
+        s = "\0".join(
+            [
+                self.type,
+                self.series,
+                str(self.year or ""),
+                str(self.season),
+                str(self.number),
+                self.country or "",
+            ]
+        )
+        dig.update(s.encode("utf-8"))
         return dig.hexdigest()
 
     def __eq__(self, x):
-        return (isinstance(x, self.__class__)
-                and self.series.lower() == x.series.lower()
-                and self.year == x.year
-                and self.season == x.season
-                and self.number == x.number
-                and (self.country or '').lower() == (x.country or '').lower())
+        return (
+            isinstance(x, self.__class__)
+            and self.series.lower() == x.series.lower()
+            and self.year == x.year
+            and self.season == x.season
+            and self.number == x.number
+            and (self.country or "").lower() == (x.country or "").lower()
+        )
 
     def __lt__(self, x):
         if not isinstance(x, self.__class__):
             return super().__lt__(x)
 
-        for attr in ['series', 'year', 'season', 'number']:
+        for attr in ["series", "year", "season", "number"]:
             this = getattr(self, attr)
             other = getattr(x, attr)
             if this != other:
@@ -78,42 +83,44 @@ class Episode(pydantic.BaseModel):
         return False
 
     def __hash__(self):
-        return hash((self.series.lower(),
-                     self.year,
-                     self.season,
-                     self.number,
-                     (self.country or '').lower()))
+        return hash(
+            (
+                self.series.lower(),
+                self.year,
+                self.season,
+                self.number,
+                (self.country or "").lower(),
+            )
+        )
 
     def __repr__(self):
-        return f'<Episode id={self.id}>'
+        return f"<Episode id={self.id}>"
 
 
 class Movie(pydantic.BaseModel):
-    type = 'movie'
+    type = "movie"
     title: str
     year: typing.Optional[int]
 
     @property
     def id(self):
         dig = hashlib.sha1()
-        s = '\0'.join([
-            self.type,
-            self.title,
-            str(self.year or '')
-        ])
-        dig.update(s.encode('utf-8'))
+        s = "\0".join([self.type, self.title, str(self.year or "")])
+        dig.update(s.encode("utf-8"))
         return dig.hexdigest()
 
     def __eq__(self, x):
-        return (isinstance(x, self.__class__)
-                and self.title.lower() == x.title.lower()
-                and self.year == x.year)
+        return (
+            isinstance(x, self.__class__)
+            and self.title.lower() == x.title.lower()
+            and self.year == x.year
+        )
 
     def __lt__(self, x):
         if not isinstance(x, self.__class__):
             return super().__lt__(x)
 
-        for attr in ['title', 'year']:
+        for attr in ["title", "year"]:
             this = getattr(self, attr)
             other = getattr(x, attr)
             if this != other:
@@ -125,7 +132,7 @@ class Movie(pydantic.BaseModel):
         return hash((self.title.lower(), self.year))
 
     def __repr__(self):
-        return f'<Movie id={self.id}>'
+        return f"<Movie id={self.id}>"
 
 
 EntityType = typing.Union[Episode, Movie]
@@ -148,9 +155,9 @@ class Source(pydantic.BaseModel):
     metadata: MetadataType = {}
 
     def __init__(self, *args, **kwargs):
-        parsed = parse.urlparse(kwargs['uri'])
+        parsed = parse.urlparse(kwargs["uri"])
         qs = dict(parse.parse_qsl(parsed.query))
-        kwargs['id'] = qs['xt'].split(':')[2]
+        kwargs["id"] = qs["xt"].split(":")[2]
 
         super().__init__(*args, **kwargs)
 
@@ -158,23 +165,20 @@ class Source(pydantic.BaseModel):
         return hash(self.id)
 
     def __repr__(self):
-        return f'<Source id={self.id}>'
+        return f"<Source id={self.id}>"
 
     def __str__(self):
         return self.name
 
 
-entity_type_map = {
-    'episode': Episode,
-    'movie': Movie
-}
+entity_type_map = {"episode": Episode, "movie": Movie}
 
 
 entity_type_reverse_map = {v: k for (k, v) in entity_type_map.items()}
 
 
 def Entity(**kwargs):
-    cls = entity_type_map.get(kwargs.get('type'), None)
+    cls = entity_type_map.get(kwargs.get("type"), None)
     if cls is None:
         raise ValueError(kwargs)
 
