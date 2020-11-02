@@ -18,7 +18,10 @@
 # USA.
 
 
+import base64
+import binascii
 import hashlib
+import re
 import typing
 from urllib import parse
 
@@ -157,8 +160,7 @@ class Source(pydantic.BaseModel):
     def __init__(self, *args, **kwargs):
         parsed = parse.urlparse(kwargs["uri"])
         qs = dict(parse.parse_qsl(parsed.query))
-        kwargs["id"] = qs["xt"].split(":")[2]
-
+        kwargs["id"] = qs["xt"]
         super().__init__(*args, **kwargs)
 
     def __hash__(self):
@@ -169,6 +171,26 @@ class Source(pydantic.BaseModel):
 
     def __str__(self):
         return self.name
+
+    @pydantic.validator("id")
+    def id_validator(cls, value):
+        # Check sha1 bittorrent urn
+        if re.match(r"^urn:btih:[0-9a-f]{40}", value, re.IGNORECASE):
+            return value.lower()
+
+        # check base32 bittorrent urn
+        elif re.match("^urn:btih:[A-Z2-7]{32}$", value, re.IGNORECASE):
+            p1, p2, hash = value.split(":", 2)
+            hash = hash.upper()
+            hash = base64.b32decode(hash)
+            hash = binascii.hexlify(hash)
+            hash = hash.decode("ascii")
+            hash = hash.lower()
+
+            return f"{p1}:{p2}:{hash}"
+
+        else:
+            raise ValueError("Invalid id")
 
 
 entity_type_map = {"episode": Episode, "movie": Movie}
