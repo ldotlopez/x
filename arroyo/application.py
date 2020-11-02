@@ -24,8 +24,14 @@ import os
 
 import appdirs
 from arroyo import analyze, defaults, downloads, extensions, query, scraper
-from arroyo.services import (Services, cache, database, loader, settings,
-                             storage)
+from arroyo.services import (
+    Services,
+    cache,
+    database,
+    loader,
+    settings,
+    storage,
+)
 
 try:
     import colorama
